@@ -1,0 +1,50 @@
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: docker/php/Dockerfile
+        volumes:
+            - ./:/var/www/html
+        env_file:
+            - .env.local
+        ports:
+            - "8000:80"
+        depends_on:
+            - mariadb
+        networks:
+            - noctambuls_backend_internal
+
+    mariadb:
+        image: mariadb:10.11
+        environment:
+            MARIADB_DATABASE: "${DB_NAME}"
+            MARIADB_USER: "${DB_USER}"
+            MARIADB_PASSWORD: "${DB_PASSWORD}"
+            MARIADB_ROOT_PASSWORD: "${DB_PASSWORD}"
+        ports:
+            - "3306:3306"
+        volumes:
+            - db_data:/var/lib/mysql
+        networks:
+            - noctambuls_backend_internal
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            PMA_HOST: mariadb
+            PMA_PORT: 3306
+            PMA_USER: root
+            PMA_PASSWORD: "${DB_PASSWORD}"
+        ports:
+            - "8080:80"
+        depends_on:
+            - mariadb
+        networks:
+            - noctambuls_backend_internal
+
+volumes:
+    db_data:
+
+networks:
+    noctambuls_backend_internal:
+        driver: bridge
