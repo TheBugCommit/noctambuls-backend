@@ -9,3 +9,12 @@
 
 controllers:
     resource: routing.controllers
+
+api_auth_google:
+    path: /api/auth/google
+    controller: App\UI\Http\Rest\Auth\GoogleSignInController
+    methods: [POST]
+api_auth_refresh:
+    path: /api/auth/refresh
+    controller: App\UI\Http\Rest\Auth\RefreshTokenController
+    methods: [POST]

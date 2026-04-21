@@ -13,3 +13,20 @@ services:
     App\UI\Http\Rest\:
         resource: '../src/UI/Http/Rest/'
         tags: ['controller.service_arguments']
+
+    App\Auth\Domain\Repository\AuthUserRepositoryInterface:
+        class: App\Auth\Infrastructure\Persistence\DoctrineAuthUserRepository
+
+    App\Auth\Domain\Service\ExternalTokenValidatorInterface:
+        class: App\Auth\Infrastructure\Google\GoogleTokenValidator
+
+    App\Auth\Domain\Service\JwtTokenGeneratorInterface:
+        class: App\Auth\Infrastructure\Jwt\FirebaseJwtTokenGenerator
+        arguments:
+            $jwtSecret: '%env(JWT_SECRET)%'
+            $ttl: '%env(int:JWT_TTL)%'
+
+    App\Shared\Domain\Service\TransactionManagerInterface:
+        alias: App\Shared\Infrastructure\Persistence\DoctrineTransactionManager
+    App\Shared\Domain\Service\UuidGeneratorInterface:
+        class: App\Shared\Infrastructure\Uid\SymfonyUuidGenerator
