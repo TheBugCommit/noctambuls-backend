@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping
+    xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+        https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Auth\Domain\Entity\AuthUser" table="auth_users">
+        <id name="id" type="auth_user_id" length="36">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="email" type="email_vo" length="255" unique="true"/>
+        <field name="provider" type="provider_vo" length="50"/>
+        <field name="createdAt" type="datetime_immutable" column="created_at"/>
+    </entity>
+
+</doctrine-mapping>
