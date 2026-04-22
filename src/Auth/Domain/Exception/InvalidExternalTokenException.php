@@ -9,7 +9,7 @@ use App\Shared\Domain\Exception\ErrorType;
 
 final class InvalidExternalTokenException extends \DomainException implements DomainExceptionInterface
 {
-    public function __construct(protected $message = 'Invalid external Token.') {
+    public function __construct(string $message = 'Invalid external Token.') {
         parent::__construct($message);
     }
 

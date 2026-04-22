@@ -9,7 +9,7 @@ use App\Shared\Domain\Exception\ErrorType;
 
 final class InvalidRefreshTokenException extends \DomainException implements DomainExceptionInterface
 {
-    public function __construct(protected $message = 'Refresh token is invalid.') {
+    public function __construct(string $message = 'Refresh token is invalid.') {
         parent::__construct($message);
     }
 
