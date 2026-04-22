@@ -21,7 +21,7 @@ final readonly class GoogleSignInController
     public function __invoke(Request $request): SignInResponse
     {
         $body = json_decode($request->getContent(), true);
-        $token = is_array($body) ? ($body['token'] ?? null) : null;
+        $token = is_array($body) ? ($body['id_token'] ?? null) : null;
 
         if (!is_string($token) || $token === '') {
             throw new \InvalidArgumentException('Missing token field.');
