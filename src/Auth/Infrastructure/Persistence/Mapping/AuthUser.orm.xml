@@ -12,6 +12,8 @@
         <field name="email" type="email_vo" length="255" unique="true"/>
         <field name="provider" type="provider_vo" length="50"/>
         <field name="createdAt" type="datetime_immutable" column="created_at"/>
+        <field name="role" type="role_vo" length="50" column="role"/>
+        <field name="hashedPassword" type="hashed_password_vo" length="255" nullable="true" column="password"/>
     </entity>
 
 </doctrine-mapping>

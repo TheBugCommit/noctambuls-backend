@@ -9,6 +9,7 @@ use App\Auth\Domain\Repository\AuthUserRepositoryInterface;
 use App\Auth\Domain\ValueObject\AuthUserId;
 use App\Auth\Domain\ValueObject\Email;
 use App\Auth\Domain\ValueObject\Provider;
+use App\Auth\Domain\ValueObject\Role;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class DoctrineAuthUserRepository implements AuthUserRepositoryInterface
@@ -22,6 +23,13 @@ final readonly class DoctrineAuthUserRepository implements AuthUserRepositoryInt
         return $this->em->getRepository(AuthUser::class)->findOneBy([
             'email' => $email,
             'provider' => $provider,
+        ]);
+    }
+
+    public function findByEmail(Email $email): ?AuthUser
+    {
+        return $this->em->getRepository(AuthUser::class)->findOneBy([
+            'email' => $email,
         ]);
     }
 

@@ -6,8 +6,6 @@ doctrine:
             auth_user_id: App\Auth\Infrastructure\Persistence\Type\AuthUserIdType
             email_vo: App\Auth\Infrastructure\Persistence\Type\EmailType
             provider_vo: App\Auth\Infrastructure\Persistence\Type\ProviderType
-            refresh_token_id: App\Auth\Infrastructure\Persistence\Type\RefreshTokenIdType
-            token_string: App\Auth\Infrastructure\Persistence\Type\TokenStringType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore

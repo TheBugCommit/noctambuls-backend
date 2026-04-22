@@ -17,24 +17,42 @@ services:
             - '../src/*/Application/*/*Request.php'
             - '../src/*/Application/*/*Response.php'
             - '../src/UI/Http/Rest/Response/'
+            - '../src/*/Infrastructure/Security/*Adapter.php'
 
     App\UI\Http\Rest\:
         resource: '../src/UI/Http/Rest/'
         tags: ['controller.service_arguments']
 
+    App\UI\Http\Backoffice\:
+        resource: '../src/UI/Http/Backoffice/'
+        tags: ['controller.service_arguments']
+
+    # Domain repository
     App\Auth\Domain\Repository\AuthUserRepositoryInterface:
         class: App\Auth\Infrastructure\Persistence\DoctrineAuthUserRepository
 
+    # Domain services
     App\Auth\Domain\Service\ExternalTokenValidatorInterface:
         class: App\Auth\Infrastructure\Google\GoogleTokenValidator
 
     App\Auth\Domain\Service\JwtTokenGeneratorInterface:
-        class: App\Auth\Infrastructure\Jwt\FirebaseJwtTokenGenerator
-        arguments:
-            $jwtSecret: '%env(JWT_SECRET)%'
-            $ttl: '%env(int:JWT_TTL)%'
+        class: App\Auth\Infrastructure\Jwt\LexikJwtTokenGenerator
 
+    App\Auth\Domain\Service\PasswordHasherInterface:
+        class: App\Auth\Infrastructure\Security\SymfonyPasswordHasher
+
+    # Shared services
     App\Shared\Domain\Service\TransactionManagerInterface:
         alias: App\Shared\Infrastructure\Persistence\DoctrineTransactionManager
+
     App\Shared\Domain\Service\UuidGeneratorInterface:
         class: App\Shared\Infrastructure\Uid\SymfonyUuidGenerator
+
+    # Security user provider (named alias for gesdinet config)
+    app.auth_user_provider:
+        alias: App\Auth\Infrastructure\Security\AuthUserProvider
+        public: true
+
+    App\Auth\Infrastructure\Security\GesdinetRefreshTokenIssuer:
+        arguments:
+            $refreshTokenTtl: '%env(int:JWT_REFRESH_TTL)%'

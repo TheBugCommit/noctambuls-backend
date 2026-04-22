@@ -5,18 +5,13 @@ declare(strict_types=1);
 namespace App\Auth\Application\SignIn;
 
 use App\Auth\Domain\Entity\AuthUser;
-use App\Auth\Domain\Entity\RefreshToken;
 use App\Auth\Domain\Repository\AuthUserRepositoryInterface;
-use App\Auth\Domain\Repository\RefreshTokenRepositoryInterface;
 use App\Auth\Domain\Service\ExternalTokenValidatorInterface;
 use App\Auth\Domain\Service\JwtTokenGeneratorInterface;
 use App\Auth\Domain\ValueObject\AuthUserId;
 use App\Auth\Domain\ValueObject\Provider;
-use App\Auth\Domain\ValueObject\RefreshTokenId;
-use App\Auth\Domain\ValueObject\TokenString;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Shared\Domain\Service\UuidGeneratorInterface;
-use Random\RandomException;
 use Throwable;
 
 final readonly class SignInHandler
@@ -24,49 +19,40 @@ final readonly class SignInHandler
     public function __construct(
         private ExternalTokenValidatorInterface $tokenValidator,
         private AuthUserRepositoryInterface     $userRepository,
-        private RefreshTokenRepositoryInterface $refreshTokenRepository,
         private JwtTokenGeneratorInterface      $jwtGenerator,
         private TransactionManagerInterface     $transactionManager,
         private UuidGeneratorInterface          $uuidGenerator,
+        private RefreshTokenIssuerInterface     $refreshTokenIssuer,
     ) {
     }
 
-    /**
-     * @throws Throwable
-     * @throws RandomException
-     */
+    /** @throws Throwable */
     public function handle(SignInRequest $request): SignInResponse
     {
+        $email = $this->tokenValidator->validate($request->externalToken);
+        $provider = new Provider($request->providerType);
+
         $this->transactionManager->begin();
-
         try {
-            $email = $this->tokenValidator->validate($request->externalToken);
-            $provider = new Provider($request->providerType);
-
             $user = $this->userRepository->findByEmailAndProvider($email, $provider);
 
             if ($user === null) {
                 $user = AuthUser::create(
                     new AuthUserId($this->uuidGenerator->generate()),
                     $email,
-                    $provider
+                    $provider,
                 );
 
                 $this->userRepository->save($user);
             }
 
-            $tokenStringVo = TokenString::generate();
-            $refreshToken = RefreshToken::create(
-                new RefreshTokenId($this->uuidGenerator->generate()),
-                $tokenStringVo,
-                $user->id(),
-            );
-
-            $this->refreshTokenRepository->save($refreshToken);
+            $accessToken = $this->jwtGenerator->generate($user);
+            $refreshToken = $this->refreshTokenIssuer->issueTokenForUser($user);
 
             $response = new SignInResponse(
-                $this->jwtGenerator->generate($user),
-                $tokenStringVo->value()
+                $accessToken,
+                $refreshToken,
+                $user->email()->value()
             );
 
             $this->transactionManager->commit();

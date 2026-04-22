@@ -41,6 +41,15 @@ return static function (ContainerConfigurator $container): void {
         }
     }
 
+    // Attribute-mapped entities (e.g. gesdinet RefreshToken in Infrastructure/Security)
+    $mappings['AuthSecurity'] = [
+        'type' => 'attribute',
+        'is_bundle' => false,
+        'dir' => '%kernel.project_dir%/src/Auth/Infrastructure/Security',
+        'prefix' => 'App\Auth\Infrastructure\Security',
+        'alias' => 'AuthSecurity',
+    ];
+
     $container->extension('doctrine', [
         'dbal' => [
             'url' => '%env(resolve:DATABASE_URL)%',

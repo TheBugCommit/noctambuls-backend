@@ -8,7 +8,7 @@ use App\Shared\Domain\ValueObject\StringValueObject;
 
 final class Provider extends StringValueObject
 {
-    private const array ALLOWED = ['google'];
+    private const array ALLOWED = ['google', 'internal'];
 
     public function __construct(string $value)
     {
@@ -21,5 +21,10 @@ final class Provider extends StringValueObject
     public static function google(): self
     {
         return new self('google');
+    }
+
+    public static function internal(): self
+    {
+        return new self('internal');
     }
 }

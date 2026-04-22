@@ -1,12 +1,5 @@
 # yaml-language-server: $schema=../vendor/symfony/routing/Loader/schema/routing.schema.json
 
-# This file is the entry point to configure the routes of your app.
-# Methods with the #[Route] attribute are automatically imported.
-# See also https://symfony.com/doc/current/routing.html
-
-# To list all registered routes, run the following command:
-#   bin/console debug:router
-
 controllers:
     resource: routing.controllers
 
@@ -14,7 +7,25 @@ api_auth_google:
     path: /api/auth/google
     controller: App\UI\Http\Rest\Auth\GoogleSignInController
     methods: [POST]
-api_auth_refresh:
-    path: /api/auth/refresh
-    controller: App\UI\Http\Rest\Auth\RefreshTokenController
+
+api_refresh_token:
+    path: /api/token/refresh
     methods: [POST]
+
+api_profile:
+    path: /api/profile
+    controller: App\UI\Http\Rest\Profile\ProfileController
+    methods: [GET]
+
+api_token_invalidate:
+    path: /api/token/invalidate
+    methods: [POST]
+
+backoffice_login:
+    path: /backoffice/login
+    controller: App\UI\Http\Backoffice\Auth\LoginController
+    methods: [GET, POST]
+
+backoffice_logout:
+    path: /backoffice/logout
+    methods: [GET]

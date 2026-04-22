@@ -10,3 +10,7 @@
 ###< symfony/framework-bundle ###
 
 /google_auth_config.json
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

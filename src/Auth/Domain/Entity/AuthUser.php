@@ -6,21 +6,40 @@ namespace App\Auth\Domain\Entity;
 
 use App\Auth\Domain\ValueObject\AuthUserId;
 use App\Auth\Domain\ValueObject\Email;
+use App\Auth\Domain\ValueObject\HashedPassword;
 use App\Auth\Domain\ValueObject\Provider;
+use App\Auth\Domain\ValueObject\Role;
 
-readonly class AuthUser
+class AuthUser
 {
     public function __construct(
-        private AuthUserId         $id,
-        private Email              $email,
-        private Provider           $provider,
-        private \DateTimeImmutable $createdAt
+        private readonly AuthUserId         $id,
+        private readonly Email              $email,
+        private readonly Provider           $provider,
+        private readonly \DateTimeImmutable $createdAt,
+        private Role                        $role = Role::USER,
+        private ?HashedPassword             $hashedPassword = null,
     ) {
     }
 
-    public static function create(AuthUserId $id, Email $email, Provider $provider): self
+    public static function create(
+        AuthUserId      $id,
+        Email           $email,
+        Provider        $provider,
+        Role            $role = Role::USER,
+        ?HashedPassword $hashedPassword = null,
+    ): self {
+        return new self($id, $email, $provider, new \DateTimeImmutable(), $role, $hashedPassword);
+    }
+
+    public function updateHashedPassword(HashedPassword $hashedPassword): void
     {
-        return new self($id, $email, $provider, new \DateTimeImmutable());
+        $this->hashedPassword = $hashedPassword;
+    }
+
+    public function changeRole(Role $role): void
+    {
+        $this->role = $role;
     }
 
     public function id(): AuthUserId
@@ -41,5 +60,15 @@ readonly class AuthUser
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function role(): Role
+    {
+        return $this->role;
+    }
+
+    public function hashedPassword(): ?HashedPassword
+    {
+        return $this->hashedPassword;
     }
 }
