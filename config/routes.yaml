@@ -3,6 +3,13 @@
 controllers:
     resource: routing.controllers
 
+root_redirect:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: backoffice_login
+        permanent: true
+
 api_auth_google:
     path: /api/auth/google
     controller: App\UI\Http\Rest\Auth\GoogleSignInController
