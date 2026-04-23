@@ -14,7 +14,7 @@ use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Shared\Domain\Service\UuidGeneratorInterface;
 use Throwable;
 
-final readonly class SignInHandler
+final readonly class SignInHandler implements SignInHandlerInterface
 {
     public function __construct(
         private ExternalTokenValidatorInterface $tokenValidator,
@@ -52,7 +52,6 @@ final readonly class SignInHandler
             $response = new SignInResponse(
                 $accessToken,
                 $refreshToken,
-                $user->email()->value()
             );
 
             $this->transactionManager->commit();

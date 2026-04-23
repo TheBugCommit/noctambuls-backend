@@ -9,8 +9,6 @@ readonly class SignInResponse
     public function __construct(
         public string $accessToken,
         public string $refreshToken,
-        public string $userIdentifier,
-        public string $tokenType = 'Bearer',
     ) {
     }
 }

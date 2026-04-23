@@ -21,6 +21,10 @@ final class HashedPasswordType extends StringType
 
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
+        if ($value === null) {
+            return null;
+        }
+
         return $value instanceof HashedPassword ? $value->value() : (string) $value;
     }
 }

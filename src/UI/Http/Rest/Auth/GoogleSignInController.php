@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\UI\Http\Rest\Auth;
 
-use App\Auth\Application\SignIn\SignInHandler;
+use App\Auth\Application\SignIn\SignInHandlerInterface;
 use App\Auth\Application\SignIn\SignInRequest;
 use App\Auth\Application\SignIn\SignInResponse;
 use App\Auth\Domain\ValueObject\Provider;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 final readonly class GoogleSignInController
 {
     public function __construct(
-        private SignInHandler $handler,
+        private SignInHandlerInterface $handler,
     )
     {
     }

@@ -11,7 +11,7 @@ final class HashedPassword extends StringValueObject
     public function __construct(string $value)
     {
         $info = password_get_info($value);
-        if ($info['algo'] === 0) {
+        if ($info['algo'] === null) {
             throw new \InvalidArgumentException('The provided string is not a valid password hash.');
         }
 

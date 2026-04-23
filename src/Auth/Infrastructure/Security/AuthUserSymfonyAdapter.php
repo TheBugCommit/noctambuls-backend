@@ -16,7 +16,7 @@ final readonly class AuthUserSymfonyAdapter implements UserInterface, PasswordAu
 
     public function getUserIdentifier(): string
     {
-        return $this->authUser->id()->value();
+        return $this->authUser->email()->value();
     }
 
     public function getRoles(): array
@@ -26,6 +26,6 @@ final readonly class AuthUserSymfonyAdapter implements UserInterface, PasswordAu
 
     public function getPassword(): ?string
     {
-        return $this->authUser->hashedPassword()->value();
+        return $this->authUser->hashedPassword()?->value();
     }
 }

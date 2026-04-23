@@ -32,6 +32,9 @@ services:
         class: App\Auth\Infrastructure\Persistence\DoctrineAuthUserRepository
 
     # Domain services
+    App\Auth\Application\SignIn\SignInHandlerInterface:
+        alias: App\Auth\Application\SignIn\SignInHandler
+
     App\Auth\Domain\Service\ExternalTokenValidatorInterface:
         class: App\Auth\Infrastructure\Google\GoogleTokenValidator
 
