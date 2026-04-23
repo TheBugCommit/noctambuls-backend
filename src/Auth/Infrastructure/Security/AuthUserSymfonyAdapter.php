@@ -28,4 +28,9 @@ final readonly class AuthUserSymfonyAdapter implements UserInterface, PasswordAu
     {
         return $this->authUser->hashedPassword()?->value();
     }
+
+    public function getAuthUser(): AuthUser
+    {
+        return $this->authUser;
+    }
 }
