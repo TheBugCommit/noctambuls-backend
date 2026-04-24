@@ -6,9 +6,11 @@ namespace App\UI\Http\Rest\EventListener;
 use App\Shared\Domain\Exception\DomainExceptionInterface;
 use App\Shared\Domain\Exception\ErrorType;
 use App\UI\Http\Rest\Response\ErrorResponse;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -16,7 +18,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[AsEventListener(event: KernelEvents::EXCEPTION, priority: -1)]
 final class ApiExceptionListener
 {
-    public function __construct(private readonly SerializerInterface $serializer){}
+    public function __construct(
+        private readonly SerializerInterface $serializer,
+        #[Autowire('%kernel.debug%')] private readonly bool $debug
+    ){}
     private const array ERROR_TYPE_TO_STATUS = [
         ErrorType::NOT_FOUND->name             => Response::HTTP_NOT_FOUND,
         ErrorType::UNAUTHORIZED->name          => Response::HTTP_UNAUTHORIZED,
@@ -34,6 +39,10 @@ final class ApiExceptionListener
 
         $exception = $event->getThrowable();
 
+        if($this->debug) {
+            dd($exception);
+        }
+
         $status = self::ERROR_TYPE_TO_STATUS[ErrorType::INTERNAL_SERVER_ERROR->name];
         $code = ErrorType::INTERNAL_SERVER_ERROR->name;
         $message = 'An unexpected server error occurred.';
@@ -47,6 +56,13 @@ final class ApiExceptionListener
             $status = self::ERROR_TYPE_TO_STATUS[ErrorType::INVALID_ARGUMENT->name];
             $code = ErrorType::INVALID_ARGUMENT->name;
             $message = $exception->getMessage();
+        }
+
+        if ($exception instanceof HttpExceptionInterface) {
+            $status = $exception->getStatusCode();
+            $errorType  = array_search($status, self::ERROR_TYPE_TO_STATUS, strict: true);
+            $code       = $errorType !== false ? $errorType : ErrorType::INTERNAL_SERVER_ERROR->name;
+            $message    = Response::$statusTexts[$status] ?? 'HTTP Error';
         }
 
         $errorDto = new ErrorResponse($message, $code);

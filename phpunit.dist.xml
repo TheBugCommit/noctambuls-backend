@@ -25,6 +25,7 @@
         <include>
             <directory>src/Auth</directory>
             <directory>src/UI/Http/Rest/Auth</directory>
+            <directory>src/UI/Http/Rest/EventListener</directory>
         </include>
         <deprecationTrigger>
             <method>Doctrine\Deprecations\Deprecation::trigger</method>
