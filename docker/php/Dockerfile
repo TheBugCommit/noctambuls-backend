@@ -1,4 +1,4 @@
-FROM php:8.4-apache
+FROM php:8.5-apache
 
 RUN apt-get update && apt-get install -y \
     libpq-dev \
@@ -23,6 +23,9 @@ RUN docker-php-ext-install -j$(nproc) gd
 
 RUN pecl install apcu \
     && docker-php-ext-enable apcu
+
+RUN pecl install pcov \
+    && docker-php-ext-enable pcov
 
 RUN echo "apc.enable=1\napc.enable_cli=1" > /usr/local/etc/php/conf.d/docker-php-ext-apcu-cli.ini
 RUN a2enmod rewrite

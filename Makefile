@@ -1,6 +1,6 @@
 DOCKER_APP = docker-compose exec backend
 
-.PHONY: help up down install db-init cache-clear bash
+.PHONY: help up down install db-init cache-clear bash test coverage
 
 help:
 	@echo "Comandes disponibles:"
@@ -32,3 +32,9 @@ cache-clear:
 
 bash:
 	$(DOCKER_APP) bash
+
+test:
+	$(DOCKER_APP) php bin/phpunit
+
+coverage:
+	$(DOCKER_APP) php -d pcov.enabled=1 bin/phpunit --coverage-html coverage/html --coverage-text
