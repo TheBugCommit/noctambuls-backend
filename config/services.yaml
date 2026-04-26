@@ -59,3 +59,41 @@ services:
     App\Auth\Infrastructure\Security\GesdinetRefreshTokenIssuer:
         arguments:
             $refreshTokenTtl: '%env(int:JWT_REFRESH_TTL)%'
+
+    # BirdCatalog repositories
+    App\BirdCatalog\Domain\Repository\BirdRepositoryInterface:
+        class: App\BirdCatalog\Infrastructure\Persistence\DoctrineBirdRepository
+
+    App\BirdCatalog\Domain\Repository\BirdCatalogVersionRepositoryInterface:
+        class: App\BirdCatalog\Infrastructure\Persistence\DoctrineBirdCatalogVersionRepository
+
+    #Uploaders
+    App\BirdCatalog\Infrastructure\Service\BirdAudioUploader:
+        arguments:
+            $audiosDir: '/uploads/birds/audios'
+            $publicDir: '%kernel.project_dir%/public'
+
+    App\BirdCatalog\Infrastructure\Service\BirdImageUploader:
+        arguments:
+            $imagesDir: '/uploads/birds/images'
+            $publicDir: '%kernel.project_dir%/public'
+
+
+    # File Remover
+    App\Shared\Application\Service\FileRemoverInterface:
+        alias: App\Shared\Infrastructure\Service\LocalFileRemover
+    App\Shared\Infrastructure\Service\LocalFileRemover:
+        arguments:
+            $publicDir: '%kernel.project_dir%/public'
+
+    # Bird catalog handlers
+    App\BirdCatalog\Application\CreateBird\CreateBirdHandler:
+        arguments:
+            $imageUploader: '@App\BirdCatalog\Infrastructure\Service\BirdImageUploader'
+            $audioUploader: '@App\BirdCatalog\Infrastructure\Service\BirdAudioUploader'
+    App\BirdCatalog\Application\UpdateBird\UpdateBirdHandler:
+        arguments:
+            $imageUploader: '@App\BirdCatalog\Infrastructure\Service\BirdImageUploader'
+            $audioUploader: '@App\BirdCatalog\Infrastructure\Service\BirdAudioUploader'
+
+

@@ -30,9 +30,39 @@ api_token_invalidate:
 
 backoffice_login:
     path: /backoffice/login
-    controller: App\UI\Http\Backoffice\Auth\LoginController
+    controller: App\UI\Http\Backoffice\Auth\BackofficeSignInController
     methods: [GET, POST]
 
 backoffice_logout:
     path: /backoffice/logout
     methods: [GET]
+
+api_bird_catalog:
+    path: /api/catalog/birds
+    controller: App\UI\Http\Rest\BirdCatalog\GetCatalogController
+    methods: [GET]
+
+api_bird_catalog_version:
+    path: /api/catalog/birds/version
+    controller: App\UI\Http\Rest\BirdCatalog\GetCatalogVersionController
+    methods: [GET]
+
+backoffice_bird_catalog_list:
+    path: /backoffice/bird-catalog
+    controller: App\UI\Http\Backoffice\BirdCatalog\BirdListController
+    methods: [GET]
+
+backoffice_bird_catalog_create:
+    path: /backoffice/bird-catalog/create
+    controller: App\UI\Http\Backoffice\BirdCatalog\BirdCreateController
+    methods: [GET, POST]
+
+backoffice_bird_catalog_edit:
+    path: /backoffice/bird-catalog/{id}/edit
+    controller: App\UI\Http\Backoffice\BirdCatalog\BirdEditController
+    methods: [GET, POST]
+
+backoffice_bird_catalog_delete:
+    path: /backoffice/bird-catalog/{id}/delete
+    controller: App\UI\Http\Backoffice\BirdCatalog\BirdDeleteController
+    methods: [POST]
