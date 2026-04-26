@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping
+    xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+        https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\BirdCatalog\Domain\Entity\BirdTranslation" table="bird_translations">
+        <id name="id" type="bird_translation_id" length="36">
+            <generator strategy="NONE"/>
+        </id>
+        <id name="bird" association-key="true"/>
+        <many-to-one field="bird" target-entity="App\BirdCatalog\Domain\Entity\Bird" inversed-by="translations">
+            <join-column name="bird_id" referenced-column-name="id" nullable="false"/>
+        </many-to-one>
+        <field name="languageCode" type="language_code_vo" column="language_code" length="10"/>
+        <field name="commonName" type="common_name_vo" column="common_name" length="255"/>
+        <field name="description" type="bird_description_vo" column="description"/>
+        <unique-constraints>
+            <unique-constraint columns="bird_id,language_code" name="uq_bird_translation_language"/>
+        </unique-constraints>
+    </entity>
+
+</doctrine-mapping>

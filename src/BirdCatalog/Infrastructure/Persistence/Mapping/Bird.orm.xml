@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping
+    xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+        https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\BirdCatalog\Domain\Entity\Bird" table="birds">
+        <id name="id" type="bird_id" length="36">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="scientificName" type="scientific_name_vo" column="scientific_name" length="255"/>
+        <field name="imagePath" type="image_path_vo" column="image_path" length="500"/>
+        <field name="audioPath" type="audio_path_vo" column="audio_path" length="500"/>
+        <field name="informationUrl" type="information_url_vo" column="information_url" length="500"/>
+        <one-to-many field="translations" target-entity="App\BirdCatalog\Domain\Entity\BirdTranslation" mapped-by="bird" orphan-removal="true">
+            <cascade>
+                <cascade-all/>
+            </cascade>
+        </one-to-many>
+    </entity>
+
+</doctrine-mapping>
