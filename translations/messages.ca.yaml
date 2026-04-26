@@ -1,0 +1,46 @@
+nav:
+    logout: "Tancar sessió"
+
+login:
+    title: "Iniciar sessió"
+    email: "Correu electrònic"
+    password: "Contrasenya"
+    submit: "Iniciar sessió"
+
+bird_catalog:
+    nav: "Catàleg d'ocells"
+    section:
+        details: "Detalls de l'ocell"
+        translations: "Traduccions"
+    list:
+        title: "Ocells"
+        empty: "Encara no hi ha ocells al catàleg."
+        translations: "Traduccions"
+        actions: "Accions"
+    create:
+        title: "Afegir ocell"
+    edit:
+        title: "Editar ocell"
+    field:
+        scientific_name: "Nom científic"
+        image_path: "Ruta de la imatge"
+        audio_path: "Ruta de l'àudio"
+        information_url: "URL d'informació"
+        common_name: "Nom comú"
+        description: "Descripció"
+    action:
+        save: "Desar"
+        delete: "Eliminar"
+        edit: "Editar"
+        cancel: "Cancel·lar"
+    confirm:
+        delete: "Estàs segur que vols eliminar aquest ocell?"
+    flash:
+        created: "Ocell creat correctament."
+        updated: "Ocell actualitzat correctament."
+        deleted: "Ocell eliminat."
+        not_found: "Ocell no trobat."
+    error:
+        invalid_csrf: "El token de seguretat no és vàlid. Torna-ho a provar."
+        missing_files: "Els arxius d'imatge i àudio són obligatoris per crear un ocell."
+        unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."
