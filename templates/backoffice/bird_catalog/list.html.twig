@@ -1,0 +1,60 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'bird_catalog.list.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">{{ 'bird_catalog.list.title'|trans }}</h1>
+    <a href="{{ path('backoffice_bird_catalog_create') }}" class="btn btn-primary btn-sm">
+        + {{ 'bird_catalog.create.title'|trans }}
+    </a>
+</div>
+
+{% if birds is empty %}
+    <div class="alert alert-info">
+        <span>{{ 'bird_catalog.list.empty'|trans }}</span>
+    </div>
+{% else %}
+    <div class="overflow-x-auto">
+        <table class="table table-zebra w-full bg-base-100 shadow-sm rounded-box">
+            <thead>
+                <tr>
+                    <th>{{ 'bird_catalog.field.scientific_name'|trans }}</th>
+                    <th>{{ 'bird_catalog.list.translations'|trans }}</th>
+                    <th class="text-right">{{ 'bird_catalog.list.actions'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bird in birds %}
+                    <tr>
+                        <td class="font-medium italic">{{ bird.scientificName }}</td>
+                        <td>
+                            {% for translation in bird.translations %}
+                                <span class="badge badge-outline badge-sm mr-1">
+                                    {{ translation.languageCode }}: {{ translation.commonName }}
+                                </span>
+                            {% endfor %}
+                        </td>
+                        <td class="text-right">
+                            <a href="{{ path('backoffice_bird_catalog_edit', {id: bird.id}) }}"
+                               class="btn btn-ghost btn-xs">
+                                {{ 'bird_catalog.action.edit'|trans }}
+                            </a>
+                            <form method="post"
+                                  action="{{ path('backoffice_bird_catalog_delete', {id: bird.id}) }}"
+                                  class="inline"
+                                  onsubmit="return confirm('{{ 'bird_catalog.confirm.delete'|trans|e('js') }}')">
+                                <input type="hidden" name="_csrf_token"
+                                       value="{{ csrf_token('bird_delete_' ~ bird.id) }}">
+                                <button type="submit" class="btn btn-ghost btn-xs text-error">
+                                    {{ 'bird_catalog.action.delete'|trans }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endblock %}

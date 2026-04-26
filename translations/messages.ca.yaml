@@ -1,5 +1,10 @@
+page_title:
+    title: "Noctàmbuls"
+    ref: "– Backoffice"
+
 nav:
     logout: "Tancar sessió"
+    title: "Noctàmbuls Backoffice"
 
 login:
     title: "Iniciar sessió"
@@ -44,3 +49,7 @@ bird_catalog:
         invalid_csrf: "El token de seguretat no és vàlid. Torna-ho a provar."
         missing_files: "Els arxius d'imatge i àudio són obligatoris per crear un ocell."
         unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."
+
+language:
+    ca: "Català"
+    es: "Castellà"

@@ -1,0 +1,30 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'bird_catalog.edit.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{{ path('backoffice_bird_catalog_list') }}" class="btn btn-ghost btn-sm">
+        ← {{ 'bird_catalog.list.title'|trans }}
+    </a>
+    <h1 class="text-2xl font-bold mt-2">
+        {{ 'bird_catalog.edit.title'|trans }}: <span class="italic">{{ bird.scientificName }}</span>
+    </h1>
+</div>
+
+<form method="post" enctype="multipart/form-data" action="{{ path('backoffice_bird_catalog_edit', {id: bird.id}) }}">
+    {% include 'backoffice/bird_catalog/_form.html.twig' with {
+        csrf_token_value: csrf_token('bird_catalog'),
+        bird: bird
+    } %}
+
+    <div class="flex gap-3">
+        <button type="submit" class="btn btn-primary">
+            {{ 'bird_catalog.action.save'|trans }}
+        </button>
+        <a href="{{ path('backoffice_bird_catalog_list') }}" class="btn btn-ghost">
+            {{ 'bird_catalog.action.cancel'|trans }}
+        </a>
+    </div>
+</form>
+{% endblock %}
