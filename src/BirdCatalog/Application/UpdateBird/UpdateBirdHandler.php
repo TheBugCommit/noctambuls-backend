@@ -4,35 +4,27 @@ declare(strict_types=1);
 
 namespace App\BirdCatalog\Application\UpdateBird;
 
-use App\BirdCatalog\Domain\Entity\BirdTranslation;
+use App\BirdCatalog\Application\Service\BirdCatalogUpdaterService;
 use App\BirdCatalog\Domain\Exception\BirdNotFoundException;
-use App\BirdCatalog\Domain\Repository\BirdCatalogVersionRepositoryInterface;
 use App\BirdCatalog\Domain\Repository\BirdRepositoryInterface;
 use App\BirdCatalog\Domain\ValueObject\BirdDescription;
 use App\BirdCatalog\Domain\ValueObject\BirdId;
-use App\BirdCatalog\Domain\ValueObject\BirdTranslationId;
 use App\BirdCatalog\Domain\ValueObject\CommonName;
 use App\BirdCatalog\Domain\ValueObject\InformationUrl;
-use App\BirdCatalog\Domain\ValueObject\LanguageCode;
 use App\BirdCatalog\Domain\ValueObject\ScientificName;
 use App\Shared\Application\Service\AudioUploaderInterface;
 use App\Shared\Application\Service\FileRemoverInterface;
 use App\Shared\Application\Service\ImageUploaderInterface;
-use App\Shared\Domain\Service\TransactionManagerInterface;
-use App\Shared\Domain\Service\UuidGeneratorInterface;
-use App\Shared\Domain\ValueObject\AudioPath;
-use App\Shared\Domain\ValueObject\ImagePath;
 use Throwable;
 
 final readonly class UpdateBirdHandler
 {
     public function __construct(
         private BirdRepositoryInterface               $birdRepository,
-        private BirdCatalogVersionRepositoryInterface $versionRepository,
-        private TransactionManagerInterface           $transactionManager,
         private ImageUploaderInterface                $imageUploader,
         private AudioUploaderInterface                $audioUploader,
         private FileRemoverInterface                  $fileRemover,
+        private BirdCatalogUpdaterService             $updateBird,
     ) {
     }
 
@@ -44,8 +36,8 @@ final readonly class UpdateBirdHandler
             throw new BirdNotFoundException();
         }
 
-        $oldImagePath = $bird->imagePath()->value();
-        $oldAudioPath = $bird->audioPath()->value();
+        $oldImagePath = $bird->imagePath();
+        $oldAudioPath = $bird->audioPath();
 
         $newImagePath = null;
         $newAudioPath = null;
@@ -65,37 +57,20 @@ final readonly class UpdateBirdHandler
 
             $bird->update(
                 new ScientificName($request->scientificName),
-                new ImagePath($finalImagePath),
-                new AudioPath($finalAudioPath),
+                $finalImagePath,
+                $finalAudioPath,
                 new InformationUrl($request->informationUrl),
             );
 
-            foreach (LanguageCode::cases() as $lang) {
-                $langCode = $lang->value;
-
-                if (!isset($request->translations[$langCode])) {
-                    continue;
-                }
-
+            foreach ($request->translations as $translationInput) {
                 $bird->updateTranslation(
-                    $lang,
-                    new CommonName($request->translations[$langCode]['commonName']),
-                    new BirdDescription($request->translations[$langCode]['description'])
+                    $translationInput->languageCode,
+                    new CommonName($translationInput->commonName),
+                    new BirdDescription($translationInput->description)
                 );
             }
 
-            $catalogVersion = $this->versionRepository->get();
-
-            $this->transactionManager->begin();
-            try {
-                $this->birdRepository->save($bird);
-                $catalogVersion->increment();
-                $this->versionRepository->save($catalogVersion);
-                $this->transactionManager->commit();
-            } catch (Throwable $e) {
-                $this->transactionManager->rollback();
-                throw $e;
-            }
+            $this->updateBird->save($bird);
 
             if ($newImagePath !== null && $oldImagePath !== '') {
                 $this->fileRemover->remove($oldImagePath);
