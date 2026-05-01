@@ -8,6 +8,7 @@ use App\BirdCatalog\Application\Service\BirdCatalogUpdaterService;
 use App\BirdCatalog\Domain\Exception\BirdNotFoundException;
 use App\BirdCatalog\Domain\Repository\BirdRepositoryInterface;
 use App\BirdCatalog\Domain\ValueObject\BirdId;
+use App\Shared\Application\Service\FileRemoverInterface;
 use Throwable;
 
 final readonly class DeleteBirdHandler
@@ -15,6 +16,7 @@ final readonly class DeleteBirdHandler
     public function __construct(
         private BirdRepositoryInterface   $birdRepository,
         private BirdCatalogUpdaterService $birdCatalogUpdater,
+        private FileRemoverInterface      $fileRemover,
     ) {
     }
 
@@ -26,6 +28,16 @@ final readonly class DeleteBirdHandler
             throw new BirdNotFoundException();
         }
 
+        $imagePath = $bird->imagePath();
+        $audioPath = $bird->audioPath();
+
         $this->birdCatalogUpdater->delete($bird);
+
+        if ($imagePath !== null && $imagePath !== '') {
+            $this->fileRemover->remove($imagePath);
+        }
+        if ($audioPath !== null && $audioPath !== '') {
+            $this->fileRemover->remove($audioPath);
+        }
     }
 }

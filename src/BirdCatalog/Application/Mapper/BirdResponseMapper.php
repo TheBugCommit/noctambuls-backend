@@ -28,7 +28,7 @@ final class BirdResponseMapper
         return new CreateBirdResponse($bird->id()->value());
     }
 
-    public static function toGetCatalogResponse(Bird $birds): GetCatalogResponse
+    public static function toGetCatalogResponse(array $birds): GetCatalogResponse
     {
         $items = [];
         foreach ($birds as $bird) {
@@ -37,7 +37,7 @@ final class BirdResponseMapper
         return new GetCatalogResponse($items);
     }
 
-    public static function toGetListBirds(Bird $birds): ListBirdsResponse
+    public static function toGetListBirds(array $birds): ListBirdsResponse
     {
         $items = [];
         foreach ($birds as $bird) {
