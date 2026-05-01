@@ -26,8 +26,8 @@ final readonly class SignInHandler implements SignInHandlerInterface
     /** @throws Throwable */
     public function handle(SignInRequest $request): SignInResponse
     {
-        $email = $this->tokenValidator->validate($request->externalToken);
         $provider = new Provider($request->providerType);
+        $email = $this->tokenValidator->validate($request->externalToken, $provider);
 
         $this->transactionManager->begin();
         try {

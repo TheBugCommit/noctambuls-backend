@@ -3,6 +3,9 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+    _instanceof:
+        App\Auth\Domain\Service\ProviderTokenValidatorInterface:
+            tags: [ 'app.token_validator' ]
 
     App\:
         resource: '../src/'
@@ -36,7 +39,9 @@ services:
         alias: App\Auth\Application\SignIn\SignInHandler
 
     App\Auth\Domain\Service\ExternalTokenValidatorInterface:
-        class: App\Auth\Infrastructure\Google\GoogleTokenValidator
+        class: App\Auth\Infrastructure\Security\ChainExternalTokenValidator
+        arguments:
+            $validators: !tagged_iterator 'app.token_validator'
 
     App\Auth\Domain\Service\JwtTokenGeneratorInterface:
         class: App\Auth\Infrastructure\Jwt\LexikJwtTokenGenerator

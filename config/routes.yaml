@@ -10,9 +10,14 @@ root_redirect:
         route: backoffice_login
         permanent: true
 
-api_auth_google:
-    path: /api/auth/google
-    controller: App\UI\Http\Rest\Auth\GoogleSignInController
+api_auth_signin:
+    path: /api/auth/{provider}/signin
+    controller: App\UI\Http\Rest\Auth\SocialSignInController
+    methods: [POST]
+
+api_auth_signup:
+    path: /api/auth/{provider}/signup
+    controller: App\UI\Http\Rest\Auth\SocialSignUpController
     methods: [POST]
 
 api_refresh_token:
@@ -23,11 +28,6 @@ api_profile_get:
     path: /api/profile/{id}
     controller: App\UI\Http\Rest\Profile\GetProfileController
     methods: [GET]
-
-api_auth_signup:
-    path: /api/auth/signup
-    controller: App\UI\Http\Rest\Auth\GoogleSignUpController
-    methods: [POST]
 
 api_token_invalidate:
     path: /api/token/invalidate

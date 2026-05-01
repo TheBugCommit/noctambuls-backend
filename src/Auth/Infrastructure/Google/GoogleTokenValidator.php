@@ -6,14 +6,21 @@ namespace App\Auth\Infrastructure\Google;
 
 use App\Auth\Domain\Exception\InvalidExternalTokenException;
 use App\Auth\Domain\Service\ExternalTokenValidatorInterface;
+use App\Auth\Domain\Service\ProviderTokenValidatorInterface;
 use App\Auth\Domain\ValueObject\Email;
+use App\Auth\Domain\ValueObject\Provider;
 use Google\Client as GoogleClient;
 
-final readonly class GoogleTokenValidator implements ExternalTokenValidatorInterface
+final readonly class GoogleTokenValidator implements ProviderTokenValidatorInterface
 {
     public function __construct(
         private GoogleClient $googleClient,
     ) {
+    }
+
+    public function supports(Provider $provider): bool
+    {
+        return $provider->value() === Provider::google()->value();
     }
 
     public function validate(string $token): Email

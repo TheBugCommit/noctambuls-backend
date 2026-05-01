@@ -10,14 +10,14 @@ use App\Auth\Application\SignUp\SignUpResponse;
 use App\Auth\Domain\ValueObject\Provider;
 use Symfony\Component\HttpFoundation\Request;
 
-final readonly class GoogleSignUpController
+final readonly class SocialSignUpController
 {
     public function __construct(
         private SignUpHandler $handler,
     ) {
     }
 
-    public function __invoke(Request $request): SignUpResponse
+    public function __invoke(Request $request, string $provider): SignUpResponse
     {
         $body = json_decode($request->getContent(), true);
 
@@ -37,6 +37,6 @@ final readonly class GoogleSignUpController
             throw new \InvalidArgumentException('Missing phone field.');
         }
 
-        return $this->handler->handle(new SignUpRequest($token, Provider::google()->value(), $name, $phone));
+        return $this->handler->handle(new SignUpRequest($token, $provider, $name, $phone));
     }
 }

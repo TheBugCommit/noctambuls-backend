@@ -37,8 +37,8 @@ final readonly class SignUpHandler
     /** @throws Throwable */
     public function handle(SignUpRequest $request): SignUpResponse
     {
-        $email = $this->tokenValidator->validate($request->externalToken);
         $provider = new Provider($request->providerType);
+        $email = $this->tokenValidator->validate($request->externalToken, $provider);
 
         if ($this->userRepository->findByEmailAndProvider($email, $provider) !== null) {
             throw new UserAlreadyExistsException();
