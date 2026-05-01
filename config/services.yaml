@@ -60,6 +60,10 @@ services:
         arguments:
             $refreshTokenTtl: '%env(int:JWT_REFRESH_TTL)%'
 
+    # Profile repositories
+    App\Profile\Domain\Repository\ProfileRepositoryInterface:
+        class: App\Profile\Infrastructure\Persistence\DoctrineProfileRepository
+
     # BirdCatalog repositories
     App\BirdCatalog\Domain\Repository\BirdRepositoryInterface:
         class: App\BirdCatalog\Infrastructure\Persistence\DoctrineBirdRepository

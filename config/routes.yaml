@@ -19,10 +19,15 @@ api_refresh_token:
     path: /api/token/refresh
     methods: [POST]
 
-api_profile:
-    path: /api/profile
-    controller: App\UI\Http\Rest\Profile\ProfileController
+api_profile_get:
+    path: /api/profile/{id}
+    controller: App\UI\Http\Rest\Profile\GetProfileController
     methods: [GET]
+
+api_auth_signup:
+    path: /api/auth/signup
+    controller: App\UI\Http\Rest\Auth\GoogleSignUpController
+    methods: [POST]
 
 api_token_invalidate:
     path: /api/token/invalidate

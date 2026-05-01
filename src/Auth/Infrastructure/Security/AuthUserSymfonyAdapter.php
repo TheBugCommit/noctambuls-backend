@@ -8,7 +8,7 @@ use App\Auth\Domain\Entity\AuthUser;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final readonly class AuthUserSymfonyAdapter implements UserInterface, PasswordAuthenticatedUserInterface
+final readonly class AuthUserSymfonyAdapter implements JwtAuthenticatedUserInterface, PasswordAuthenticatedUserInterface
 {
     public function __construct(private AuthUser $authUser)
     {
@@ -32,5 +32,10 @@ final readonly class AuthUserSymfonyAdapter implements UserInterface, PasswordAu
     public function getAuthUser(): AuthUser
     {
         return $this->authUser;
+    }
+
+    public function getAuthUserId(): string
+    {
+        return $this->authUser->id()->value();
     }
 }
