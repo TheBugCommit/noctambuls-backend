@@ -39,9 +39,9 @@ final class ApiExceptionListener
 
         $exception = $event->getThrowable();
 
-        if($this->debug) {
+        /*if($this->debug) {
             dd($exception);
-        }
+        }*/
 
         $status = self::ERROR_TYPE_TO_STATUS[ErrorType::INTERNAL_SERVER_ERROR->name];
         $code = ErrorType::INTERNAL_SERVER_ERROR->name;

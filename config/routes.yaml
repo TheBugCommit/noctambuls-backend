@@ -29,6 +29,11 @@ api_profile_get:
     controller: App\UI\Http\Rest\Profile\GetProfileController
     methods: [GET]
 
+api_profile_edit:
+    path: /api/profile/{id}
+    controller: App\UI\Http\Rest\Profile\EditProfileController
+    methods: [PATCH]
+
 api_token_invalidate:
     path: /api/token/invalidate
     methods: [POST]

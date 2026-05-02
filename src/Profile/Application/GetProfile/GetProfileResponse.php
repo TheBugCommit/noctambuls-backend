@@ -10,6 +10,7 @@ readonly class GetProfileResponse
         public string             $id,
         public string             $name,
         public string             $phone,
+        public string             $ornithologistCode,
         public \DateTimeImmutable $createdAt,
     ) {
     }

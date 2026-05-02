@@ -11,6 +11,7 @@
         </id>
         <field name="name" type="profile_name" length="255" column="name"/>
         <field name="phone" type="phone_number" length="50" column="phone"/>
+        <field name="ornithologistCode" type="ornithologist_code" length="15" column="ornithologist_code" unique="true"/>
         <field name="createdAt" type="datetime_immutable" column="created_at"/>
     </entity>
 
