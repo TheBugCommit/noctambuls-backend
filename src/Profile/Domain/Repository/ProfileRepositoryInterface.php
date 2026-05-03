@@ -15,4 +15,7 @@ interface ProfileRepositoryInterface
     public function findMaxNumberForPrefix(string $prefix): int;
 
     public function save(Profile $profile): void;
+
+    /** @param ProfileId[] $ids @return Profile[] */
+    public function findByIds(array $ids): array;
 }
