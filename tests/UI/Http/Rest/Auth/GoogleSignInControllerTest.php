@@ -7,7 +7,7 @@ namespace App\Tests\UI\Http\Rest\Auth;
 use App\Auth\Application\SignIn\SignInHandlerInterface;
 use App\Auth\Application\SignIn\SignInRequest;
 use App\Auth\Application\SignIn\SignInResponse;
-use App\UI\Http\Rest\Auth\GoogleSignInController;
+use App\UI\Http\Rest\Auth\SocialSignInController;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,12 +15,12 @@ use Symfony\Component\HttpFoundation\Request;
 final class GoogleSignInControllerTest extends TestCase
 {
     private SignInHandlerInterface&MockObject $handler;
-    private GoogleSignInController   $controller;
+    private SocialSignInController   $controller;
 
     protected function setUp(): void
     {
         $this->handler    = $this->createMock(SignInHandlerInterface::class);
-        $this->controller = new GoogleSignInController($this->handler);
+        $this->controller = new SocialSignInController($this->handler);
     }
 
     public function test_invoke_calls_handler_with_token_from_body(): void
@@ -36,7 +36,7 @@ final class GoogleSignInControllerTest extends TestCase
 
         $request = $this->makeRequest(['id_token' => 'google-id-token-value']);
 
-        $response = ($this->controller)($request);
+        $response = ($this->controller)($request, 'google');
 
         self::assertSame($expectedResponse, $response);
     }
@@ -48,7 +48,7 @@ final class GoogleSignInControllerTest extends TestCase
         $this->handler->method('handle')->willReturn($signInResponse);
 
         $request  = $this->makeRequest(['id_token' => 'some-token']);
-        $response = ($this->controller)($request);
+        $response = ($this->controller)($request, 'google');
 
         self::assertSame('access.jwt', $response->accessToken);
         self::assertSame('refresh.token', $response->refreshToken);
@@ -61,7 +61,7 @@ final class GoogleSignInControllerTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Missing token field.');
 
-        ($this->controller)($this->makeRequest([]));
+        ($this->controller)($this->makeRequest([]), 'google');
     }
 
     public function test_invoke_throws_when_id_token_is_empty_string(): void
@@ -70,7 +70,7 @@ final class GoogleSignInControllerTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
 
-        ($this->controller)($this->makeRequest(['id_token' => '']));
+        ($this->controller)($this->makeRequest(['id_token' => '']), 'google');
     }
 
     public function test_invoke_throws_when_body_is_not_json(): void
@@ -80,7 +80,7 @@ final class GoogleSignInControllerTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $request = Request::create('/api/auth/google', 'POST', [], [], [], [], 'not-valid-json');
-        ($this->controller)($request);
+        ($this->controller)($request, 'google');
     }
 
     public function test_invoke_throws_when_id_token_is_not_string(): void
@@ -89,7 +89,7 @@ final class GoogleSignInControllerTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
 
-        ($this->controller)($this->makeRequest(['id_token' => 12345]));
+        ($this->controller)($this->makeRequest(['id_token' => 12345]), 'google');
     }
 
     private function makeRequest(array $body): Request
