@@ -46,4 +46,15 @@ final readonly class DoctrineProfileRepository implements ProfileRepositoryInter
     {
         $this->em->persist($profile);
     }
+
+    public function findByIds(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $idValues = array_map(fn(ProfileId $id) => $id->value(), $ids);
+
+        return $this->em->getRepository(Profile::class)->findBy(['id' => $idValues]);
+    }
 }
