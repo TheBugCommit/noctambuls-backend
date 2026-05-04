@@ -16,6 +16,7 @@ security:
             pattern: ^/api
             stateless: true
             provider: auth_user_provider
+            user_checker: App\Auth\Infrastructure\Security\BlockedUserChecker
             entry_point: jwt
             jwt: ~
             refresh_jwt:
@@ -26,11 +27,12 @@ security:
         main:
             pattern: ^/
             provider: auth_user_provider
+            user_checker: App\Auth\Infrastructure\Security\BlockedUserChecker
             lazy: true
             form_login:
                 login_path: backoffice_login
                 check_path: backoffice_login
-                default_target_path: backoffice_dashboard
+                default_target_path: backoffice_users_list
                 username_parameter: email
                 password_parameter: password
                 enable_csrf: true
@@ -47,7 +49,7 @@ security:
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
         - { path: ^/backoffice/login, roles: PUBLIC_ACCESS }
-        - { path: ^/backoffice, roles: ROLE_REVIEWER }
+        - { path: ^/backoffice, roles: ROLE_ADMIN }
 
 when@test:
     security:

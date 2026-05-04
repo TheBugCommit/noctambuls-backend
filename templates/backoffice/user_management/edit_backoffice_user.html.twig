@@ -1,0 +1,12 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'user_management.action.edit'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold">{{ 'user_management.backoffice_users.edit_title'|trans }}</h1>
+    <p class="text-base-content/60 text-sm mt-1">{{ user.email }}</p>
+</div>
+
+{{ include('backoffice/user_management/_backoffice_user_form.html.twig', {user: user}) }}
+{% endblock %}

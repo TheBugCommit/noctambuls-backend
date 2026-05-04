@@ -17,12 +17,24 @@ final readonly class DoctrineBirdRepository implements BirdRepositoryInterface
 
     public function findAll(): array
     {
-        return $this->em->getRepository(Bird::class)->findAll();
+        return $this->em->createQueryBuilder()
+            ->select('b', 't')
+            ->from(Bird::class, 'b')
+            ->leftJoin('b.translations', 't')
+            ->getQuery()
+            ->getResult();
     }
 
     public function findById(BirdId $id): ?Bird
     {
-        return $this->em->getRepository(Bird::class)->findOneBy(['id' => $id->value()]);
+        return $this->em->createQueryBuilder()
+            ->select('b', 't')
+            ->from(Bird::class, 'b')
+            ->leftJoin('b.translations', 't')
+            ->where('b.id = :id')
+            ->setParameter('id', $id->value())
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     public function save(Bird $bird): void

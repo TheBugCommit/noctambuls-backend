@@ -36,6 +36,19 @@ class AuthUser
         return new self($id, $email, $provider, new \DateTimeImmutable(), $role, $hashedPassword);
     }
 
+    public static function createBackofficeUser(
+        AuthUserId $id,
+        Email $email,
+        Role $role,
+        HashedPassword $hashedPassword
+    ): self {
+        if ($role === Role::USER) {
+            throw new \DomainException("Backoffice can't have role USER.");
+        }
+
+        return new self($id, $email, Provider::internal(), new \DateTimeImmutable(), $role, $hashedPassword);
+    }
+
     public function updateHashedPassword(HashedPassword $hashedPassword): void
     {
         $this->hashedPassword = $hashedPassword;

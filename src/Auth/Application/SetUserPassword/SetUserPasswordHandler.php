@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Auth\Application\SetUserPassword;
 
+use App\Auth\Application\Mapper\AuthResponseMapper;
 use App\Auth\Domain\Exception\UserNotFoundException;
 use App\Auth\Domain\Repository\AuthUserRepositoryInterface;
 use App\Auth\Domain\Service\PasswordHasherInterface;
@@ -33,7 +34,7 @@ final readonly class SetUserPasswordHandler
 
             $this->transactionManager->commit();
 
-            return new SetUserPasswordResponse($request->userId);
+            return AuthResponseMapper::toSetUserPasswordResponse($request->userId);
         } catch (\Throwable $e) {
             $this->transactionManager->rollback();
             throw $e;

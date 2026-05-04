@@ -1,0 +1,3 @@
+symfonycasts_tailwind:
+    # Tailwind v3 for DaisyUI v4 compatibility (v4 uses different CSS variable naming)
+    binary_version: 'v3.4.17'
