@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Auth\Application\SignIn;
 
+use App\Auth\Application\Mapper\AuthResponseMapper;
+use App\Auth\Domain\Exception\UserBlockedException;
 use App\Auth\Domain\Exception\UserNotRegisteredException;
 use App\Auth\Domain\Repository\AuthUserRepositoryInterface;
 use App\Auth\Domain\Service\ExternalTokenValidatorInterface;
@@ -37,18 +39,16 @@ final readonly class SignInHandler implements SignInHandlerInterface
                 throw new UserNotRegisteredException();
             }
 
+            if ($user->isBlocked()) {
+                throw new UserBlockedException();
+            }
+
             $accessToken = $this->jwtGenerator->generate($user);
             $refreshToken = $this->refreshTokenIssuer->issueTokenForUser($user);
 
-            $response = new SignInResponse(
-                $accessToken,
-                $refreshToken,
-            );
-
             $this->transactionManager->commit();
 
-            return $response;
-
+            return AuthResponseMapper::toSignInResponse($accessToken, $refreshToken);
         } catch (Throwable $exception) {
             $this->transactionManager->rollback();
             throw $exception;

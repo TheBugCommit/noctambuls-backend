@@ -76,3 +76,48 @@ backoffice_bird_catalog_delete:
     path: /backoffice/bird-catalog/{id}/delete
     controller: App\UI\Http\Backoffice\BirdCatalog\BirdDeleteController
     methods: [POST]
+
+backoffice_users_list:
+    path: /backoffice/users
+    controller: App\UI\Http\Backoffice\UserManagement\AppUserListController
+    methods: [GET]
+
+backoffice_users_block:
+    path: /backoffice/users/{id}/block
+    controller: App\UI\Http\Backoffice\UserManagement\BlockUserController
+    methods: [POST]
+
+backoffice_users_unblock:
+    path: /backoffice/users/{id}/unblock
+    controller: App\UI\Http\Backoffice\UserManagement\UnblockUserController
+    methods: [POST]
+
+backoffice_users_delete:
+    path: /backoffice/users/{id}/delete
+    controller: App\UI\Http\Backoffice\UserManagement\DeleteAppUserController
+    methods: [POST]
+
+backoffice_backoffice_users_list:
+    path: /backoffice/backoffice-users
+    controller: App\UI\Http\Backoffice\UserManagement\BackofficeUserListController
+    methods: [GET]
+
+backoffice_backoffice_users_create:
+    path: /backoffice/backoffice-users/create
+    controller: App\UI\Http\Backoffice\UserManagement\CreateBackofficeUserController
+    methods: [GET, POST]
+
+backoffice_backoffice_users_edit:
+    path: /backoffice/backoffice-users/{id}/edit
+    controller: App\UI\Http\Backoffice\UserManagement\EditBackofficeUserController
+    methods: [GET, POST]
+
+backoffice_backoffice_users_delete:
+    path: /backoffice/backoffice-users/{id}/delete
+    controller: App\UI\Http\Backoffice\UserManagement\DeleteBackofficeUserController
+    methods: [POST]
+
+api_user_self_delete:
+    path: /api/user/account
+    controller: App\UI\Http\Rest\Auth\SelfDeleteAccountController
+    methods: [DELETE]

@@ -15,9 +15,10 @@ class Profile
         private readonly ProfileId          $id,
         private ProfileName                 $name,
         private PhoneNumber                 $phone,
-        private OrnithologistCode           $ornithologistCode,
+        private readonly OrnithologistCode  $ornithologistCode,
         private readonly \DateTimeImmutable $createdAt,
-    ) {
+    )
+    {
     }
 
     public static function create(
@@ -25,14 +26,21 @@ class Profile
         ProfileName       $name,
         PhoneNumber       $phone,
         OrnithologistCode $ornithologistCode,
-    ): self {
+    ): self
+    {
         return new self($id, $name, $phone, $ornithologistCode, new \DateTimeImmutable());
     }
 
     public function update(ProfileName $name, PhoneNumber $phone): void
     {
-        $this->name  = $name;
+        $this->name = $name;
         $this->phone = $phone;
+    }
+
+    public function anonymize(): void
+    {
+        $this->name = new ProfileName('Deleted User');
+        $this->phone = new PhoneNumber('+000000000');
     }
 
     public function id(): ProfileId

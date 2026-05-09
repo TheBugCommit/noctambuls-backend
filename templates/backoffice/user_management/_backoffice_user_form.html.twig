@@ -1,0 +1,57 @@
+{% set isEdit = user is defined %}
+
+<div class="card bg-base-100 shadow-sm max-w-lg">
+    <div class="card-body">
+        <form method="post">
+            <input type="hidden" name="_csrf_token"
+                   value="{{ csrf_token(isEdit ? 'backoffice_user_edit_' ~ user.id : 'backoffice_user_create') }}">
+
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">{{ 'user_management.field.email'|trans }}</span>
+                </label>
+                <input type="email" name="email" class="input input-bordered"
+                       value="{{ isEdit ? user.email : '' }}"
+                       placeholder="{{ isEdit ? ('user_management.form.email_placeholder_edit'|trans) : '' }}"
+                       {{ isEdit ? '' : 'required' }}>
+                {% if isEdit %}
+                    <label class="label">
+                        <span class="label-text-alt text-base-content/60">{{ 'user_management.form.leave_blank_to_keep'|trans }}</span>
+                    </label>
+                {% endif %}
+            </div>
+
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">{{ 'user_management.field.password'|trans }}</span>
+                </label>
+                <input type="password" name="password" class="input input-bordered"
+                       placeholder="{{ isEdit ? ('user_management.form.leave_blank_to_keep'|trans) : '' }}"
+                       {{ isEdit ? '' : 'required' }} minlength="8">
+            </div>
+
+            <div class="form-control mb-6">
+                <label class="label">
+                    <span class="label-text">{{ 'user_management.field.role'|trans }}</span>
+                </label>
+                <select name="role" class="select select-bordered" required>
+                    <option value="ROLE_REVIEWER" {{ (isEdit and user.role == 'ROLE_REVIEWER') ? 'selected' : '' }}>
+                        {{ 'user_management.role.reviewer'|trans }}
+                    </option>
+                    <option value="ROLE_ADMIN" {{ (isEdit and user.role == 'ROLE_ADMIN') ? 'selected' : '' }}>
+                        {{ 'user_management.role.admin'|trans }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    {{ isEdit ? ('user_management.action.save'|trans) : ('user_management.action.create'|trans) }}
+                </button>
+                <a href="{{ path('backoffice_backoffice_users_list') }}" class="btn btn-ghost">
+                    {{ 'user_management.action.cancel'|trans }}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

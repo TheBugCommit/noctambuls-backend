@@ -53,3 +53,61 @@ bird_catalog:
 language:
     ca: "Català"
     es: "Castellà"
+
+user_management:
+    nav:
+        app_users: "Usuaris"
+        backoffice_users: "Equip"
+    app_users:
+        title: "Usuaris de l'app"
+        empty: "Encara no hi ha usuaris registrats."
+        total: "usuaris"
+    backoffice_users:
+        title: "Equip (admins i revisors)"
+        empty: "Encara no hi ha usuaris del backoffice."
+        edit_title: "Editar usuari del backoffice"
+    field:
+        name: "Nom"
+        email: "Correu electrònic"
+        code: "Codi ornitòleg"
+        created_at: "Data de registre"
+        status: "Estat"
+        actions: "Accions"
+        role: "Rol"
+        password: "Contrasenya"
+        phone: 'Telèfon'
+    status:
+        active: "Actiu"
+        blocked: "Bloquejat"
+        anonymized: "Eliminat"
+    role:
+        admin: "Administrador"
+        reviewer: "Revisor"
+    action:
+        block: "Bloquejar"
+        unblock: "Desbloquejar"
+        delete: "Eliminar"
+        edit: "Editar"
+        create: "Crear"
+        save: "Desar"
+        cancel: "Cancel·lar"
+        create_backoffice_user: "Nou usuari"
+    confirm:
+        anonymize: "Estàs segur? Les dades de l'usuari s'anonimitzaran de forma permanent."
+        delete_backoffice_user: "Estàs segur que vols eliminar aquest usuari del backoffice?"
+    form:
+        leave_blank_to_keep: "Deixa en blanc per mantenir el valor actual"
+        email_placeholder_edit: ""
+    flash:
+        blocked: "L'usuari ha estat bloquejat."
+        unblocked: "L'usuari ha estat desbloquejat."
+        anonymized: "L'usuari ha estat anonimitzat."
+        backoffice_user_created: "Usuari del backoffice creat correctament."
+        backoffice_user_updated: "Usuari del backoffice actualitzat correctament."
+        backoffice_user_deleted: "Usuari del backoffice eliminat."
+    error:
+        invalid_csrf: "El token de seguretat no és vàlid. Torna-ho a provar."
+        not_found: "Usuari no trobat."
+        already_anonymized: "L'usuari ja ha estat anonimitzat."
+        email_taken: "Ja existeix un usuari amb aquest correu electrònic."
+        unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."

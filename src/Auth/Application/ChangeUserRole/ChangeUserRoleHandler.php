@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Auth\Application\ChangeUserRole;
 
+use App\Auth\Application\Mapper\AuthResponseMapper;
 use App\Auth\Domain\Exception\UserNotFoundException;
 use App\Auth\Domain\Repository\AuthUserRepositoryInterface;
 use App\Auth\Domain\ValueObject\AuthUserId;
@@ -37,7 +38,7 @@ final readonly class ChangeUserRoleHandler
             $user->changeRole($role);
             $this->transactionManager->commit();
 
-            return new ChangeUserRoleResponse($request->userId, $role->value);
+            return AuthResponseMapper::toChangeUserRoleResponse($request->userId, $role->value);
         } catch (\Throwable $e) {
             $this->transactionManager->rollback();
             throw $e;

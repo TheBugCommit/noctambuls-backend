@@ -1,0 +1,112 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'user_management.app_users.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">{{ 'user_management.app_users.title'|trans }}</h1>
+    <span class="badge badge-neutral">{{ total }} {{ 'user_management.app_users.total'|trans }}</span>
+</div>
+
+{% if users is empty %}
+    <div class="alert alert-info">
+        <span>{{ 'user_management.app_users.empty'|trans }}</span>
+    </div>
+{% else %}
+    <div class="overflow-x-auto">
+        <table class="table table-zebra w-full bg-base-100 shadow-sm rounded-box">
+            <thead>
+                <tr>
+                    <th>{{ 'user_management.field.name'|trans }}</th>
+                    <th>{{ 'user_management.field.email'|trans }}</th>
+                    <th>{{ 'user_management.field.phone'|trans }}</th>
+                    <th>{{ 'user_management.field.code'|trans }}</th>
+                    <th>{{ 'user_management.field.created_at'|trans }}</th>
+                    <th>{{ 'user_management.field.status'|trans }}</th>
+                    <th class="text-right">{{ 'user_management.field.actions'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td class="font-medium">{{ user.name ?? '—' }}</td>
+                        <td class="max-w-0 px-4">
+                            <div class="tooltip tooltip-right w-full" data-tip="{{ user.email }}">
+                                <div class="truncate w-full text-left cursor-help">
+                                    {{ user.email }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="font-medium">{{ user.phone }}</td>
+                        <td><span class="badge badge-outline badge-sm font-mono">{{ user.ornithologistCode ?? '—' }}</span></td>
+                        <td class="text-sm">{{ user.createdAt }}</td>
+                        <td>
+                            {% if user.isAnonymized %}
+                                <span class="badge badge-error badge-sm">{{ 'user_management.status.anonymized'|trans }}</span>
+                            {% elseif user.isBlocked %}
+                                <span class="badge badge-warning badge-sm">{{ 'user_management.status.blocked'|trans }}</span>
+                            {% else %}
+                                <span class="badge badge-success badge-sm">{{ 'user_management.status.active'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-right space-x-1">
+                            {% if not user.isAnonymized %}
+                                {% if user.isBlocked %}
+                                    <form method="post"
+                                          action="{{ path('backoffice_users_unblock', {id: user.id}) }}"
+                                          class="inline">
+                                        <input type="hidden" name="_csrf_token"
+                                               value="{{ csrf_token('user_unblock_' ~ user.id) }}">
+                                        <button type="submit" class="btn btn-ghost btn-xs text-success">
+                                            {{ 'user_management.action.unblock'|trans }}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form method="post"
+                                          action="{{ path('backoffice_users_block', {id: user.id}) }}"
+                                          class="inline">
+                                        <input type="hidden" name="_csrf_token"
+                                               value="{{ csrf_token('user_block_' ~ user.id) }}">
+                                        <button type="submit" class="btn btn-ghost btn-xs text-warning">
+                                            {{ 'user_management.action.block'|trans }}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <form method="post"
+                                      action="{{ path('backoffice_users_delete', {id: user.id}) }}"
+                                      class="inline"
+                                      onsubmit="return confirm('{{ 'user_management.confirm.anonymize'|trans|e('js') }}')">
+                                    <input type="hidden" name="_csrf_token"
+                                           value="{{ csrf_token('user_delete_' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-ghost btn-xs text-error">
+                                        {{ 'user_management.action.delete'|trans }}
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if totalPages > 1 %}
+        <div class="flex justify-center mt-6">
+            <div class="join">
+                {% if page > 1 %}
+                    <a href="{{ path('backoffice_users_list', {page: page - 1}) }}"
+                       class="join-item btn btn-sm">«</a>
+                {% endif %}
+                {% for p in 1..totalPages %}
+                    <a href="{{ path('backoffice_users_list', {page: p}) }}"
+                       class="join-item btn btn-sm {{ p == page ? 'btn-active' : '' }}">{{ p }}</a>
+                {% endfor %}
+                {% if page < totalPages %}
+                    <a href="{{ path('backoffice_users_list', {page: page + 1}) }}"
+                       class="join-item btn btn-sm">»</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

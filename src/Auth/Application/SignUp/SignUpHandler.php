@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Auth\Application\SignUp;
 
+use App\Auth\Application\Mapper\AuthResponseMapper;
 use App\Auth\Application\SignIn\RefreshTokenIssuerInterface;
 use App\Auth\Domain\Entity\AuthUser;
 use App\Auth\Domain\Exception\UserAlreadyExistsException;
@@ -57,11 +58,9 @@ final readonly class SignUpHandler
             $accessToken = $this->jwtGenerator->generate($user);
             $refreshToken = $this->refreshTokenIssuer->issueTokenForUser($user);
 
-            $response = new SignUpResponse($accessToken, $refreshToken);
-
             $this->transactionManager->commit();
 
-            return $response;
+            return AuthResponseMapper::toSignUpResponse($accessToken, $refreshToken);
         } catch (Throwable $exception) {
             $this->transactionManager->rollback();
             throw $exception;
