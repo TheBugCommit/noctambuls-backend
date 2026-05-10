@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping
+    xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+        https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Census\Domain\Entity\Census" table="censuses">
+        <id name="id" type="census_id" length="36">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="title" type="census_title" length="255"/>
+        <field name="date" type="date_immutable" column="date"/>
+        <field name="time" type="time_immutable" column="time"/>
+        <field name="locationName" type="census_location_name" column="location_name" length="255"/>
+        <field name="description" type="census_description" column="description" nullable="true"/>
+        <field name="status" type="census_status" length="20"/>
+        <field name="createdAt" type="datetime_immutable" column="created_at"/>
+        <field name="updatedAt" type="datetime_immutable" column="updated_at"/>
+        <field name="publishedAt" type="datetime_immutable" column="published_at" nullable="true"/>
+    </entity>
+
+</doctrine-mapping>
