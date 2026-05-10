@@ -10,8 +10,8 @@
             <generator strategy="NONE"/>
         </id>
         <field name="title" type="census_title" length="255"/>
-        <field name="date" type="date_immutable" column="date"/>
-        <field name="time" type="time_immutable" column="time"/>
+        <field name="date" type="census_date" column="date"/>
+        <field name="time" type="census_time" column="time"/>
         <field name="locationName" type="census_location_name" column="location_name" length="255"/>
         <field name="description" type="census_description" column="description" nullable="true"/>
         <field name="status" type="census_status" length="20"/>

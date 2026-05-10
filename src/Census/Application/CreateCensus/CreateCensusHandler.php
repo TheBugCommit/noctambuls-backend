@@ -7,9 +7,11 @@ namespace App\Census\Application\CreateCensus;
 use App\Census\Application\Mapper\CensusResponseMapper;
 use App\Census\Domain\Entity\Census;
 use App\Census\Domain\Repository\CensusRepositoryInterface;
+use App\Census\Domain\ValueObject\CensusDate;
 use App\Census\Domain\ValueObject\CensusDescription;
 use App\Census\Domain\ValueObject\CensusId;
 use App\Census\Domain\ValueObject\CensusLocationName;
+use App\Census\Domain\ValueObject\CensusTime;
 use App\Census\Domain\ValueObject\CensusTitle;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Shared\Domain\Service\UuidGeneratorInterface;
@@ -32,8 +34,8 @@ final readonly class CreateCensusHandler
         $census = Census::create(
             $id,
             new CensusTitle($request->title),
-            new \DateTimeImmutable($request->date),
-            new \DateTimeImmutable($request->time),
+            new CensusDate($request->date),
+            new CensusTime($request->time),
             new CensusLocationName($request->locationName),
             $request->description !== null && $request->description !== ''
                 ? new CensusDescription($request->description)

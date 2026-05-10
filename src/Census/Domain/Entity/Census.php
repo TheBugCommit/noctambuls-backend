@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Census\Domain\Entity;
 
 use App\Census\Domain\Exception\CensusNotEditableException;
+use App\Census\Domain\ValueObject\CensusDate;
 use App\Census\Domain\ValueObject\CensusDescription;
 use App\Census\Domain\ValueObject\CensusId;
 use App\Census\Domain\ValueObject\CensusLocationName;
 use App\Census\Domain\ValueObject\CensusStatus;
+use App\Census\Domain\ValueObject\CensusTime;
 use App\Census\Domain\ValueObject\CensusTitle;
 
 class Census
@@ -16,8 +18,8 @@ class Census
     public function __construct(
         private readonly CensusId $id,
         private CensusTitle $title,
-        private \DateTimeImmutable $date,
-        private \DateTimeImmutable $time,
+        private CensusDate $date,
+        private CensusTime $time,
         private CensusLocationName $locationName,
         private ?CensusDescription $description,
         private CensusStatus $status,
@@ -30,8 +32,8 @@ class Census
     public static function create(
         CensusId $id,
         CensusTitle $title,
-        \DateTimeImmutable $date,
-        \DateTimeImmutable $time,
+        CensusDate $date,
+        CensusTime $time,
         CensusLocationName $locationName,
         ?CensusDescription $description,
     ): self {
@@ -42,8 +44,8 @@ class Census
 
     public function update(
         CensusTitle $title,
-        \DateTimeImmutable $date,
-        \DateTimeImmutable $time,
+        CensusDate $date,
+        CensusTime $time,
         CensusLocationName $locationName,
         ?CensusDescription $description,
     ): void {
@@ -91,12 +93,12 @@ class Census
         return $this->title;
     }
 
-    public function date(): \DateTimeImmutable
+    public function date(): CensusDate
     {
         return $this->date;
     }
 
-    public function time(): \DateTimeImmutable
+    public function time(): CensusTime
     {
         return $this->time;
     }
