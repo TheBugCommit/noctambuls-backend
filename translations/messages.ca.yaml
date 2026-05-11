@@ -28,7 +28,8 @@ census:
         title: "Títol"
         date: "Data"
         time: "Hora"
-        location_name: "Ubicació"
+        location_coordinates: "Ubicació"
+        location_name: "Nom de la ubicació"
         description: "Descripció"
     status:
         draft: "Esborrany"
@@ -52,7 +53,9 @@ census:
         not_found: "Cens no trobat."
         not_editable: "Aquest cens ja no es pot editar ni eliminar (han passat més de 10 minuts des de la publicació)."
         unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."
-
+        coordinate_invalid: "Coodenada invàlida"
+        longitude_required: "Longitud requerida"
+        latitude_required: "Latitud requerida"
 bird_catalog:
     nav: "Catàleg d'ocells"
     section:

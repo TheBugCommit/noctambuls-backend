@@ -17,16 +17,26 @@
             <directory>tests/Auth/Domain</directory>
             <directory>tests/Auth/Application</directory>
             <directory>tests/Auth/Infrastructure</directory>
-            <directory>tests/UI/Http/Rest</directory>
+            <directory>tests/Census/Domain</directory>
+            <directory>tests/Census/Application</directory>
+            <directory>tests/Census/Infrastructure</directory>
+            <directory>tests/UI/Http</directory>
         </testsuite>
     </testsuites>
 
     <source>
         <include>
             <directory>src/Auth</directory>
-            <directory>src/UI/Http/Rest/Auth</directory>
-            <directory>src/UI/Http/Rest/EventListener</directory>
+            <directory>src/Census</directory>
+            <directory>src/UI/Http</directory>
         </include>
+
+        <exclude>
+            <directory suffix="Exception.php">src</directory>
+            <directory>src/Auth/Application/Mapper</directory>
+            <directory>src/Census/Application/Mapper</directory>
+        </exclude>
+
         <deprecationTrigger>
             <method>Doctrine\Deprecations\Deprecation::trigger</method>
             <method>Doctrine\Deprecations\Deprecation::delegateTriggerToBackend</method>
