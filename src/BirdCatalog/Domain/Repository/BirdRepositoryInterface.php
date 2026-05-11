@@ -14,6 +14,12 @@ interface BirdRepositoryInterface
 
     public function findById(BirdId $id): ?Bird;
 
+    /**
+     * @param string[] $birdIds
+     * @return string[]
+     */
+    public function findValidBirdIds(array $birdIds): array;
+
     public function save(Bird $bird): void;
 
     public function delete(Bird $bird): void;

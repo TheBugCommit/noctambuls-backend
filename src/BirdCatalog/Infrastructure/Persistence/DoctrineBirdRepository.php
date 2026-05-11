@@ -37,6 +37,28 @@ final readonly class DoctrineBirdRepository implements BirdRepositoryInterface
             ->getOneOrNullResult();
     }
 
+    /**
+     * @param string[] $birdIds
+     * @return string[]
+     */
+    public function findValidBirdIds(array $birdIds): array
+    {
+        if (empty($birdIds)) {
+            return [];
+        }
+
+        $results = $this->em->createQueryBuilder()
+            ->select('b.id')
+            ->from(Bird::class, 'b')
+            ->where('b.id IN (:ids)')
+            ->setParameter('ids', $birdIds)
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($results, 'id');
+    }
+
+
     public function save(Bird $bird): void
     {
         $this->em->persist($bird);
