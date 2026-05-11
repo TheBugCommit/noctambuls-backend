@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Census\Domain\ValueObject;
 
 use App\Census\Domain\Exception\InvalidCensusTimeException;
+use App\Shared\Domain\ValueObject\DateTimeValueObject;
 
-final class CensusTime
+final class CensusTime extends DateTimeValueObject
 {
-    private \DateTimeImmutable $value;
-
-    public function __construct(string $time)
+    public function __construct(readonly string $time)
     {
+        parent::__construct($time);
         $parsed = \DateTimeImmutable::createFromFormat('H:i', $time);
 
         if (!$parsed || $parsed->format('H:i') !== $time) {
@@ -19,15 +19,5 @@ final class CensusTime
         }
 
         $this->value = $parsed;
-    }
-
-    public function value(): \DateTimeImmutable
-    {
-        return $this->value;
-    }
-
-    public function format(string $format): string
-    {
-        return $this->value->format($format);
     }
 }

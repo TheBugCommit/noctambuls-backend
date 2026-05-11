@@ -12,6 +12,47 @@ login:
     password: "Contrasenya"
     submit: "Iniciar sessió"
 
+census:
+    nav: "Censos"
+    list:
+        title: "Censos"
+        empty: "Encara no hi ha censos creats."
+        status: "Estat"
+        actions: "Accions"
+        total: "censos"
+    create:
+        title: "Nou cens"
+    edit:
+        title: "Editar cens"
+    field:
+        title: "Títol"
+        date: "Data"
+        time: "Hora"
+        location_name: "Ubicació"
+        description: "Descripció"
+    status:
+        draft: "Esborrany"
+        published: "Publicat"
+    action:
+        publish: "Publicar"
+        edit: "Editar"
+        delete: "Eliminar"
+        save: "Desar"
+        cancel: "Cancel·lar"
+        back: "Tornar"
+    confirm:
+        delete: "Estàs segur que vols eliminar aquest cens?"
+    flash:
+        created: "Cens creat correctament."
+        updated: "Cens actualitzat correctament."
+        deleted: "Cens eliminat."
+        published: "Cens publicat correctament."
+    error:
+        invalid_csrf: "El token de seguretat no és vàlid. Torna-ho a provar."
+        not_found: "Cens no trobat."
+        not_editable: "Aquest cens ja no es pot editar ni eliminar (han passat més de 10 minuts des de la publicació)."
+        unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."
+
 bird_catalog:
     nav: "Catàleg d'ocells"
     section:

@@ -1,0 +1,79 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'census.list.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">{{ 'census.list.title'|trans }}</h1>
+    <a href="{{ path('backoffice_census_create') }}" class="btn btn-primary btn-sm">
+        + {{ 'census.create.title'|trans }}
+    </a>
+</div>
+
+{% if censuses is empty %}
+    <div class="alert alert-info">
+        <span>{{ 'census.list.empty'|trans }}</span>
+    </div>
+{% else %}
+    <div class="overflow-x-auto">
+        <table class="table table-zebra w-full bg-base-100 shadow-sm rounded-box">
+            <thead>
+                <tr>
+                    <th>{{ 'census.field.title'|trans }}</th>
+                    <th>{{ 'census.field.date'|trans }}</th>
+                    <th>{{ 'census.field.location_name'|trans }}</th>
+                    <th>{{ 'census.list.status'|trans }}</th>
+                    <th class="text-right">{{ 'census.list.actions'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for census in censuses %}
+                    <tr>
+                        <td class="font-medium">{{ census.title }}</td>
+                        <td>{{ census.date }} {{ census.time }}</td>
+                        <td>{{ census.locationName }}</td>
+                        <td>
+                            {% if census.status == 'PUBLISHED' %}
+                                <span class="badge badge-success badge-sm">{{ 'census.status.published'|trans }}</span>
+                            {% else %}
+                                <span class="badge badge-ghost badge-sm">{{ 'census.status.draft'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            {% if census.status == 'DRAFT' %}
+                                <form method="post"
+                                      action="{{ path('backoffice_census_publish', {id: census.id}) }}"
+                                      class="inline">
+                                    <input type="hidden" name="_csrf_token"
+                                           value="{{ csrf_token('census_publish_' ~ census.id) }}">
+                                    <button type="submit" class="btn btn-success btn-xs">
+                                        {{ 'census.action.publish'|trans }}
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            {% if census.isEditable %}
+                                <a href="{{ path('backoffice_census_edit', {id: census.id}) }}"
+                                   class="btn btn-ghost btn-xs">
+                                    {{ 'census.action.edit'|trans }}
+                                </a>
+                                <form method="post"
+                                      action="{{ path('backoffice_census_delete', {id: census.id}) }}"
+                                      class="inline"
+                                      onsubmit="return confirm('{{ 'census.confirm.delete'|trans|e('js') }}')">
+                                    <input type="hidden" name="_csrf_token"
+                                           value="{{ csrf_token('census_delete_' ~ census.id) }}">
+                                    <button type="submit" class="btn btn-ghost btn-xs text-error">
+                                        {{ 'census.action.delete'|trans }}
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="text-sm text-base-content/60 mt-2">{{ total }} {{ 'census.list.total'|trans }}</p>
+{% endif %}
+{% endblock %}

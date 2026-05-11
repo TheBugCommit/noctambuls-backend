@@ -121,3 +121,43 @@ api_user_self_delete:
     path: /api/user/account
     controller: App\UI\Http\Rest\Auth\SelfDeleteAccountController
     methods: [DELETE]
+
+backoffice_census_list:
+    path: /backoffice/censuses
+    controller: App\UI\Http\Backoffice\Census\CensusListController
+    methods: [GET]
+
+backoffice_census_create:
+    path: /backoffice/censuses/create
+    controller: App\UI\Http\Backoffice\Census\CensusCreateController
+    methods: [GET, POST]
+
+backoffice_census_edit:
+    path: /backoffice/censuses/{id}/edit
+    controller: App\UI\Http\Backoffice\Census\CensusEditController
+    methods: [GET, POST]
+
+backoffice_census_delete:
+    path: /backoffice/censuses/{id}/delete
+    controller: App\UI\Http\Backoffice\Census\CensusDeleteController
+    methods: [POST]
+
+backoffice_census_publish:
+    path: /backoffice/censuses/{id}/publish
+    controller: App\UI\Http\Backoffice\Census\CensusPublishController
+    methods: [POST]
+
+api_sync_up:
+    path: /api/sync/observations
+    controller: App\UI\Http\Rest\Observation\SyncUpController
+    methods: [POST]
+
+api_observation_history:
+    path: /api/observations/history
+    controller: App\UI\Http\Rest\Observation\ObservationHistoryController
+    methods: [GET]
+
+api_sessions_participated:
+    path: /api/sessions/participated
+    controller: App\UI\Http\Rest\Observation\ParticipatedSessionsController
+    methods: [GET]

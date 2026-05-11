@@ -1,0 +1,48 @@
+{% set isEdit = census is defined %}
+
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('census') }}">
+
+<div class="form-control mb-4">
+    <label class="label">
+        <span class="label-text">{{ 'census.field.title'|trans }} *</span>
+    </label>
+    <input type="text" name="title" required
+           class="input input-bordered w-full"
+           value="{{ isEdit ? census.title : (data.title ?? '') }}">
+</div>
+
+<div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{{ 'census.field.date'|trans }} *</span>
+        </label>
+        <input type="date" name="date" required
+               class="input input-bordered w-full"
+               value="{{ isEdit ? census.date : (data.date ?? '') }}">
+    </div>
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{{ 'census.field.time'|trans }} *</span>
+        </label>
+        <input type="time" name="time" required
+               class="input input-bordered w-full"
+               value="{{ isEdit ? census.time : (data.time ?? '') }}">
+    </div>
+</div>
+
+<div class="form-control mb-4">
+    <label class="label">
+        <span class="label-text">{{ 'census.field.location_name'|trans }} *</span>
+    </label>
+    <input type="text" name="locationName" required
+           class="input input-bordered w-full"
+           value="{{ isEdit ? census.locationName : (data.locationName ?? '') }}">
+</div>
+
+<div class="form-control mb-6">
+    <label class="label">
+        <span class="label-text">{{ 'census.field.description'|trans }}</span>
+    </label>
+    <textarea name="description" rows="4"
+              class="textarea textarea-bordered w-full">{{ isEdit ? (census.description ?? '') : (data.description ?? '') }}</textarea>
+</div>

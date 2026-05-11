@@ -1,0 +1,27 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'census.create.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center gap-4 mb-6">
+    <a href="{{ path('backoffice_census_list') }}" class="btn btn-ghost btn-sm">← {{ 'census.action.back'|trans }}</a>
+    <h1 class="text-2xl font-bold">{{ 'census.create.title'|trans }}</h1>
+</div>
+
+<div class="card bg-base-100 shadow-sm max-w-2xl">
+    <div class="card-body">
+        <form method="post" action="{{ path('backoffice_census_create') }}">
+            {% include 'backoffice/census/_form.html.twig' %}
+
+            <div class="flex gap-2 justify-end">
+                <a href="{{ path('backoffice_census_list') }}" class="btn btn-ghost btn-sm">
+                    {{ 'census.action.cancel'|trans }}
+                </a>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    {{ 'census.action.save'|trans }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
