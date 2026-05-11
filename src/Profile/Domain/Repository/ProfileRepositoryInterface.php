@@ -14,6 +14,8 @@ interface ProfileRepositoryInterface
 
     public function findMaxNumberForPrefix(string $prefix): int;
 
+    public function findValidOrnithologistCodes(array $ornithologistCodes): array;
+
     public function save(Profile $profile): void;
 
     /** @param ProfileId[] $ids @return Profile[] */

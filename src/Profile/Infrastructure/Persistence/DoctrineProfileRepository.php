@@ -41,6 +41,16 @@ final readonly class DoctrineProfileRepository implements ProfileRepositoryInter
         return (int) $numberString;
     }
 
+    public function findValidOrnithologistCodes(array $ornithologistCodes): array {
+        $result = $this->em->createQueryBuilder()
+            ->select('p.ornithologistCode')
+            ->from(Profile::class, 'p')
+            ->where('p.ornithologistCode IN (:ornithologistCodes)')
+            ->setParameter('ornithologistCodes', $ornithologistCodes)
+            ->getQuery();
+
+        return $result->getArrayResult();
+    }
 
     public function save(Profile $profile): void
     {
