@@ -118,12 +118,12 @@ class Census
         return $this->locationName;
     }
 
-    public function getLongitude(): Longitude
+    public function longitude(): Longitude
     {
         return $this->longitude;
     }
 
-    public function getLatitude(): Latitude
+    public function latitude(): Latitude
     {
         return $this->latitude;
     }

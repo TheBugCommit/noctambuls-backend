@@ -24,7 +24,7 @@ abstract class DateTimeValueObject
 
     public function equals(self $other): bool
     {
-        return $this->value === $other->value;
+        return $this->value->getTimestamp() === $other->value->getTimestamp();
     }
 
     public function __toString(): string

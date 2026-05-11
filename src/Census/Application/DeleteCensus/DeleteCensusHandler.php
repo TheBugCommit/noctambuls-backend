@@ -10,7 +10,7 @@ use App\Census\Domain\ValueObject\CensusId;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use Throwable;
 
-final readonly class DeleteCensusHandler
+readonly class DeleteCensusHandler
 {
     public function __construct(
         private CensusRepositoryInterface   $censusRepository,

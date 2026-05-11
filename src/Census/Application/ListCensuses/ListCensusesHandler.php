@@ -7,7 +7,7 @@ namespace App\Census\Application\ListCensuses;
 use App\Census\Application\Mapper\CensusResponseMapper;
 use App\Census\Domain\Repository\CensusRepositoryInterface;
 
-final readonly class ListCensusesHandler
+readonly class ListCensusesHandler
 {
     public function __construct(
         private CensusRepositoryInterface $censusRepository,

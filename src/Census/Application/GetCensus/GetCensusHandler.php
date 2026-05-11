@@ -9,7 +9,7 @@ use App\Census\Domain\Exception\CensusNotFoundException;
 use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Census\Domain\ValueObject\CensusId;
 
-final readonly class GetCensusHandler
+readonly class GetCensusHandler
 {
     public function __construct(
         private CensusRepositoryInterface $censusRepository,

@@ -19,7 +19,7 @@ use App\Shared\Domain\ValueObject\Latitude;
 use App\Shared\Domain\ValueObject\Longitude;
 use Throwable;
 
-final readonly class CreateCensusHandler
+readonly class CreateCensusHandler
 {
     public function __construct(
         private CensusRepositoryInterface  $censusRepository,
