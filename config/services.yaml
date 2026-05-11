@@ -77,12 +77,6 @@ services:
     App\Observation\Domain\Repository\SessionRepositoryInterface:
         class: App\Observation\Infrastructure\Persistence\DoctrineSessionRepository
 
-    App\Observation\Domain\Repository\ObservationRepositoryInterface:
-        class: App\Observation\Infrastructure\Persistence\DoctrineObservationRepository
-
-    App\Observation\Domain\Repository\SessionParticipantRepositoryInterface:
-        class: App\Observation\Infrastructure\Persistence\DoctrineSessionParticipantRepository
-
     # BirdCatalog repositories
     App\BirdCatalog\Domain\Repository\BirdRepositoryInterface:
         class: App\BirdCatalog\Infrastructure\Persistence\DoctrineBirdRepository
