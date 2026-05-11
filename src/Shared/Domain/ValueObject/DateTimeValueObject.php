@@ -8,7 +8,7 @@ abstract class DateTimeValueObject
 {
     protected \DateTimeImmutable $value;
 
-    public function __construct(readonly string $date)
+    public function __construct(string $date)
     {
     }
 
