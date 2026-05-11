@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping
+    xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+        https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Observation\Domain\Entity\Session" table="sessions">
+        <id name="id" type="session_id" length="36">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="censusId" type="census_id" column="census_id" length="36" nullable="true"/>
+        <field name="annotatorId" type="auth_user_id" column="annotator_id" length="36"/>
+        <field name="sessionType" type="session_type" column="session_type"/>
+        <field name="startTime" type="datetime_immutable" column="start_time" nullable="true"/>
+        <field name="endTime" type="datetime_immutable" column="end_time" nullable="true"/>
+        <field name="temperature" type="temperature_range" column="temperature"/>
+        <field name="wind" type="wind_level" column="wind"/>
+        <field name="sky" type="sky_condition" column="sky"/>
+        <field name="rain" type="rain_level" column="rain"/>
+        <field name="visibility" type="visibility_level" column="visibility"/>
+        <field name="moon" type="moon_presence" column="moon"/>
+        <field name="listeningPoint" type="listening_point" column="listening_point" nullable="true"/>
+        <field name="latitude" type="latitude" column="latitude" nullable="true"/>
+        <field name="longitude" type="longitude" column="longitude" nullable="true"/>
+        <field name="accuracy" type="accuracy" column="accuracy" nullable="true"/>
+        <field name="altitude" type="altitude" column="altitude" nullable="true"/>
+        <field name="altitudeAccuracy" type="altitude_accuracy" column="altitude_accuracy" nullable="true"/>
+        <field name="locationSource" type="location_source" column="location_source" nullable="true"/>
+        <field name="createdAt" type="datetime_immutable" column="created_at"/>
+        <field name="updatedAt" type="datetime_immutable" column="updated_at"/>
+        <one-to-many field="observations" target-entity="App\Observation\Domain\Entity\Observation" mapped-by="session" orphan-removal="true">
+            <cascade>
+                <cascade-all/>
+            </cascade>
+        </one-to-many>
+        <one-to-many field="participants" target-entity="App\Observation\Domain\Entity\SessionParticipant" mapped-by="session" orphan-removal="true">
+            <cascade>
+                <cascade-all/>
+            </cascade>
+        </one-to-many>
+        <unique-constraints>
+            <unique-constraint columns="census_id,annotator_id" name="uq_census_annotator"/>
+        </unique-constraints>
+    </entity>
+
+</doctrine-mapping>
