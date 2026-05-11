@@ -15,6 +15,8 @@ use App\Census\Domain\ValueObject\CensusTime;
 use App\Census\Domain\ValueObject\CensusTitle;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Shared\Domain\Service\UuidGeneratorInterface;
+use App\Shared\Domain\ValueObject\Latitude;
+use App\Shared\Domain\ValueObject\Longitude;
 use Throwable;
 
 final readonly class CreateCensusHandler
@@ -37,6 +39,8 @@ final readonly class CreateCensusHandler
             new CensusDate($request->date),
             new CensusTime($request->time),
             new CensusLocationName($request->locationName),
+            new Latitude($request->latitude),
+            new Longitude($request->longitude),
             $request->description !== null && $request->description !== ''
                 ? new CensusDescription($request->description)
                 : null,

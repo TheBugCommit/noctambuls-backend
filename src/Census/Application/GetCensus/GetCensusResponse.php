@@ -11,6 +11,8 @@ readonly class GetCensusResponse
         public string $title,
         public string $date,
         public string $time,
+        public float $latitude,
+        public float $longitude,
         public string $locationName,
         public ?string $description,
         public string $status,

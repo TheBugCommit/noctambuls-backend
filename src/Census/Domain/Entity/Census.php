@@ -12,41 +12,49 @@ use App\Census\Domain\ValueObject\CensusLocationName;
 use App\Census\Domain\ValueObject\CensusStatus;
 use App\Census\Domain\ValueObject\CensusTime;
 use App\Census\Domain\ValueObject\CensusTitle;
+use App\Shared\Domain\ValueObject\Latitude;
+use App\Shared\Domain\ValueObject\Longitude;
 
 class Census
 {
     public function __construct(
-        private readonly CensusId $id,
-        private CensusTitle $title,
-        private CensusDate $date,
-        private CensusTime $time,
-        private CensusLocationName $locationName,
-        private ?CensusDescription $description,
-        private CensusStatus $status,
+        private readonly CensusId           $id,
+        private CensusTitle                 $title,
+        private CensusDate                  $date,
+        private CensusTime                  $time,
+        private Latitude                    $latitude,
+        private Longitude                   $longitude,
+        private CensusLocationName          $locationName,
+        private ?CensusDescription          $description,
+        private CensusStatus                $status,
         private readonly \DateTimeImmutable $createdAt,
-        private \DateTimeImmutable $updatedAt,
-        private ?\DateTimeImmutable $publishedAt = null,
+        private \DateTimeImmutable          $updatedAt,
+        private ?\DateTimeImmutable         $publishedAt = null,
     ) {
     }
 
     public static function create(
-        CensusId $id,
-        CensusTitle $title,
-        CensusDate $date,
-        CensusTime $time,
+        CensusId           $id,
+        CensusTitle        $title,
+        CensusDate         $date,
+        CensusTime         $time,
         CensusLocationName $locationName,
+        Latitude           $latitude,
+        Longitude          $longitude,
         ?CensusDescription $description,
     ): self {
         $now = new \DateTimeImmutable();
 
-        return new self($id, $title, $date, $time, $locationName, $description, CensusStatus::DRAFT, $now, $now);
+        return new self($id, $title, $date, $time, $latitude, $longitude, $locationName, $description, CensusStatus::DRAFT, $now, $now);
     }
 
     public function update(
-        CensusTitle $title,
-        CensusDate $date,
-        CensusTime $time,
+        CensusTitle        $title,
+        CensusDate         $date,
+        CensusTime         $time,
         CensusLocationName $locationName,
+        Latitude           $latitude,
+        Longitude          $longitude,
         ?CensusDescription $description,
     ): void {
         $this->assertEditable();
@@ -55,6 +63,8 @@ class Census
         $this->date = $date;
         $this->time = $time;
         $this->locationName = $locationName;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
         $this->description = $description;
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -106,6 +116,16 @@ class Census
     public function locationName(): CensusLocationName
     {
         return $this->locationName;
+    }
+
+    public function getLongitude(): Longitude
+    {
+        return $this->longitude;
+    }
+
+    public function getLatitude(): Latitude
+    {
+        return $this->latitude;
     }
 
     public function description(): ?CensusDescription

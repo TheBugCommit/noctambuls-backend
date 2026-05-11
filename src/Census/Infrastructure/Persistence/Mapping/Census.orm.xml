@@ -13,6 +13,8 @@
         <field name="date" type="census_date" column="date"/>
         <field name="time" type="census_time" column="time"/>
         <field name="locationName" type="census_location_name" column="location_name" length="255"/>
+        <field name="latitude" type="latitude" column="latitude"/>
+        <field name="longitude" type="longitude" column="longitude"/>
         <field name="description" type="census_description" column="description" nullable="true"/>
         <field name="status" type="census_status" length="20"/>
         <field name="createdAt" type="datetime_immutable" column="created_at"/>

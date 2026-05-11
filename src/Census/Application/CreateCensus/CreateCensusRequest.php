@@ -10,6 +10,8 @@ readonly class CreateCensusRequest
         public string $title,
         public string $date,
         public string $time,
+        public mixed $latitude,
+        public mixed $longitude,
         public string $locationName,
         public ?string $description,
     ) {

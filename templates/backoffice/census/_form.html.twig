@@ -16,17 +16,24 @@
         <label class="label">
             <span class="label-text">{{ 'census.field.date'|trans }} *</span>
         </label>
-        <input type="date" name="date" required
+        <input type="text" name="date" required
+               data-controller="datetime-picker"
+               data-datetime-picker-mode-value="date"
                class="input input-bordered w-full"
-               value="{{ isEdit ? census.date : (data.date ?? '') }}">
+               value="{{ isEdit ? census.date : (data.date ?? '') }}"
+               placeholder="YYYY-MM-DD">
     </div>
+
     <div class="form-control">
         <label class="label">
             <span class="label-text">{{ 'census.field.time'|trans }} *</span>
         </label>
-        <input type="time" name="time" required
+        <input type="text" name="time" required
+               data-controller="datetime-picker"
+               data-datetime-picker-mode-value="time"
                class="input input-bordered w-full"
-               value="{{ isEdit ? census.time : (data.time ?? '') }}">
+               value="{{ isEdit ? census.time : (data.time ?? '') }}"
+               placeholder="HH:MM">
     </div>
 </div>
 
@@ -37,6 +44,30 @@
     <input type="text" name="locationName" required
            class="input input-bordered w-full"
            value="{{ isEdit ? census.locationName : (data.locationName ?? '') }}">
+</div>
+
+<div class="form-control mb-4" data-controller="census-map"
+     data-census-map-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
+     data-census-map-icon-retina-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}">
+    <label class="label">
+        <span class="label-text">{{ 'census.field.location_coordinates'|trans|default('Ubicació al mapa') }} *</span>
+    </label>
+
+    <div data-census-map-target="map" style="height: 300px; z-index: 1;"
+         class="rounded-lg border border-base-300 mb-2"></div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div class="form-control">
+            <input type="hidden" step="any" name="latitude" data-census-map-target="lat" required readonly
+                   class="input input-bordered w-full input-sm bg-base-200"
+                   value="{{ isEdit ? census.latitude : (data.latitude ?? '') }}">
+        </div>
+        <div class="form-control">
+            <input type="hidden" step="any" name="longitude" data-census-map-target="lng" required readonly
+                   class="input input-bordered w-full input-sm bg-base-200"
+                   value="{{ isEdit ? census.longitude : (data.longitude ?? '') }}">
+        </div>
+    </div>
 </div>
 
 <div class="form-control mb-6">

@@ -10,6 +10,8 @@ use App\Census\Application\UpdateCensus\UpdateCensusHandler;
 use App\Census\Application\UpdateCensus\UpdateCensusRequest;
 use App\Census\Domain\Exception\CensusNotFoundException;
 use App\Census\Domain\Exception\CensusNotEditableException;
+use App\Shared\Domain\Exception\EmptyCoordinateException;
+use App\Shared\Domain\Exception\InvalidCoordinateException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,13 +48,24 @@ final class CensusEditController extends AbstractController
                 title: trim((string) $request->request->get('title', '')),
                 date: trim((string) $request->request->get('date', '')),
                 time: trim((string) $request->request->get('time', '')),
+                latitude: $request->request->get('latitude'),
+                longitude: $request->request->get('longitude'),
                 locationName: trim((string) $request->request->get('locationName', '')),
                 description: trim((string) $request->request->get('description', '')) ?: null,
             ));
 
             $this->addFlash('success', 'census.flash.updated');
             return $this->redirectToRoute('backoffice_census_list');
+        } catch (EmptyCoordinateException $e) {
+            $message = str_contains($e->getMessage(), 'Latitude')
+                ? 'census.error.latitude_required'
+                : 'census.error.longitude_required';
 
+            $this->addFlash('error', $message);
+            return $this->render('backoffice/census/create.html.twig', ['data' => $request->request->all()]);
+        } catch (InvalidCoordinateException $e) {
+            $this->addFlash('error', 'census.error.coordinate_invalid');
+            return $this->render('backoffice/census/create.html.twig', ['data' => $request->request->all()]);
         } catch (CensusNotEditableException) {
             $this->addFlash('error', 'census.error.not_editable');
             return $this->render('backoffice/census/edit.html.twig', ['census' => $census]);
