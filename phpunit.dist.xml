@@ -10,17 +10,12 @@
         <ini name="error_reporting" value="-1" />
         <server name="APP_ENV" value="test" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
+        <env name="KERNEL_CLASS" value="App\Kernel" />
     </php>
 
     <testsuites>
         <testsuite name="Unit">
-            <directory>tests/Auth/Domain</directory>
-            <directory>tests/Auth/Application</directory>
-            <directory>tests/Auth/Infrastructure</directory>
-            <directory>tests/Census/Domain</directory>
-            <directory>tests/Census/Application</directory>
-            <directory>tests/Census/Infrastructure</directory>
-            <directory>tests/UI/Http</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 
@@ -28,6 +23,7 @@
         <include>
             <directory>src/Auth</directory>
             <directory>src/Census</directory>
+            <directory>src/Observation</directory>
             <directory>src/UI/Http</directory>
         </include>
 

@@ -7,12 +7,16 @@ services:
             - ./:/var/www/html
         env_file:
             - .env.local
+        environment:
+            PHP_IDE_CONFIG: "serverName=Docker"
         ports:
             - "8000:80"
         depends_on:
             - mariadb
         networks:
             - noctambuls_backend_internal
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
 
     mariadb:
         image: mariadb:10.11

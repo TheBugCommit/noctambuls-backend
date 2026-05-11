@@ -8,6 +8,7 @@
 /var/
 /vendor/
 .github/
+
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
@@ -29,3 +30,8 @@ coverage/
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+#Xdebug
+xdebug-3.5.1.tgz
+xdebug-3.5.1/
+package.xml
