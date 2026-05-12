@@ -17,7 +17,7 @@ interface SessionRepositoryInterface
     public function findByIds(array $sessionIds): array;
 
     /** @return string[] */
-    public function findPaginatedIdsByAnnotatorId(AuthUserId $annotatorId, int $offset, int $limit): array;
+    public function findPaginatedIdsByAnnotatorId(AuthUserId $annotatorId, int $offset, int $limit, ?\DateTimeImmutable $since = null): array;
 
     /**
      * * @param string[] $censusIds
@@ -25,11 +25,11 @@ interface SessionRepositoryInterface
      */
     public function findByCensusIdsAndAnnotator(array $censusIds, AuthUserId $annotatorId): array;
 
-    public function countByAnnotatorId(AuthUserId $annotatorId): int;
+    public function countByAnnotatorId(AuthUserId $annotatorId, ?\DateTimeImmutable $since = null): int;
 
-    public function countByParticipantCode(OrnithologistCode $code): int;
+    public function countByParticipantCode(OrnithologistCode $code, ?\DateTimeImmutable $since = null): int;
 
-    public function findPaginatedIdsByParticipantCode(OrnithologistCode $code, int $offset, int $limit): array;
+    public function findPaginatedIdsByParticipantCode(OrnithologistCode $code, int $offset, int $limit, ?\DateTimeImmutable $since = null): array;
     public function findByIdsWithRelations(array $ids): array;
 
     public function save(Session $session): void;

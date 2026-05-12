@@ -10,6 +10,7 @@ readonly class GetParticipatedSessionsRequest
         public string $ornithologistCode,
         public int $offset,
         public int $limit,
+        public ?\DateTimeImmutable $since = null,
     ) {
     }
 }

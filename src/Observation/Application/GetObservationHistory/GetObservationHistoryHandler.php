@@ -6,8 +6,6 @@ namespace App\Observation\Application\GetObservationHistory;
 
 use App\Auth\Domain\ValueObject\AuthUserId;
 use App\Observation\Application\Mapper\ObservationResponseMapper;
-use App\Observation\Domain\Repository\ObservationRepositoryInterface;
-use App\Observation\Domain\Repository\SessionParticipantRepositoryInterface;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
 
 final readonly class GetObservationHistoryHandler
@@ -21,11 +19,12 @@ final readonly class GetObservationHistoryHandler
     public function handle(GetObservationHistoryRequest $request): GetObservationHistoryResponse
     {
         $annotatorId = new AuthUserId($request->annotatorId);
+        $serverTime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'))->format(\DateTimeInterface::ATOM);
 
-        $total = $this->sessionRepository->countByAnnotatorId($annotatorId);
+        $total = $this->sessionRepository->countByAnnotatorId($annotatorId, $request->since);
 
         $ids = $total > 0
-            ? $this->sessionRepository->findPaginatedIdsByAnnotatorId($annotatorId, $request->offset, $request->limit)
+            ? $this->sessionRepository->findPaginatedIdsByAnnotatorId($annotatorId, $request->offset, $request->limit, $request->since)
             : [];
 
         $ids = array_column($ids, 'id');
@@ -37,6 +36,7 @@ final readonly class GetObservationHistoryHandler
         return new GetObservationHistoryResponse(
             sessions: ObservationResponseMapper::toNestedSessionArray($sessions),
             meta: ObservationResponseMapper::toMeta($total, $request->offset, $request->limit),
+            serverTime: $serverTime,
         );
     }
 }

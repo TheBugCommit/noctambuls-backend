@@ -9,6 +9,7 @@ use App\Observation\Domain\Entity\Session;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
 use App\Observation\Domain\ValueObject\SessionId;
 use App\Profile\Domain\ValueObject\OrnithologistCode;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -46,18 +47,23 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
             ->getResult();
     }
 
-    public function findPaginatedIdsByAnnotatorId(AuthUserId $annotatorId, int $offset, int $limit): array
+    public function findPaginatedIdsByAnnotatorId(AuthUserId $annotatorId, int $offset, int $limit, ?\DateTimeImmutable $since = null): array
     {
-        return $this->em->createQueryBuilder()
+        $qb = $this->em->createQueryBuilder()
             ->select('s.id')
             ->from(Session::class, 's')
             ->where('s.annotatorId = :annotatorId')
             ->setParameter('annotatorId', $annotatorId->value())
             ->orderBy('s.createdAt', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getScalarResult();
+            ->setMaxResults($limit);
+
+        if ($since !== null) {
+            $qb->andWhere('s.updatedAt > :since')
+               ->setParameter('since', $since, Types::DATETIME_IMMUTABLE);
+        }
+
+        return $qb->getQuery()->getScalarResult();
     }
 
     /**
@@ -81,32 +87,42 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
             ->getResult();
     }
 
-    public function countByAnnotatorId(AuthUserId $annotatorId): int
+    public function countByAnnotatorId(AuthUserId $annotatorId, ?\DateTimeImmutable $since = null): int
     {
-        return (int)$this->em->createQueryBuilder()
+        $qb = $this->em->createQueryBuilder()
             ->select('COUNT(s.id)')
             ->from(Session::class, 's')
             ->where('s.annotatorId = :annotatorId')
-            ->setParameter('annotatorId', $annotatorId->value())
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->setParameter('annotatorId', $annotatorId->value());
+
+        if ($since !== null) {
+            $qb->andWhere('s.updatedAt > :since')
+               ->setParameter('since', $since, Types::DATETIME_IMMUTABLE);
+        }
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
-    public function countByParticipantCode(OrnithologistCode $code): int
+    public function countByParticipantCode(OrnithologistCode $code, ?\DateTimeImmutable $since = null): int
     {
-        return (int)$this->em->createQueryBuilder()
+        $qb = $this->em->createQueryBuilder()
             ->select('COUNT(DISTINCT s.id)')
             ->from(Session::class, 's')
             ->join('s.participants', 'p')
             ->where('p.ornithologistCode = :code')
-            ->setParameter('code', $code->value())
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->setParameter('code', $code->value());
+
+        if ($since !== null) {
+            $qb->andWhere('s.updatedAt > :since')
+               ->setParameter('since', $since, Types::DATETIME_IMMUTABLE);
+        }
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
-    public function findPaginatedIdsByParticipantCode(OrnithologistCode $code, int $offset, int $limit): array
+    public function findPaginatedIdsByParticipantCode(OrnithologistCode $code, int $offset, int $limit, ?\DateTimeImmutable $since = null): array
     {
-        return $this->em->createQueryBuilder()
+        $qb = $this->em->createQueryBuilder()
             ->select('DISTINCT s.id')
             ->from(Session::class, 's')
             ->join('s.participants', 'p')
@@ -114,9 +130,14 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
             ->setParameter('code', $code->value())
             ->orderBy('s.createdAt', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getScalarResult();
+            ->setMaxResults($limit);
+
+        if ($since !== null) {
+            $qb->andWhere('s.updatedAt > :since')
+               ->setParameter('since', $since, Types::DATETIME_IMMUTABLE);
+        }
+
+        return $qb->getQuery()->getScalarResult();
     }
 
     public function findByIdsWithRelations(array $ids): array

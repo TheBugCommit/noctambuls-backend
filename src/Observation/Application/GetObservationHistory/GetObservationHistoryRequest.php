@@ -10,6 +10,7 @@ readonly class GetObservationHistoryRequest
         public string $annotatorId,
         public int $offset,
         public int $limit,
+        public ?\DateTimeImmutable $since = null,
     ) {
     }
 }

@@ -9,6 +9,7 @@ readonly class GetObservationHistoryResponse
     public function __construct(
         public array $sessions,
         public array $meta,
+        public string $serverTime,
     ) {
     }
 }

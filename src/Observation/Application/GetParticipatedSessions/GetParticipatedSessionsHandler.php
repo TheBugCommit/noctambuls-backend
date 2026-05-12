@@ -18,14 +18,16 @@ final readonly class GetParticipatedSessionsHandler
     public function handle(GetParticipatedSessionsRequest $request): GetParticipatedSessionsResponse
     {
         $code = new OrnithologistCode($request->ornithologistCode);
+        $serverTime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'))->format(\DateTimeInterface::ATOM);
 
-        $total = $this->sessionRepository->countByParticipantCode($code);
+        $total = $this->sessionRepository->countByParticipantCode($code, $request->since);
 
         $ids = $total > 0
             ? $this->sessionRepository->findPaginatedIdsByParticipantCode(
                 $code,
                 $request->offset,
-                $request->limit
+                $request->limit,
+                $request->since,
             )
             : [];
 
@@ -36,6 +38,7 @@ final readonly class GetParticipatedSessionsHandler
         return new GetParticipatedSessionsResponse(
             sessions: ObservationResponseMapper::toNestedSessionArray($sessions),
             meta: ObservationResponseMapper::toMeta($total, $request->offset, $request->limit),
+            serverTime: $serverTime,
         );
     }
 }

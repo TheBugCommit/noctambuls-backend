@@ -34,7 +34,6 @@ class GetObservationHistoryHandlerTest extends TestCase
 
     public function test_it_returns_empty_response_when_user_has_no_history(): void
     {
-        // Utilitzem un UUID vàlid per l'usuari buit
         $emptyUserId = '11111111-e29b-41d4-a716-446655440000';
 
         $request = new GetObservationHistoryRequest(
@@ -45,7 +44,7 @@ class GetObservationHistoryHandlerTest extends TestCase
 
         $this->sessionRepository->expects($this->once())
             ->method('countByAnnotatorId')
-            ->with($this->callback(fn (AuthUserId $id) => $id->value() === $emptyUserId))
+            ->with($this->callback(fn (AuthUserId $id) => $id->value() === $emptyUserId), null)
             ->willReturn(0);
 
         $this->sessionRepository->expects($this->never())->method('findPaginatedIdsByAnnotatorId');
@@ -57,11 +56,11 @@ class GetObservationHistoryHandlerTest extends TestCase
         $this->assertEquals(0, $response->meta['totalItems']);
         $this->assertEquals(1, $response->meta['currentPage']);
         $this->assertFalse($response->meta['hasMore']);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$/', $response->serverTime);
     }
 
     public function test_it_returns_paginated_history_successfully(): void
     {
-        // Utilitzem un UUID vàlid per a l'usuari actiu
         $activeUserId = '22222222-e29b-41d4-a716-446655440000';
 
         $request = new GetObservationHistoryRequest(
@@ -72,10 +71,9 @@ class GetObservationHistoryHandlerTest extends TestCase
 
         $this->sessionRepository->expects($this->once())
             ->method('countByAnnotatorId')
-            ->with($this->callback(fn (AuthUserId $id) => $id->value() === $activeUserId))
+            ->with($this->callback(fn (AuthUserId $id) => $id->value() === $activeUserId), null)
             ->willReturn(12);
 
-        // UUIDs simulats per a les sessions
         $sessionUuid1 = '550e8400-e29b-41d4-a716-446655440001';
         $sessionUuid2 = '550e8400-e29b-41d4-a716-446655440002';
 
@@ -84,7 +82,8 @@ class GetObservationHistoryHandlerTest extends TestCase
             ->with(
                 $this->callback(fn (AuthUserId $id) => $id->value() === $activeUserId),
                 5,
-                5
+                5,
+                null
             )
             ->willReturn([
                 ['id' => $sessionUuid1],
@@ -106,13 +105,55 @@ class GetObservationHistoryHandlerTest extends TestCase
         $this->assertEquals($activeUserId, $response->sessions[0]['annotatorId']);
         $this->assertIsArray($response->sessions[0]['observations']);
         $this->assertIsArray($response->sessions[0]['participants']);
-
         $this->assertEquals(12, $response->meta['totalItems']);
         $this->assertEquals(2, $response->meta['currentPage']);
         $this->assertEquals(3, $response->meta['totalPages']);
         $this->assertTrue($response->meta['hasMore']);
+        $this->assertNotEmpty($response->serverTime);
     }
 
+    public function test_it_passes_since_to_repository_when_provided(): void
+    {
+        $userId = '33333333-e29b-41d4-a716-446655440000';
+        $since = new \DateTimeImmutable('2026-01-01T00:00:00+00:00');
+
+        $request = new GetObservationHistoryRequest(
+            annotatorId: $userId,
+            offset: 0,
+            limit: 20,
+            since: $since,
+        );
+
+        $sessionUuid = '550e8400-e29b-41d4-a716-446655440099';
+
+        $this->sessionRepository->expects($this->once())
+            ->method('countByAnnotatorId')
+            ->with(
+                $this->callback(fn (AuthUserId $id) => $id->value() === $userId),
+                $since
+            )
+            ->willReturn(1);
+
+        $this->sessionRepository->expects($this->once())
+            ->method('findPaginatedIdsByAnnotatorId')
+            ->with(
+                $this->callback(fn (AuthUserId $id) => $id->value() === $userId),
+                0,
+                20,
+                $since
+            )
+            ->willReturn([['id' => $sessionUuid]]);
+
+        $this->sessionRepository->expects($this->once())
+            ->method('findByIdsWithRelations')
+            ->with([$sessionUuid])
+            ->willReturn([$this->createDummySession($sessionUuid, $userId)]);
+
+        $response = $this->handler->handle($request);
+
+        $this->assertCount(1, $response->sessions);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$/', $response->serverTime);
+    }
 
     private function createDummySession(string $sessionUuid, string $annotatorUuid): Session
     {

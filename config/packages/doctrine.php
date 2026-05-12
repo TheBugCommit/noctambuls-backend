@@ -55,6 +55,9 @@ return static function (ContainerConfigurator $container): void {
             'url' => '%env(resolve:DATABASE_URL)%',
             'profiling_collect_backtrace' => '%kernel.debug%',
             'types' => $types,
+            'options' => [
+                \PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '+00:00'",
+            ],
         ],
         'orm' => [
             'validate_xml_mapping' => true,
