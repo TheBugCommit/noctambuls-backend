@@ -47,15 +47,13 @@ final readonly class DoctrineBirdRepository implements BirdRepositoryInterface
             return [];
         }
 
-        $results = $this->em->createQueryBuilder()
+        return $this->em->createQueryBuilder()
             ->select('b.id')
             ->from(Bird::class, 'b')
             ->where('b.id IN (:ids)')
             ->setParameter('ids', $birdIds)
             ->getQuery()
-            ->getScalarResult();
-
-        return array_column($results, 'id');
+            ->getSingleColumnResult();
     }
 
 

@@ -49,7 +49,7 @@ final readonly class DoctrineProfileRepository implements ProfileRepositoryInter
             ->setParameter('ornithologistCodes', $ornithologistCodes)
             ->getQuery();
 
-        return $result->getArrayResult();
+        return $result->getSingleColumnResult();
     }
 
     public function save(Profile $profile): void

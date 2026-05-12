@@ -84,7 +84,7 @@ class SessionTest extends TestCase
         $obsStart = new \DateTimeImmutable('2023-10-25 09:00:00');
         $observation = $this->createDummyObservation($session, $obsStart, $obsStart);
 
-        $session->addObservation($observation);
+        $session->putObservation($observation);
 
         $this->assertCount(1, $session->observations());
     }
@@ -102,7 +102,7 @@ class SessionTest extends TestCase
         $obsStart = new \DateTimeImmutable('2023-10-25 11:00:00');
         $observation = $this->createDummyObservation($session, $obsStart, $obsStart);
 
-        $session->addObservation($observation);
+        $session->putObservation($observation);
     }
 
     public function test_it_allows_adding_incidental_observation_on_the_same_day(): void
@@ -114,7 +114,7 @@ class SessionTest extends TestCase
         $obsStart = new \DateTimeImmutable('2023-10-25 18:00:00');
         $observation = $this->createDummyObservation($session, $obsStart, $obsStart);
 
-        $session->addObservation($observation);
+        $session->putObservation($observation);
         $this->assertCount(1, $session->observations());
     }
 
@@ -130,7 +130,7 @@ class SessionTest extends TestCase
         $obsStart = new \DateTimeImmutable('2023-10-26 08:00:00');
         $observation = $this->createDummyObservation($session, $obsStart, $obsStart);
 
-        $session->addObservation($observation);
+        $session->putObservation($observation);
     }
 
     private function createValidSession(

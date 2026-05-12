@@ -135,10 +135,8 @@ readonly class SessionSynchronizer
         );
     }
 
-    private function syncObservations(Session $session, SessionSyncDto $dto): void
+    private function syncObservations(Session $session, SessionSyncDto $dto, array $validBirdsSet): void
     {
-        $session->clearObservations();
-
         foreach ($dto->observations as $obsDto) {
             if (!isset($validBirdsSet[$obsDto->speciesId])) {
                 throw new SyncValidationException('invalid_species_id');
@@ -164,7 +162,7 @@ readonly class SessionSynchronizer
                 updatedAt: new \DateTimeImmutable($obsDto->updatedAt),
             );
 
-            $session->addObservation($observation);
+            $session->putObservation($observation);
         }
     }
 

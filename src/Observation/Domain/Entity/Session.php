@@ -13,6 +13,7 @@ use App\Observation\Domain\ValueObject\AltitudeAccuracy;
 use App\Observation\Domain\ValueObject\ListeningPoint;
 use App\Observation\Domain\ValueObject\LocationSource;
 use App\Observation\Domain\ValueObject\MoonPresence;
+use App\Observation\Domain\ValueObject\ObservationId;
 use App\Observation\Domain\ValueObject\RainLevel;
 use App\Observation\Domain\ValueObject\SessionId;
 use App\Observation\Domain\ValueObject\SessionType;
@@ -20,6 +21,7 @@ use App\Observation\Domain\ValueObject\SkyCondition;
 use App\Observation\Domain\ValueObject\TemperatureRange;
 use App\Observation\Domain\ValueObject\VisibilityLevel;
 use App\Observation\Domain\ValueObject\WindLevel;
+use App\Profile\Domain\ValueObject\OrnithologistCode;
 use App\Shared\Domain\ValueObject\Latitude;
 use App\Shared\Domain\ValueObject\Longitude;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -242,9 +244,20 @@ class Session
         return $this->updatedAt;
     }
 
+    public function hasParticipantWithCode(OrnithologistCode $code): bool
+    {
+        foreach ($this->participants as $existingParticipant) {
+            if ($existingParticipant->ornithologistCode()->value() === $code->value()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function addParticipant(SessionParticipant $participant): void
     {
-        if (!$this->participants->contains($participant)) {
+        if (!$this->hasParticipantWithCode($participant->ornithologistCode())) {
             $this->participants->add($participant);
         }
     }
@@ -265,11 +278,30 @@ class Session
         return $this->participants;
     }
 
-    public function addObservation(Observation $observation): void
+    public function putObservation(Observation $observation): void
     {
         $this->assertObservationWithinBounds($observation);
 
-        if (!$this->observations->contains($observation)) {
+        $existing = $this->findObservationById($observation->id());
+
+        if ($existing !== null) {
+            $existing->update(
+                speciesId: $observation->speciesId(),
+                contactType: $observation->contactType(),
+                quantity: $observation->quantity(),
+                startTime: $observation->startTime(),
+                endTime: $observation->endTime(),
+                notes: $observation->notes(),
+                latitude: $observation->latitude(),
+                longitude: $observation->longitude(),
+                accuracy: $observation->accuracy(),
+                altitude: $observation->altitude(),
+                altitudeAccuracy: $observation->altitudeAccuracy(),
+                locationSource: $observation->locationSource(),
+                bearing: $observation->bearing(),
+                updatedAt: $observation->updatedAt()
+            );
+        } else {
             $this->observations->add($observation);
         }
     }
@@ -341,5 +373,15 @@ class Session
                 throw new InvalidSessionStateException('Session Start Time cannot be greater than End Time');
             }
         }
+    }
+
+    public function findObservationById(ObservationId $id): ?Observation
+    {
+        foreach ($this->observations as $obs) {
+            if ($obs->id()->value() === $id->value()) {
+                return $obs;
+            }
+        }
+        return null;
     }
 }

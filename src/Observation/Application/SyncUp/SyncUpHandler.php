@@ -31,17 +31,21 @@ final readonly class SyncUpHandler
         $failed = [];
         $annotatorIdObj = new AuthUserId($request->annotatorId);
 
+        [
+            'censusIds' => $censusIds,
+            'participantCodes' => $participantCodes,
+            'birdIds' => $birdIds
+        ] = $this->extractPreloadData($request->sessions);
+
         $sessionIds = array_column($request->sessions, 'id');
-        $existingSessions = $this->indexById($this->sessionRepository->findByIds($sessionIds));
-
-        $validCodesSet = $this->loadValidCodesSet($request->sessions);
-
-        $validBirdsSet = $this->loadValidBirdsSet($request->sessions);
-
-        $censusIds = $this->extractCensusIds($request->sessions);
-        $existingCensusSessions = $this->indexByCensusId(
-            $this->sessionRepository->findByCensusIdsAndAnnotator($censusIds, $annotatorIdObj)
+        $existingSessions = $this->indexEntities($this->sessionRepository->findByIds($sessionIds), 'id');
+        $existingCensusSessions = $this->indexEntities(
+            $this->sessionRepository->findByCensusIdsAndAnnotator($censusIds, $annotatorIdObj),
+            'censusId'
         );
+
+        $validCodesSet = $this->fetchValidSet($participantCodes, fn($codes) => $this->profileRepository->findValidOrnithologistCodes($codes));
+        $validBirdsSet = $this->fetchValidSet($birdIds, fn($ids) => $this->birdRepository->findValidBirdIds($ids));
 
         foreach ($request->sessions as $sessionData) {
             $sessionId = $sessionData['id'] ?? null;
@@ -68,7 +72,7 @@ final readonly class SyncUpHandler
 
                 $existing = $existingSessions[$sessionId] ?? null;
 
-                $session = $this->synchronizer->sync($dto, $request->annotatorId, $existing, $validCodesSet);
+                $session = $this->synchronizer->sync($dto, $request->annotatorId, $existing, $validCodesSet, $validBirdsSet);
 
                 $this->sessionRepository->save($session);
 
@@ -105,97 +109,66 @@ final readonly class SyncUpHandler
                     $this->transactionManager->rollback();
                 }
                 $failed[] = ['sessionId' => $sessionId, 'reason' => 'internal_error'];
+            } finally {
+                if (isset($existingSessions[$sessionId])) {
+                    $this->sessionRepository->free($existingSessions[$sessionId]);
+                    unset($existingSessions[$sessionId]);
+                }
             }
         }
 
         return new SyncUpResponse($synced, $failed);
     }
 
-    /**
-     * Helper per indexar les sessions per ID i trobar-les ràpidament
-     */
-    private function indexById(array $sessions): array
-    {
-        $map = [];
-        foreach ($sessions as $session) {
-            $map[$session->id()->value()] = $session;
-        }
-        return $map;
-    }
-
-    private function loadValidCodesSet(array $sessionsData): array
-    {
-        $allCodes = [];
-
-        foreach ($sessionsData as $session) {
-            foreach ($session['participants'] ?? [] as $participant) {
-                if (!empty($participant['ornithologistCode']) && is_string($participant['ornithologistCode'])) {
-                    $allCodes[] = $participant['ornithologistCode'];
-                }
-            }
-        }
-
-        if (empty($allCodes)) {
-            return $allCodes;
-        }
-
-        $uniqueCodes = array_values(array_unique($allCodes));
-
-        $validCodesFromDb = $this->profileRepository->findValidOrnithologistCodes($uniqueCodes);
-
-        return array_fill_keys($validCodesFromDb, true);
-    }
-
-    /**
-     * Helper per extreure els CensusIds sense valors nuls
-     */
-    private function extractCensusIds(array $sessions): array
+    private function extractPreloadData(array $sessionsData): array
     {
         $censusIds = [];
-        foreach ($sessions as $session) {
+        $participantCodes = [];
+        $birdIds = [];
+
+        foreach ($sessionsData as $session) {
             if (!empty($session['censusId']) && is_string($session['censusId'])) {
                 $censusIds[] = $session['censusId'];
             }
-        }
-        return array_values(array_unique($censusIds));
-    }
-
-    private function loadValidBirdsSet(array $sessionsData): array
-    {
-        $allBirdIds = [];
-
-        foreach ($sessionsData as $session) {
+            foreach ($session['participants'] ?? [] as $participant) {
+                if (!empty($participant['ornithologistCode']) && is_string($participant['ornithologistCode'])) {
+                    $participantCodes[] = $participant['ornithologistCode'];
+                }
+            }
             foreach ($session['observations'] ?? [] as $observation) {
                 if (!empty($observation['speciesId']) && is_string($observation['speciesId'])) {
-                    $allBirdIds[] = $observation['speciesId'];
+                    $birdIds[] = $observation['speciesId'];
                 }
             }
         }
 
-        if (empty($allBirdIds)) {
-            return [];
-        }
-
-        $uniqueIds = array_values(array_unique($allBirdIds));
-
-        // Cridem al repositori del catàleg d'ocells
-        $validIdsFromDb = $this->birdRepository->findValidBirdIds($uniqueIds);
-
-        // Retornem un diccionari ['uuid' => true] per buscar ràpid
-        return array_fill_keys($validIdsFromDb, true);
+        return [
+            'censusIds'        => array_values(array_unique($censusIds)),
+            'participantCodes' => array_values(array_unique($participantCodes)),
+            'birdIds'          => array_values(array_unique($birdIds)),
+        ];
     }
 
-    /**
-     * Helper per indexar fàcilment les sessions pel seu Census ID
-     */
-    private function indexByCensusId(array $sessions): array
+    private function indexEntities(array $entities, string $voMethodName): array
     {
         $map = [];
-        foreach ($sessions as $session) {
-            if ($session->censusId() !== null) {
-                $map[$session->censusId()->value()] = $session;
+        foreach ($entities as $entity) {
+            $valueObject = $entity->$voMethodName();
+            if ($valueObject !== null) {
+                $map[$valueObject->value()] = $entity;
             }
         }
         return $map;
+    }
+
+    private function fetchValidSet(array $ids, callable $repositoryMethod): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $validIds = $repositoryMethod($ids);
+
+        return array_fill_keys($validIds, true);
     }
 }
