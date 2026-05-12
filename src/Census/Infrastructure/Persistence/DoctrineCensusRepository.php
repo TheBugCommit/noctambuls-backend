@@ -7,6 +7,7 @@ namespace App\Census\Infrastructure\Persistence;
 use App\Census\Domain\Entity\Census;
 use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Census\Domain\ValueObject\CensusId;
+use App\Census\Domain\ValueObject\CensusStatus;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class DoctrineCensusRepository implements CensusRepositoryInterface
@@ -32,6 +33,22 @@ final readonly class DoctrineCensusRepository implements CensusRepositoryInterfa
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @param string[] $censusIds
+     * @return string[]
+     */
+    public function findCensusIdsByStatus(array $censusIds, CensusStatus $status): array {
+        return $this->em->createQueryBuilder()
+            ->select('c.id')
+            ->from(Census::class, 'c')
+            ->where('c.id IN (:censusIds)')
+            ->andWhere('c.status = :status')
+            ->setParameter('censusIds', $censusIds)
+            ->setParameter('status', $status->value)
+            ->getQuery()
+            ->getSingleColumnResult();
     }
 
     public function count(): int

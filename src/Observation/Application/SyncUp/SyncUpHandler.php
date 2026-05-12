@@ -6,6 +6,8 @@ namespace App\Observation\Application\SyncUp;
 
 use App\Auth\Domain\ValueObject\AuthUserId;
 use App\BirdCatalog\Domain\Repository\BirdRepositoryInterface;
+use App\Census\Domain\Repository\CensusRepositoryInterface;
+use App\Census\Domain\ValueObject\CensusStatus;
 use App\Observation\Application\SyncUp\Dto\SessionSyncDto;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
 use App\Profile\Domain\Repository\ProfileRepositoryInterface;
@@ -14,12 +16,15 @@ use App\Shared\Domain\Service\TransactionManagerInterface;
 final readonly class SyncUpHandler
 {
     public function __construct(
-        private SessionRepositoryInterface $sessionRepository,
-        private ProfileRepositoryInterface $profileRepository,
+        private SessionRepositoryInterface  $sessionRepository,
+        private ProfileRepositoryInterface  $profileRepository,
         private TransactionManagerInterface $transactionManager,
-        private BirdRepositoryInterface $birdRepository,
-        private SessionSynchronizer $synchronizer,
-    ) {}
+        private BirdRepositoryInterface     $birdRepository,
+        private CensusRepositoryInterface   $censusRepository,
+        private SessionSynchronizer         $synchronizer,
+    )
+    {
+    }
 
     public function handle(SyncUpRequest $request): SyncUpResponse
     {
@@ -46,9 +51,11 @@ final readonly class SyncUpHandler
 
         $validCodesSet = $this->fetchValidSet($participantCodes, fn($codes) => $this->profileRepository->findValidOrnithologistCodes($codes));
         $validBirdsSet = $this->fetchValidSet($birdIds, fn($ids) => $this->birdRepository->findValidBirdIds($ids));
+        $validCensusSet = $this->fetchValidSet($censusIds, fn($ids) => $this->censusRepository->findCensusIdsByStatus($ids, CensusStatus::PUBLISHED));
 
         foreach ($request->sessions as $sessionData) {
             $sessionId = $sessionData['id'] ?? null;
+            $session = null;
 
             if (!is_string($sessionId)) {
                 $failed[] = ['sessionId' => 'unknown', 'reason' => 'invalid_data'];
@@ -72,48 +79,35 @@ final readonly class SyncUpHandler
 
                 $existing = $existingSessions[$sessionId] ?? null;
 
-                $session = $this->synchronizer->sync($dto, $request->annotatorId, $existing, $validCodesSet, $validBirdsSet);
+                $session = $this->synchronizer->sync($dto, $request->annotatorId, $existing, $validCodesSet, $validBirdsSet, $validCensusSet);
 
                 $this->sessionRepository->save($session);
 
                 $this->transactionManager->commit();
                 $transactionStarted = false;
                 $synced[] = $sessionId;
-
-                //Free memory
-                $this->sessionRepository->free($session);
-                unset($existingSessions[$sessionId]);
-
             } catch (SyncSkippedException) {
                 if ($transactionStarted) {
                     $this->transactionManager->commit();
                 }
                 $synced[] = $sessionId;
-
-                if (isset($existingSessions[$sessionId])) {
-                    $this->sessionRepository->free($existingSessions[$sessionId]);
-                    unset($existingSessions[$sessionId]);
-                }
-            } catch (\DomainException | SyncValidationException | \InvalidArgumentException $e) {
+            } catch (\DomainException|SyncValidationException|\InvalidArgumentException $e) {
                 if ($transactionStarted) {
                     $this->transactionManager->rollback();
                 }
                 $failed[] = ['sessionId' => $sessionId, 'reason' => $e->getMessage()];
-
-                if (isset($existingSessions[$sessionId])) {
-                    $this->sessionRepository->free($existingSessions[$sessionId]);
-                    unset($existingSessions[$sessionId]);
-                }
             } catch (\Throwable $e) {
                 if ($transactionStarted) {
                     $this->transactionManager->rollback();
                 }
                 $failed[] = ['sessionId' => $sessionId, 'reason' => 'internal_error'];
             } finally {
-                if (isset($existingSessions[$sessionId])) {
+                if ($session !== null) {
+                    $this->sessionRepository->free($session);
+                } elseif (isset($existingSessions[$sessionId])) {
                     $this->sessionRepository->free($existingSessions[$sessionId]);
-                    unset($existingSessions[$sessionId]);
                 }
+                unset($existingSessions[$sessionId]);
             }
         }
 
@@ -143,9 +137,9 @@ final readonly class SyncUpHandler
         }
 
         return [
-            'censusIds'        => array_values(array_unique($censusIds)),
+            'censusIds' => array_values(array_unique($censusIds)),
             'participantCodes' => array_values(array_unique($participantCodes)),
-            'birdIds'          => array_values(array_unique($birdIds)),
+            'birdIds' => array_values(array_unique($birdIds)),
         ];
     }
 

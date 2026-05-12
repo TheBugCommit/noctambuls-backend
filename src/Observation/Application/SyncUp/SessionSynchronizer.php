@@ -38,7 +38,6 @@ use DomainException;
 readonly class SessionSynchronizer
 {
     public function __construct(
-        private CensusRepositoryInterface $censusRepository
     )
     {
     }
@@ -48,7 +47,7 @@ readonly class SessionSynchronizer
      * @throws SyncValidationException
      * @throws DomainException|DateMalformedStringException
      */
-    public function sync(SessionSyncDto $dto, string $annotatorId, ?Session $existingSession, array $validCodesSet, array $validBirdsSet): Session
+    public function sync(SessionSyncDto $dto, string $annotatorId, ?Session $existingSession, array $validCodesSet, array $validBirdsSet, array $validCensusSet): Session
     {
         $incomingUpdatedAt = new \DateTimeImmutable($dto->updatedAt);
 
@@ -56,12 +55,12 @@ readonly class SessionSynchronizer
             throw new SyncSkippedException();
         }
 
-        $this->ensureCensusExistsIfRequired($dto);
+        $this->ensureCensusExistsIfRequired($dto, $validCensusSet);
 
         $session = $existingSession ?? clone $this->createSession($dto, $annotatorId);
 
         if ($existingSession !== null) {
-            $this->updateSession($session, $dto, $incomingUpdatedAt);
+            $this->updateSession($session, $dto);
         }
 
         $this->syncObservations($session, $dto, $validBirdsSet);
@@ -70,7 +69,7 @@ readonly class SessionSynchronizer
         return $session;
     }
 
-    private function ensureCensusExistsIfRequired(SessionSyncDto $dto): void
+    private function ensureCensusExistsIfRequired(SessionSyncDto $dto, array $validCensusSet): void
     {
         $sessionType = SessionType::tryFrom($dto->sessionType);
         if ($sessionType == null) {
@@ -78,7 +77,7 @@ readonly class SessionSynchronizer
         }
 
         if ($sessionType === SessionType::Census) {
-            if ($dto->censusId === null || !$this->censusRepository->findById(new CensusId($dto->censusId))) {
+            if ($dto->censusId === null || !isset($validCensusSet[$dto->censusId])) {
                 throw new CensusNotFoundException();
             }
         }
@@ -111,7 +110,7 @@ readonly class SessionSynchronizer
         );
     }
 
-    private function updateSession(Session $session, SessionSyncDto $dto, \DateTimeImmutable $updatedAt): void
+    private function updateSession(Session $session, SessionSyncDto $dto): void
     {
         $session->update(
             censusId: $dto->censusId ? new CensusId($dto->censusId) : null,
@@ -131,7 +130,7 @@ readonly class SessionSynchronizer
             altitude: $dto->altitude !== null ? new Altitude($dto->altitude) : null,
             altitudeAccuracy: $dto->altitudeAccuracy !== null ? new AltitudeAccuracy($dto->altitudeAccuracy) : null,
             locationSource: $dto->locationSource !== null ? LocationSource::from($dto->locationSource) : null,
-            updatedAt: $updatedAt,
+            updatedAt: new \DateTimeImmutable($dto->updatedAt),
         );
     }
 
