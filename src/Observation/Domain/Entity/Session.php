@@ -57,6 +57,7 @@ class Session
         private ?LocationSource             $locationSource,
         private readonly \DateTimeImmutable $createdAt,
         private \DateTimeImmutable          $updatedAt,
+        private bool                        $isDeleted = false,
     )
     {
         $this->participants = new ArrayCollection();
@@ -244,6 +245,21 @@ class Session
         return $this->updatedAt;
     }
 
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function markDeleted(\DateTimeImmutable $at): void
+    {
+        $this->isDeleted = true;
+        $this->updatedAt = $at;
+
+        foreach ($this->observations as $observation) {
+            $observation->markDeleted($at);
+        }
+    }
+
     public function hasParticipantWithCode(OrnithologistCode $code): bool
     {
         foreach ($this->participants as $existingParticipant) {
@@ -255,21 +271,30 @@ class Session
         return false;
     }
 
-    public function addParticipant(SessionParticipant $participant): void
+    public function addParticipant(SessionParticipant $participant, \DateTimeImmutable $at): void
     {
         if (!$this->hasParticipantWithCode($participant->ornithologistCode())) {
             $this->participants->add($participant);
         }
+        if ($at > $this->updatedAt) {
+            $this->updatedAt = $at;
+        }
     }
 
-    public function removeParticipant(SessionParticipant $participant): void
+    public function removeParticipant(SessionParticipant $participant, \DateTimeImmutable $at): void
     {
         $this->participants->removeElement($participant);
+        if ($at > $this->updatedAt) {
+            $this->updatedAt = $at;
+        }
     }
 
-    public function clearParticipants(): void
+    public function clearParticipants(\DateTimeImmutable $at): void
     {
         $this->participants->clear();
+        if ($at > $this->updatedAt) {
+            $this->updatedAt = $at;
+        }
     }
 
     /** @return Collection<int, SessionParticipant> */
@@ -280,7 +305,9 @@ class Session
 
     public function putObservation(Observation $observation): void
     {
-        $this->assertObservationWithinBounds($observation);
+        if (!$observation->isDeleted()) {
+            $this->assertObservationWithinBounds($observation);
+        }
 
         $existing = $this->findObservationById($observation->id());
 
@@ -299,10 +326,15 @@ class Session
                 altitudeAccuracy: $observation->altitudeAccuracy(),
                 locationSource: $observation->locationSource(),
                 bearing: $observation->bearing(),
-                updatedAt: $observation->updatedAt()
+                updatedAt: $observation->updatedAt(),
+                isDeleted: $observation->isDeleted(),
             );
         } else {
             $this->observations->add($observation);
+        }
+
+        if ($observation->updatedAt() > $this->updatedAt) {
+            $this->updatedAt = $observation->updatedAt();
         }
     }
 

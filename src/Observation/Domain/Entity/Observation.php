@@ -36,6 +36,7 @@ class Observation
         private Bearing                     $bearing,
         private readonly \DateTimeImmutable $createdAt,
         private \DateTimeImmutable          $updatedAt,
+        private bool                        $isDeleted,
     )
     {
     }
@@ -58,13 +59,14 @@ class Observation
         Bearing            $bearing,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
+        bool               $isDeleted = false,
     ): self
     {
         return new self(
             $id, $session, $speciesId, $contactType, $quantity,
             $startTime, $endTime, $notes,
             $latitude, $longitude, $accuracy, $altitude, $altitudeAccuracy, $locationSource,
-            $bearing, $createdAt, $updatedAt,
+            $bearing, $createdAt, $updatedAt, $isDeleted,
         );
     }
 
@@ -83,6 +85,7 @@ class Observation
         ?LocationSource    $locationSource,
         Bearing            $bearing,
         \DateTimeImmutable $updatedAt,
+        bool               $isDeleted = false,
     ): void
     {
         $this->speciesId = $speciesId;
@@ -98,6 +101,13 @@ class Observation
         $this->altitudeAccuracy = $altitudeAccuracy;
         $this->locationSource = $locationSource;
         $this->bearing = $bearing;
+        $this->updatedAt = $updatedAt;
+        $this->isDeleted = $isDeleted;
+    }
+
+    public function markDeleted(\DateTimeImmutable $updatedAt): void
+    {
+        $this->isDeleted = true;
         $this->updatedAt = $updatedAt;
     }
 
@@ -184,5 +194,10 @@ class Observation
     public function updatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
     }
 }

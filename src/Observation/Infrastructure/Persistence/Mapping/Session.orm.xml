@@ -29,6 +29,7 @@
         <field name="locationSource" type="location_source" column="location_source" nullable="true"/>
         <field name="createdAt" type="datetime_immutable" column="created_at"/>
         <field name="updatedAt" type="datetime_immutable" column="updated_at"/>
+        <field name="isDeleted" type="boolean" column="is_deleted"/>
         <one-to-many field="observations" target-entity="App\Observation\Domain\Entity\Observation" mapped-by="session" orphan-removal="true">
             <cascade>
                 <cascade-all/>

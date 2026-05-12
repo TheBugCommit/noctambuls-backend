@@ -43,6 +43,7 @@ final class ObservationResponseMapper
                 'bearing' => $o->bearing()->value(),
                 'createdAt' => $o->createdAt()->format(\DateTimeInterface::ATOM),
                 'updatedAt' => $o->updatedAt()->format(\DateTimeInterface::ATOM),
+                'isDeleted' => $o->isDeleted(),
             ];
         }
         return $result;
@@ -114,6 +115,7 @@ final class ObservationResponseMapper
             'locationSource' => $s->locationSource()?->value,
             'createdAt' => $s->createdAt()->format(\DateTimeInterface::ATOM),
             'updatedAt' => $s->updatedAt()->format(\DateTimeInterface::ATOM),
+            'isDeleted' => $s->isDeleted(),
         ];
     }
 }

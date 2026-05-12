@@ -159,6 +159,7 @@ readonly class SessionSynchronizer
                 bearing: new Bearing($obsDto->bearing),
                 createdAt: new \DateTimeImmutable($obsDto->createdAt),
                 updatedAt: new \DateTimeImmutable($obsDto->updatedAt),
+                isDeleted: $obsDto->isDeleted,
             );
 
             $session->putObservation($observation);
@@ -167,7 +168,8 @@ readonly class SessionSynchronizer
 
     private function syncParticipants(Session $session, SessionSyncDto $dto, array $validCodesSet): void
     {
-        $session->clearParticipants();
+        $at = new \DateTimeImmutable($dto->updatedAt);
+        $session->clearParticipants($at);
 
         foreach ($dto->participants as $participantDto) {
             if (isset($validCodesSet[$participantDto->ornithologistCode])) {
@@ -175,7 +177,8 @@ readonly class SessionSynchronizer
                     SessionParticipant::create(
                         $session,
                         new OrnithologistCode($participantDto->ornithologistCode)
-                    )
+                    ),
+                    $at,
                 );
             }
         }

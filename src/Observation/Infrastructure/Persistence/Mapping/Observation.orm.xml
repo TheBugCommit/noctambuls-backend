@@ -27,6 +27,7 @@
         <field name="bearing" type="bearing" column="bearing"/>
         <field name="createdAt" type="datetime_immutable" column="created_at"/>
         <field name="updatedAt" type="datetime_immutable" column="updated_at"/>
+        <field name="isDeleted" type="boolean" column="is_deleted"/>
     </entity>
 
 </doctrine-mapping>

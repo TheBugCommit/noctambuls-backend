@@ -23,6 +23,7 @@ readonly class ObservationSyncDto
         public float   $bearing,
         public string  $createdAt,
         public string  $updatedAt,
+        public bool    $isDeleted = false,
     )
     {
     }
@@ -46,6 +47,7 @@ readonly class ObservationSyncDto
             bearing: isset($data['bearing']) ? (float)$data['bearing'] : 0.0,
             createdAt: $data['createdAt'],
             updatedAt: $data['updatedAt'],
+            isDeleted: (bool)($data['isDeleted'] ?? false),
         );
     }
 }

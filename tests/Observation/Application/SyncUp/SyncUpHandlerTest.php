@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Observation\Application\SyncUp;
 
+use App\BirdCatalog\Domain\Repository\BirdRepositoryInterface;
+use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Observation\Application\SyncUp\Dto\SessionSyncDto;
 use App\Observation\Application\SyncUp\SessionSynchronizer;
 use App\Observation\Application\SyncUp\SyncSkippedException;
@@ -23,6 +25,8 @@ class SyncUpHandlerTest extends TestCase
     private SessionRepositoryInterface&MockObject $sessionRepository;
     private ProfileRepositoryInterface&MockObject $profileRepository;
     private TransactionManagerInterface&MockObject $transactionManager;
+    private BirdRepositoryInterface&MockObject $birdRepository;
+    private CensusRepositoryInterface&MockObject $censusRepository;
     private SessionSynchronizer&MockObject $synchronizer;
     private SyncUpHandler $handler;
 
@@ -31,13 +35,17 @@ class SyncUpHandlerTest extends TestCase
         $this->sessionRepository = $this->createMock(SessionRepositoryInterface::class);
         $this->profileRepository = $this->createMock(ProfileRepositoryInterface::class);
         $this->transactionManager = $this->createMock(TransactionManagerInterface::class);
+        $this->birdRepository = $this->createMock(BirdRepositoryInterface::class);
+        $this->censusRepository = $this->createMock(CensusRepositoryInterface::class);
         $this->synchronizer = $this->createMock(SessionSynchronizer::class);
 
         $this->handler = new SyncUpHandler(
             $this->sessionRepository,
             $this->profileRepository,
             $this->transactionManager,
-            $this->synchronizer
+            $this->birdRepository,
+            $this->censusRepository,
+            $this->synchronizer,
         );
     }
 
@@ -67,7 +75,10 @@ class SyncUpHandlerTest extends TestCase
         ]);
 
         $this->sessionRepository->method('findByIds')->willReturn([]);
+        $this->sessionRepository->method('findByCensusIdsAndAnnotator')->willReturn([]);
         $this->profileRepository->method('findValidOrnithologistCodes')->willReturn([]);
+        $this->birdRepository->method('findValidBirdIds')->willReturn([]);
+        $this->censusRepository->method('findCensusIdsByStatus')->willReturn([]);
 
         // 2. Només s'hauria d'iniciar la transacció 1 vegada (per a la sessió vàlida)
         $this->transactionManager->expects($this->once())->method('begin');
@@ -115,7 +126,7 @@ class SyncUpHandlerTest extends TestCase
         // El synchronizer hauria de rebre "null" a $existingSession
         $this->synchronizer->expects($this->once())
             ->method('sync')
-            ->with($this->isInstanceOf(SessionSyncDto::class), '550e8400-e29b-41d4-a716-446655440001', null, ['ORN-1' => true])
+            ->with($this->isInstanceOf(SessionSyncDto::class), '550e8400-e29b-41d4-a716-446655440001', null, ['ORN-1' => true], $this->anything(), $this->anything())
             ->willReturn($mockSession);
 
         $this->transactionManager->expects($this->once())->method('begin');
@@ -146,7 +157,7 @@ class SyncUpHandlerTest extends TestCase
         // Verifiquem que se li passa el mock existent al synchronizer
         $this->synchronizer->expects($this->once())
             ->method('sync')
-            ->with($this->anything(), '550e8400-e29b-41d4-a716-446655440001', $mockExistingSession, $this->anything())
+            ->with($this->anything(), '550e8400-e29b-41d4-a716-446655440001', $mockExistingSession, $this->anything(), $this->anything(), $this->anything())
             ->willReturn($mockExistingSession);
 
         $this->transactionManager->expects($this->once())->method('commit');
@@ -241,6 +252,10 @@ class SyncUpHandlerTest extends TestCase
         ]);
 
         $this->sessionRepository->method('findByIds')->willReturn([]);
+        $this->sessionRepository->method('findByCensusIdsAndAnnotator')->willReturn([]);
+        $this->profileRepository->method('findValidOrnithologistCodes')->willReturn([]);
+        $this->birdRepository->method('findValidBirdIds')->willReturn([]);
+        $this->censusRepository->method('findCensusIdsByStatus')->willReturn([]);
 
         $mockSession = $this->createMock(Session::class);
 

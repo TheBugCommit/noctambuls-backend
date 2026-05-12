@@ -118,6 +118,91 @@ class SessionTest extends TestCase
         $this->assertCount(1, $session->observations());
     }
 
+    public function test_put_observation_bumps_session_updated_at(): void
+    {
+        $start = new \DateTimeImmutable('2023-10-25 08:00:00');
+        $end = new \DateTimeImmutable('2023-10-25 10:00:00');
+        $sessionUpdatedAt = new \DateTimeImmutable('2023-10-25 08:00:00');
+        $session = $this->createSessionWithUpdatedAt(SessionType::Station, $start, $end, $sessionUpdatedAt);
+
+        $obsUpdatedAt = new \DateTimeImmutable('2023-10-25 09:30:00');
+        $obsStart = new \DateTimeImmutable('2023-10-25 09:00:00');
+        $observation = $this->createDummyObservation($session, $obsStart, $obsStart, $obsUpdatedAt);
+
+        $session->putObservation($observation);
+
+        $this->assertEquals($obsUpdatedAt, $session->updatedAt());
+    }
+
+    public function test_put_deleted_observation_skips_bounds_check_and_bumps_session_updated_at(): void
+    {
+        $start = new \DateTimeImmutable('2023-10-25 08:00:00');
+        $end = new \DateTimeImmutable('2023-10-25 10:00:00');
+        $sessionUpdatedAt = new \DateTimeImmutable('2023-10-25 08:00:00');
+        $session = $this->createSessionWithUpdatedAt(SessionType::Station, $start, $end, $sessionUpdatedAt);
+
+        $obsUpdatedAt = new \DateTimeImmutable('2023-10-25 11:30:00');
+        // Observació fora de límits temporals, però is_deleted=true
+        $outsideStart = new \DateTimeImmutable('2023-10-25 11:00:00');
+        $observation = $this->createDummyObservation($session, $outsideStart, $outsideStart, $obsUpdatedAt, true);
+
+        $session->putObservation($observation);
+
+        $this->assertTrue($observation->isDeleted());
+        $this->assertEquals($obsUpdatedAt, $session->updatedAt());
+    }
+
+    public function test_mark_session_deleted_sets_flag_and_updates_timestamp(): void
+    {
+        $start = new \DateTimeImmutable('2023-10-25 08:00:00');
+        $session = $this->createSessionWithUpdatedAt(SessionType::Incidental, $start, null, $start);
+
+        $deletedAt = new \DateTimeImmutable('2024-01-15 10:00:00');
+        $session->markDeleted($deletedAt);
+
+        $this->assertTrue($session->isDeleted());
+        $this->assertEquals($deletedAt, $session->updatedAt());
+    }
+
+    public function test_mark_session_deleted_propagates_to_all_its_observations(): void
+    {
+        // 1. Creem la sessió activa
+        $start = new \DateTimeImmutable('2023-10-25 08:00:00');
+        $end = new \DateTimeImmutable('2023-10-25 09:00:00');
+        $session = $this->createSessionWithUpdatedAt(SessionType::Incidental, $start, $end, $start);
+
+        // 2. Creem les observacions.
+        // IMPORTANT: Han de ser del mateix dia que la sessió ('2023-10-25')
+        // per no fer saltar el teu "test_it_throws_exception_if_incidental_observation_is_on_a_different_day"
+        $obsStart1 = new \DateTimeImmutable('2023-10-25 08:15:00');
+        $obsEnd1 = new \DateTimeImmutable('2023-10-25 08:20:00');
+
+        $obsStart2 = new \DateTimeImmutable('2023-10-25 08:30:00');
+        $obsEnd2 = new \DateTimeImmutable('2023-10-25 08:35:00');
+
+        $obs1 = $this->createDummyObservation($session, $obsStart1, $obsEnd1, $start, false, '550e8400-e29b-41d4-a716-446655440001');
+        $obs2 = $this->createDummyObservation($session, $obsStart2, $obsEnd2, $start, false, '550e8400-e29b-41d4-a716-446655440002');
+
+        $session->putObservation($obs1);
+        $session->putObservation($obs2);
+
+        // Verifiquem que inicialment NO estan esborrades
+        $this->assertFalse($obs1->isDeleted());
+        $this->assertFalse($obs2->isDeleted());
+
+        // 3. Executem l'acció: Esborrem l'Aggregate Root
+        $deletedAt = new \DateTimeImmutable('2024-01-15 10:00:00');
+        $session->markDeleted($deletedAt);
+
+        // 4. Asserts: Comprovem que el soft-delete s'ha propagat a les filles
+        $this->assertTrue($session->isDeleted(), 'La sessió ha d\'estar esborrada');
+
+        $this->assertTrue($obs1->isDeleted(), 'L\'observació 1 ha d\'estar esborrada en cascada');
+        $this->assertEquals($deletedAt, $obs1->updatedAt(), 'L\'updateAt de l\'obs 1 ha de coincidir amb l\'esborrat');
+
+        $this->assertTrue($obs2->isDeleted(), 'L\'observació 2 ha d\'estar esborrada en cascada');
+        $this->assertEquals($deletedAt, $obs2->updatedAt(), 'L\'updateAt de l\'obs 2 ha de coincidir amb l\'esborrat');
+    }
     public function test_it_throws_exception_if_incidental_observation_is_on_a_different_day(): void
     {
         $this->expectException(InvalidSessionStateException::class);
@@ -163,10 +248,45 @@ class SessionTest extends TestCase
         );
     }
 
-    private function createDummyObservation(Session $session, \DateTimeImmutable $start, \DateTimeImmutable $end): Observation
-    {
+    private function createSessionWithUpdatedAt(
+        SessionType $type,
+        ?\DateTimeImmutable $start,
+        ?\DateTimeImmutable $end,
+        \DateTimeImmutable $updatedAt,
+    ): Session {
+        return Session::create(
+            new SessionId('550e8400-e29b-41d4-a716-446655440000'),
+            null,
+            new AuthUserId('123e4567-e89b-12d3-a456-426614174000'),
+            $type,
+            $start,
+            $end,
+            TemperatureRange::TenToTwenty,
+            WindLevel::Calm,
+            SkyCondition::Clear,
+            RainLevel::None,
+            VisibilityLevel::Good,
+            MoonPresence::Absent,
+            $type !== SessionType::Incidental ? new ListeningPoint(1) : null,
+            $type !== SessionType::Incidental ? new Latitude(41.0) : null,
+            $type !== SessionType::Incidental ? new Longitude(2.0) : null,
+            null, null, null,
+            $type !== SessionType::Incidental ? LocationSource::GPS : null,
+            $updatedAt,
+            $updatedAt,
+        );
+    }
+
+    private function createDummyObservation(
+        Session $session,
+        \DateTimeImmutable $start,
+        \DateTimeImmutable $end,
+        ?\DateTimeImmutable $updatedAt = null,
+        bool $isDeleted = false,
+        string $id = '550e8400-e29b-41d4-a716-446655440005',
+    ): Observation {
         return Observation::create(
-            new ObservationId('550e8400-e29b-41d4-a716-446655440005'),
+            new ObservationId($id),
             $session,
             new BirdId('550e8400-e29b-41d4-a716-446655260001'),
             ContactType::Visual,
@@ -176,7 +296,8 @@ class SessionTest extends TestCase
             null, null, null, null, null, null, null,
             new Bearing(0),
             new \DateTimeImmutable(),
-            new \DateTimeImmutable()
+            $updatedAt ?? new \DateTimeImmutable(),
+            $isDeleted,
         );
     }
 }

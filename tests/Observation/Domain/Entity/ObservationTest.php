@@ -35,12 +35,13 @@ class ObservationTest extends TestCase
             null, null, null, null, null, null,
             new Bearing(90.0),
             new \DateTimeImmutable(),
-            new \DateTimeImmutable()
+            new \DateTimeImmutable(),
         );
 
         $this->assertEquals($obsId, $observation->id());
         $this->assertEquals(ContactType::Visual, $observation->contactType());
         $this->assertEquals(5, $observation->quantity()->value());
+        $this->assertFalse($observation->isDeleted());
 
         // Testem l'update
         $newBirdId = new BirdId('550e8400-e29b-41d4-a716-446655440001');
@@ -53,11 +54,38 @@ class ObservationTest extends TestCase
             'Cantant amagat',
             null, null, null, null, null, null,
             new Bearing(180.0),
-            new \DateTimeImmutable()
+            new \DateTimeImmutable(),
         );
 
         $this->assertEquals($newBirdId, $observation->speciesId());
         $this->assertEquals(ContactType::Auditive, $observation->contactType());
         $this->assertEquals(10, $observation->quantity()->value());
+        $this->assertFalse($observation->isDeleted());
+    }
+
+    public function test_it_marks_observation_as_deleted_and_updates_timestamp(): void
+    {
+        $sessionMock = $this->createMock(Session::class);
+        $start = new \DateTimeImmutable('2023-01-01 10:00:00');
+        $createdAt = new \DateTimeImmutable('2023-01-01 10:00:00');
+
+        $observation = Observation::create(
+            new ObservationId('550e8400-e29b-41d4-a716-446655440000'),
+            $sessionMock,
+            new BirdId('550e8400-e29b-41d4-a716-446655440001'),
+            ContactType::Visual,
+            new Quantity(1),
+            $start, $start,
+            null, null, null, null, null, null, null,
+            new Bearing(0.0),
+            $createdAt,
+            $createdAt,
+        );
+
+        $deletedAt = new \DateTimeImmutable('2023-06-01 08:00:00');
+        $observation->markDeleted($deletedAt);
+
+        $this->assertTrue($observation->isDeleted());
+        $this->assertEquals($deletedAt, $observation->updatedAt());
     }
 }
