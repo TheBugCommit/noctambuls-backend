@@ -6,6 +6,7 @@ namespace App\UI\Http\Backoffice\Observation;
 
 use App\Observation\Application\GetSessionsForBackoffice\GetSessionsForBackofficeHandler;
 use App\Observation\Application\GetSessionsForBackoffice\GetSessionsForBackofficeRequest;
+use App\UI\Http\Backoffice\Shared\DateRangeParserTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,8 @@ final class SessionListController extends AbstractController
         private readonly GetSessionsForBackofficeHandler $handler,
     ) {
     }
+
+    use DateRangeParserTrait;
 
     public function __invoke(Request $request): Response
     {
@@ -31,17 +34,7 @@ final class SessionListController extends AbstractController
         $hasObservationsRaw = $request->query->get('hasObservations');
         $hasObservations = $hasObservationsRaw !== null && $hasObservationsRaw !== '' ? (bool)(int)$hasObservationsRaw : null;
 
-        $dateFrom = null;
-        $dateTo = null;
-        try {
-            if ($request->query->get('dateFrom')) {
-                $dateFrom = new \DateTimeImmutable($request->query->get('dateFrom'));
-            }
-            if ($request->query->get('dateTo')) {
-                $dateTo = new \DateTimeImmutable($request->query->get('dateTo'))->setTime(23, 59, 59);
-            }
-        } catch (\Exception) {
-        }
+        [$dateFrom, $dateTo] = $this->parseDateRange($request);
 
         try {
             $response = $this->handler->handle(new GetSessionsForBackofficeRequest(

@@ -107,6 +107,11 @@ services:
         arguments:
             $publicDir: '%kernel.project_dir%/public'
 
+    App\UI\Http\Backoffice\Observation\SessionExportController:
+        arguments:
+            $csvExporter:  '@App\Observation\Infrastructure\Export\CsvSessionExporter'
+            $xlsxExporter: '@App\Observation\Infrastructure\Export\PhpSpreadsheetSessionExporter'
+
     # Bird catalog handlers
     App\BirdCatalog\Application\CreateBird\CreateBirdHandler:
         arguments:

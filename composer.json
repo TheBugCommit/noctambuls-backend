@@ -14,6 +14,7 @@
         "gesdinet/jwt-refresh-token-bundle": "^2.0",
         "google/apiclient": "^2.19",
         "lexik/jwt-authentication-bundle": "^3.1",
+        "phpoffice/phpspreadsheet": "^5.7",
         "symfony/apache-pack": "*",
         "symfony/asset": "8.0.*",
         "symfony/cache": "8.0.*",

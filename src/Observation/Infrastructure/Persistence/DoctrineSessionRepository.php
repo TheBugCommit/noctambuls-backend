@@ -183,6 +183,15 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
         return $qb->getQuery()->getSingleColumnResult();
     }
 
+    public function findAllIdsForBackoffice(SessionFilter $filter): array
+    {
+        return $this->applyFilterToQueryBuilder($filter)
+            ->select('s.id')
+            ->orderBy('s.startTime', 'DESC')
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
+
     public function findPaginatedDeletedIds(int $page, int $limit): array
     {
         return $this->em->createQueryBuilder()

@@ -38,6 +38,9 @@ interface SessionRepositoryInterface
 
     public function countForBackoffice(SessionFilter $filter): int;
 
+    /** @return string[] */
+    public function findAllIdsForBackoffice(SessionFilter $filter): array;
+
     /** @return array<array{id: string}> */
     public function findPaginatedDeletedIds(int $page, int $limit): array;
 

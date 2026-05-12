@@ -7,6 +7,14 @@
     <h1 class="text-2xl font-bold">{{ 'session.list.title'|trans }}</h1>
     <div class="flex gap-2">
         <span class="badge badge-neutral self-center">{{ total }}</span>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('backoffice_session_export', filters|merge({format: 'csv'})) }}" class="btn btn-success btn-sm">
+                {{ 'session.export.csv_button'|trans }}
+            </a>
+            <a href="{{ path('backoffice_session_export', filters|merge({format: 'xlsx'})) }}" class="btn btn-success btn-sm">
+                {{ 'session.export.xlsx_button'|trans }}
+            </a>
+        {% endif %}
         <a href="{{ path('backoffice_session_trash') }}" class="btn btn-outline btn-sm">
             {{ 'session.list.trash_button'|trans }}
         </a>

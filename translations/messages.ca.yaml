@@ -108,6 +108,39 @@ language:
     ca: "Català"
     es: "Castellà"
 
+enum:
+    temperature:
+        below_zero: 'Sota 0°C'
+        zero_to_ten: '0–10°C'
+        ten_to_twenty: '10–20°C'
+        twenty_to_thirty: '20–30°C'
+        above_thirty: 'Sobre 30°C'
+    wind:
+        calm: 'Calma'
+        breeze: 'Brisa'
+        moderate: 'Moderat'
+    sky:
+        clear: 'Cel clar'
+        partial_cloudy: 'Parcialment ennuvolat'
+        overcast: 'Ennuvolat'
+    rain:
+        none: 'Sense pluja'
+        drizzle: 'Plugim'
+        storm: 'Tempesta'
+    visibility:
+        poor: 'Dolenta'
+        moderate: 'Moderada'
+        good: 'Bona'
+    moon:
+        absent: 'Absent'
+        present: 'Present'
+    location_source:
+        gps: 'GPS'
+        manual: 'Manual'
+    contact_type:
+        visual: 'Visual'
+        auditive: 'Auditiu'
+
 session:
     nav: 'Sessions'
     list:
@@ -118,7 +151,7 @@ session:
         col_type: 'Tipus'
         col_date: 'Data'
         col_observations: 'Observacions'
-        col_lp: 'LP'
+        col_lp: "Punt d'Escolta"
         col_census: 'Cens'
         trash_button: 'Paparera'
     trash:
@@ -138,6 +171,9 @@ session:
         incidental: 'Incidental'
         station: 'Estació'
         census: 'Cens'
+    export:
+        csv_button: 'Exportar CSV'
+        xlsx_button: 'Exportar XLSX'
     flash:
         updated: 'Sessió actualitzada correctament.'
         deleted: 'Sessió moguda a la paparera.'
@@ -145,6 +181,7 @@ session:
         purged: 'Paparera buidada correctament.'
         not_found: 'Sessió no trobada.'
     error:
+        exporting: "S'ha produït un error inesperat exportant les sessions."
         unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."
         invalid_csrf: 'El token de seguretat no és vàlid. Torna-ho a provar.'
     confirm:

@@ -177,6 +177,11 @@ backoffice_session_trash_purge:
     controller: App\UI\Http\Backoffice\Observation\SessionTrashPurgeController
     methods: [POST]
 
+backoffice_session_export:
+    path: /backoffice/sessions/export
+    controller: App\UI\Http\Backoffice\Observation\SessionExportController
+    methods: [GET]
+
 backoffice_session_detail:
     path: /backoffice/sessions/{id}
     controller: App\UI\Http\Backoffice\Observation\SessionDetailController
