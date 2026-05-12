@@ -12,7 +12,7 @@ use App\Census\Domain\ValueObject\CensusId;
 
 final class CensusResponseMapper
 {
-    public static function toGetCensusResponse(Census $census): GetCensusResponse
+    public static function toGetCensusResponse(Census $census, string $deepLink, string $qrBase64): GetCensusResponse
     {
         return new GetCensusResponse(
             id: $census->id()->value(),
@@ -28,6 +28,8 @@ final class CensusResponseMapper
             updatedAt: $census->updatedAt()->format(\DateTimeInterface::ATOM),
             publishedAt: $census->publishedAt()?->format(\DateTimeInterface::ATOM),
             isEditable: $census->isEditable(),
+            deepLink: $deepLink,
+            qrBase64: $qrBase64,
         );
     }
 

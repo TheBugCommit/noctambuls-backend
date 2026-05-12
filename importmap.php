@@ -36,4 +36,11 @@ return [
         'version' => '4.6.13',
         'type' => 'css',
     ],
+    '@fortawesome/fontawesome-free' => [
+        'version' => '7.2.0',
+    ],
+    '@fortawesome/fontawesome-free/css/fontawesome.min.css' => [
+        'version' => '7.2.0',
+        'type' => 'css',
+    ],
 ];

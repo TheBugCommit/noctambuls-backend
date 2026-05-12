@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "^3.2",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",
+        "endroid/qr-code": "^6.1",
         "firebase/php-jwt": "^7.0",
         "gesdinet/jwt-refresh-token-bundle": "^2.0",
         "google/apiclient": "^2.19",
@@ -33,6 +34,7 @@
         "symfony/translation": "8.0.*",
         "symfony/twig-bundle": "8.0.*",
         "symfony/uid": "8.0.*",
+        "symfony/ux-icons": "^3.0",
         "symfony/yaml": "8.0.*",
         "symfonycasts/tailwind-bundle": "^0.12.0",
         "twig/extra-bundle": "^3.24"

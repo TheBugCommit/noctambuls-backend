@@ -20,6 +20,8 @@ readonly class GetCensusResponse
         public string $updatedAt,
         public ?string $publishedAt,
         public bool $isEditable,
+        public string $deepLink,
+        public string $qrBase64,
     ) {
     }
 }

@@ -3,136 +3,185 @@
 {% block title %}{{ 'census.detail.title'|trans }} – {{ census.title }}{% endblock %}
 
 {% block content %}
-<div class="flex items-center gap-3 mb-6">
-    <a href="{{ path('backoffice_census_list') }}" class="btn btn-ghost btn-sm">←</a>
-    <h1 class="text-2xl font-bold">{{ census.title }}</h1>
-    <div class="flex flex-col gap-2">
-        {% if census.status == 'PUBLISHED' %}
-            <span class="badge badge-success">{{ 'census.status.published'|trans }}</span>
-        {% else %}
-            <span class="badge badge-ghost">{{ 'census.status.draft'|trans }}</span>
-        {% endif %}
-        <span class="badge badge-outline font-mono text-xs">{{ census.id }}</span>
+    {# Capçalera #}
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{{ path('backoffice_census_list') }}" class="btn btn-ghost btn-sm" aria-label="Tornar">
+            <twig:ux:icon name="fa6-solid:arrow-left" class="w-4 h-4"/>
+        </a>
+        <h1 class="text-2xl font-bold">{{ census.title|default('Detall del Cens') }}</h1>
+        <div class="flex flex-col gap-2">
+            {% if census.status == 'PUBLISHED' %}
+                <span
+                    class="badge badge-success text-success-content font-medium">{{ 'census.status.published'|trans|default('Publicat') }}</span>
+            {% else %}
+                <span
+                    class="badge badge-ghost font-medium">{{ 'census.status.draft'|trans|default('Esborrany') }}</span>
+            {% endif %}
+            <span class="badge badge-outline font-mono text-xs">{{ census.id }}</span>
+        </div>
     </div>
-</div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {# --- FILA 1: INFO I COMPARTIR (50/50) --- #}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-    {# Columna esquerra: info + sessions #}
-    <div class="lg:col-span-2 flex flex-col gap-6">
-
-        {# Info del cens #}
-        <div class="card bg-base-100 shadow-sm">
+        {# 1. Informació del Cens #}
+        <div class="card bg-base-100 shadow-sm border border-base-200 h-full">
             <div class="card-body">
-                <h2 class="card-title text-base">{{ 'census.detail.section_info'|trans }}</h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <h2 class="card-title text-base mb-2">{{ 'census.detail.section_info'|trans|default('Informació del cens') }}</h2>
+
+                {# Com que ara té el 50% de la pantalla, podem posar els camps a 2 columnes #}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="form-control">
-                        <label class="label label-text text-sm">{{ 'census.field.date'|trans }}</label>
-                        <input type="text" value="{{ census.date }} {{ census.time }}" class="input input-bordered input-sm bg-base-200" readonly>
+                        <label
+                            class="label label-text text-xs font-semibold pb-1">{{ 'census.field.date'|trans|default('Data') }}</label>
+                        <input type="text" value="{{ census.date }} {{ census.time }}"
+                               class="input input-bordered input-sm bg-base-200 text-base-content" readonly>
                     </div>
                     <div class="form-control">
-                        <label class="label label-text text-sm">{{ 'census.field.location_name'|trans }}</label>
-                        <input type="text" value="{{ census.locationName }}" class="input input-bordered input-sm bg-base-200" readonly>
+                        <label
+                            class="label label-text text-xs font-semibold pb-1">{{ 'census.field.location_name'|trans|default('Nom de la ubicació') }}</label>
+                        <input type="text" value="{{ census.locationName }}"
+                               class="input input-bordered input-sm bg-base-200 text-base-content" readonly>
                     </div>
-                    <div class="form-control">
-                        <label class="label label-text text-sm">{{ 'census.field.location_coordinates'|trans }}</label>
-                        <input type="text" value="{{ census.latitude }}, {{ census.longitude }}" class="input input-bordered input-sm bg-base-200" readonly>
+                    <div class="form-control sm:col-span-2">
+                        <label
+                            class="label label-text text-xs font-semibold pb-1">{{ 'census.field.location_coordinates'|trans|default('Ubicació') }}</label>
+                        <input type="text" value="{{ census.latitude }}, {{ census.longitude }}"
+                               class="input input-bordered input-sm bg-base-200 text-base-content" readonly>
                     </div>
-                    {% if census.description %}
-                        <div class="form-control col-span-2 md:col-span-3">
-                            <label class="label label-text text-sm">{{ 'census.field.description'|trans }}</label>
-                            <textarea class="textarea textarea-bordered textarea-sm bg-base-200" readonly>{{ census.description }}</textarea>
-                        </div>
-                    {% endif %}
                     {% if census.publishedAt %}
-                        <div class="form-control">
-                            <label class="label label-text text-sm">Publicat</label>
-                            <input type="text" value="{{ census.publishedAt|date('d/m/Y H:i') }}" class="input input-bordered input-sm bg-base-200" readonly>
+                        <div class="form-control sm:col-span-2">
+                            <label class="label label-text text-xs font-semibold pb-1">Publicat</label>
+                            <input type="text" value="{{ census.publishedAt|date('d/m/Y H:i') }}"
+                                   class="input input-bordered input-sm bg-base-200 text-base-content" readonly>
                         </div>
                     {% endif %}
                 </div>
 
                 {% if census.isEditable %}
-                    <div class="card-actions justify-end mt-2">
+                    <div class="card-actions justify-end mt-auto pt-4">
                         <a href="{{ path('backoffice_census_edit', {id: census.id}) }}" class="btn btn-ghost btn-sm">
-                            {{ 'census.action.edit'|trans }}
+                            <twig:ux:icon name="fa6-solid:pen" class="w-3 h-3 mr-1"/>
+                            {{ 'census.action.edit'|trans|default('Editar') }}
                         </a>
                     </div>
                 {% endif %}
             </div>
         </div>
 
-        {# Llistat de sessions #}
-        <div class="card bg-base-100 shadow-sm">
-            <div class="card-body">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="card-title text-base">{{ 'census.detail.section_sessions'|trans }}</h2>
-                    <span class="badge badge-neutral">{{ sessions|length }}</span>
+        {# 2. Compartir Cens #}
+        {% if census.deepLink !== '' and census.qrBase64 !== '' %}
+            <div class="card bg-base-100 shadow-sm border border-base-200 h-full"
+                 data-controller="census-share"
+                 data-census-share-copied-text-value="Copiat!">
+                <div class="card-body flex flex-col items-center justify-center">
+                    <h2 class="card-title text-base w-full mb-4">{{ 'census.detail.section_share'|trans|default('Compartir Cens') }}</h2>
+
+                    {% if census.qrBase64 is defined and census.qrBase64 %}
+                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm mb-4">
+                            <img data-census-share-target="qrImage" src="{{ census.qrBase64 }}" alt="QR Code"
+                                 class="w-32 h-32 md:w-40 md:h-40 object-contain">
+                        </div>
+                    {% endif %}
+
+                    <button data-action="census-share#downloadQR" class="btn btn-outline btn-sm mb-6 max-w-xs w-full">
+                        <twig:ux:icon name="fa6-solid:download" class="w-4 h-4 mr-2"/>
+                        {{ 'census.action.download_qr'|trans|default('Descarregar QR') }}
+                    </button>
+
+                    <div class="form-control w-full">
+                        <label class="label pt-0 pb-1">
+                            <span
+                                class="label-text text-xs font-medium text-base-content/70">{{ 'census.detail.deep_link'|trans|default('Enllaç directe') }}</span>
+                        </label>
+                        <div class="flex w-full">
+                            <input type="text"
+                                   data-census-share-target="linkInput"
+                                   value="{{ census.deepLink|default('https://app.associaciotaxus.cat/...') }}"
+                                   class="input input-bordered input-sm flex-1 min-w-0 rounded-r-none focus:outline-none"
+                                   readonly/>
+                            <button data-action="census-share#copyLink"
+                                    data-census-share-target="copyBtn"
+                                    class="btn btn-primary btn-sm shrink-0 rounded-l-none">
+                                <twig:ux:icon name="fa6-solid:copy" class="w-3 h-3 mr-1"/>
+                                <span class="hidden sm:inline">Copiar</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
-                {% if sessions is empty %}
-                    <div class="alert alert-info">
-                        <span>{{ 'census.detail.no_sessions'|trans }}</span>
-                    </div>
-                {% else %}
-                    <div class="overflow-x-auto">
-                        <table class="table table-zebra w-full">
-                            <thead>
-                                <tr>
-                                    <th>{{ 'session.list.col_user'|trans }}</th>
-                                    <th>{{ 'session.list.col_type'|trans }}</th>
-                                    <th>{{ 'session.list.col_date'|trans }}</th>
-                                    <th>{{ 'session.list.col_observations'|trans }}</th>
-                                    <th>{{ 'session.list.col_lp'|trans }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for session in sessions %}
-                                    <tr class="cursor-pointer hover" onclick="window.location='{{ path('backoffice_session_detail', {id: session.id}) }}'">
-                                        <td class="font-medium">{{ session.annotatorName }}</td>
-                                        <td>
-                                            {% if session.sessionType == 0 %}
-                                                <span class="badge badge-ghost badge-sm">{{ 'session.type.incidental'|trans }}</span>
-                                            {% elseif session.sessionType == 2 %}
-                                                <span class="badge badge-info badge-sm">{{ 'session.type.station'|trans }}</span>
-                                            {% else %}
-                                                <span class="badge badge-primary badge-sm">{{ 'session.type.census'|trans }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-sm">{{ session.startTime ?? '—' }}</td>
-                                        <td><span class="badge badge-outline badge-sm">{{ session.observationCount }}</span></td>
-                                        <td>{{ session.listeningPoint ?? '—' }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% endif %}
             </div>
-        </div>
-
+        {% endif %}
     </div>
 
-    {# Columna dreta: mapa #}
-    <div class="lg:col-span-1">
-        <div class="card bg-base-100 shadow-sm sticky top-4">
-            <div class="card-body">
-                <h2 class="card-title text-base">{{ 'census.detail.section_map'|trans }}</h2>
+    {# --- FILA 2: MAPA (100% AMPLADA) --- #}
+    <div class="card bg-base-100 shadow-sm border border-base-200 mb-6">
+        <div class="card-body">
+            <h2 class="card-title text-base mb-4">{{ 'census.detail.section_map'|trans|default('Mapa de sessions') }}</h2>
 
-                {% if mapMarkers is empty %}
-                    <div class="alert alert-info">
-                        <span>{{ 'census.detail.no_map'|trans }}</span>
-                    </div>
-                {% else %}
+            {% if mapMarkers is empty %}
+                <div class="alert alert-info shadow-sm">
+                    <span>{{ 'census.detail.no_map'|trans|default('No hi ha coordenades per mostrar') }}</span>
+                </div>
+            {% else %}
+                <div class="rounded-xl overflow-hidden border border-base-300">
                     <div data-controller="sessions-map"
                          data-sessions-map-markers-value="{{ mapMarkers|json_encode }}"
                          data-sessions-map-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
-                         style="height: 500px;" class="rounded-lg border border-base-300">
+                         style="height: 450px;" class="w-full z-0">
                     </div>
-                {% endif %}
-            </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 
-</div>
+    {# --- FILA 3: SESSIONS (100% AMPLADA) --- #}
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card-body">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="card-title text-base">{{ 'census.detail.section_sessions'|trans|default('Sessions') }}</h2>
+                <span class="badge badge-neutral">{{ sessions|length }}</span>
+            </div>
+
+            {% if sessions is empty %}
+                <div class="alert alert-info shadow-sm">
+                    <span>{{ 'census.detail.no_sessions'|trans|default('No hi ha sessions') }}</span>
+                </div>
+            {% else %}
+                <div class="overflow-x-auto border border-base-200 rounded-lg">
+                    <table class="table table-zebra w-full text-sm">
+                        <thead class="bg-base-200/50">
+                        <tr>
+                            <th>Usuari</th>
+                            <th>Tipus</th>
+                            <th>Data</th>
+                            <th class="text-center">Observacions</th>
+                            <th class="text-center">Punt d'Escolta</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for session in sessions %}
+                            <tr class="cursor-pointer hover:bg-base-200 transition-colors"
+                                onclick="window.location='{{ path('backoffice_session_detail', {id: session.id}) }}'">
+                                <td class="font-medium">{{ session.annotatorName }}</td>
+                                <td>
+                                    {% if session.sessionType == 0 %}
+                                        <span class="badge badge-ghost badge-sm">Incidental</span>
+                                    {% elseif session.sessionType == 2 %}
+                                        <span class="badge badge-info badge-sm">Estació</span>
+                                    {% else %}
+                                        <span class="badge badge-primary badge-sm">Cens</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ session.startTime ?? '—' }}</td>
+                                <td class="text-center"><span
+                                        class="badge badge-outline badge-sm">{{ session.observationCount }}</span></td>
+                                <td class="text-center">{{ session.listeningPoint ?? '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

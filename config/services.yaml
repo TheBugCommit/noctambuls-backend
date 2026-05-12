@@ -122,4 +122,9 @@ services:
             $imageUploader: '@App\BirdCatalog\Infrastructure\Service\BirdImageUploader'
             $audioUploader: '@App\BirdCatalog\Infrastructure\Service\BirdAudioUploader'
 
-
+    # JWT Census Link GEnerator
+    App\Census\Infrastructure\Service\JwtCensusLinkGenerator:
+        arguments:
+            $jwtPrivateKeyPath: '%env(resolve:JWT_SECRET_KEY)%'
+            $appDomain: '%env(DOMAIN)%'
+            $jwtPassphrase: '%env(JWT_PASSPHRASE)%'

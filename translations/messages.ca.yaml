@@ -31,6 +31,9 @@ census:
         section_map: 'Mapa de sessions'
         no_sessions: 'No hi ha sessions registrades per a aquest cens.'
         no_map: 'Cap sessió amb coordenades GPS per mostrar.'
+        section_share: "Compartir Cens"
+        deep_link: 'Enllaç directe'
+        action_download: 'Descarregar QR'
     list:
         title: "Censos"
         empty: "Encara no hi ha censos creats."
@@ -58,6 +61,10 @@ census:
         save: "Desar"
         cancel: "Cancel·lar"
         back: "Tornar"
+        copied: "Copiat!"
+        download_qr: "Descarregar QR"
+        copy: "Copiar"
+
     confirm:
         delete: "Estàs segur que vols eliminar aquest cens?"
     flash:
@@ -73,6 +80,7 @@ census:
         coordinate_invalid: "Coodenada invàlida"
         longitude_required: "Longitud requerida"
         latitude_required: "Latitud requerida"
+        copy_failed: "No s'ha pogut copiar l'enllaç"
 bird_catalog:
     nav: "Catàleg d'ocells"
     section:
