@@ -30,6 +30,10 @@ services:
         resource: '../src/UI/Http/Backoffice/'
         tags: ['controller.service_arguments']
 
+    App\UI\Http\Rest\EventListener\ApiKeySubscriber:
+        arguments:
+            $apiKey: '%env(API_KEY)%'
+
     # Domain repository
     App\Auth\Domain\Repository\AuthUserRepositoryInterface:
         class: App\Auth\Infrastructure\Persistence\DoctrineAuthUserRepository
