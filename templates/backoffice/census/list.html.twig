@@ -28,7 +28,7 @@
             </thead>
             <tbody>
                 {% for census in censuses %}
-                    <tr>
+                    <tr class="cursor-pointer hover" onclick="window.location='{{ path('backoffice_census_detail', {id: census.id}) }}'">
                         <td class="font-medium">{{ census.title }}</td>
                         <td>{{ census.date }} {{ census.time }}</td>
                         <td>{{ census.locationName }}</td>
@@ -39,7 +39,7 @@
                                 <span class="badge badge-ghost badge-sm">{{ 'census.status.draft'|trans }}</span>
                             {% endif %}
                         </td>
-                        <td class="text-right">
+                        <td class="text-right" onclick="event.stopPropagation()">
                             {% if census.status == 'DRAFT' %}
                                 <form method="post"
                                       action="{{ path('backoffice_census_publish', {id: census.id}) }}"

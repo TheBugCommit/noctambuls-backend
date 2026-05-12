@@ -132,6 +132,11 @@ backoffice_census_create:
     controller: App\UI\Http\Backoffice\Census\CensusCreateController
     methods: [GET, POST]
 
+backoffice_census_detail:
+    path: /backoffice/censuses/{id}
+    controller: App\UI\Http\Backoffice\Census\CensusDetailController
+    methods: [GET]
+
 backoffice_census_edit:
     path: /backoffice/censuses/{id}/edit
     controller: App\UI\Http\Backoffice\Census\CensusEditController

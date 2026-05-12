@@ -24,6 +24,13 @@ error:
 
 census:
     nav: "Censos"
+    detail:
+        title: 'Detall del cens'
+        section_info: 'Informació del cens'
+        section_sessions: 'Sessions'
+        section_map: 'Mapa de sessions'
+        no_sessions: 'No hi ha sessions registrades per a aquest cens.'
+        no_map: 'Cap sessió amb coordenades GPS per mostrar.'
     list:
         title: "Censos"
         empty: "Encara no hi ha censos creats."
