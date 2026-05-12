@@ -111,6 +111,12 @@ class Observation
         $this->updatedAt = $updatedAt;
     }
 
+    public function restore(\DateTimeImmutable $updatedAt): void
+    {
+        $this->isDeleted = false;
+        $this->updatedAt = $updatedAt;
+    }
+
     public function id(): ObservationId
     {
         return $this->id;
@@ -199,5 +205,21 @@ class Observation
     public function isDeleted(): bool
     {
         return $this->isDeleted;
+    }
+
+    public function inheritLocation(
+        Latitude $latitude,
+        Longitude $longitude,
+        ?Accuracy $accuracy,
+        ?Altitude $altitude,
+        ?AltitudeAccuracy $altitudeAccuracy,
+        ?LocationSource $locationSource
+    ): void {
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
+        $this->accuracy = $accuracy;
+        $this->altitude = $altitude;
+        $this->altitudeAccuracy = $altitudeAccuracy;
+        $this->locationSource = $locationSource;
     }
 }

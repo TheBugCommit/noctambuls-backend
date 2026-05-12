@@ -161,3 +161,38 @@ api_sessions_participated:
     path: /api/sessions/participated
     controller: App\UI\Http\Rest\Observation\ParticipatedSessionsController
     methods: [GET]
+
+backoffice_session_list:
+    path: /backoffice/sessions
+    controller: App\UI\Http\Backoffice\Observation\SessionListController
+    methods: [GET]
+
+backoffice_session_trash:
+    path: /backoffice/sessions/trash
+    controller: App\UI\Http\Backoffice\Observation\SessionTrashController
+    methods: [GET]
+
+backoffice_session_trash_purge:
+    path: /backoffice/sessions/trash/purge
+    controller: App\UI\Http\Backoffice\Observation\SessionTrashPurgeController
+    methods: [POST]
+
+backoffice_session_detail:
+    path: /backoffice/sessions/{id}
+    controller: App\UI\Http\Backoffice\Observation\SessionDetailController
+    methods: [GET, POST]
+
+backoffice_session_delete:
+    path: /backoffice/sessions/{id}/delete
+    controller: App\UI\Http\Backoffice\Observation\SessionDeleteController
+    methods: [POST]
+
+backoffice_session_restore:
+    path: /backoffice/sessions/{id}/restore
+    controller: App\UI\Http\Backoffice\Observation\SessionRestoreController
+    methods: [POST]
+
+backoffice_observation_detail:
+    path: /backoffice/observations/{id}
+    controller: App\UI\Http\Backoffice\Observation\ObservationDetailController
+    methods: [GET, POST]

@@ -1,0 +1,119 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'session.list.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">{{ 'session.list.title'|trans }}</h1>
+    <div class="flex gap-2">
+        <span class="badge badge-neutral self-center">{{ total }}</span>
+        <a href="{{ path('backoffice_session_trash') }}" class="btn btn-outline btn-sm">
+            {{ 'session.list.trash_button'|trans }}
+        </a>
+    </div>
+</div>
+
+<div class="collapse collapse-arrow bg-base-100 shadow-sm rounded-box mb-4">
+    <input type="checkbox" {% if filters.sessionId or filters.sessionType or filters.dateFrom or filters.dateTo or filters.hasObservations != '' or filters.censusId %}checked{% endif %} />
+    <div class="collapse-title font-medium">{{ 'session.list.filter'|trans }}</div>
+    <div class="collapse-content">
+        <form method="get" action="{{ path('backoffice_session_list') }}" class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-2">
+            <div class="form-control">
+                <label class="label label-text text-sm">Session ID</label>
+                <input type="text" name="sessionId" value="{{ filters.sessionId }}" class="input input-bordered input-sm" placeholder="UUID">
+            </div>
+            <div class="form-control">
+                <label class="label label-text text-sm">{{ 'session.list.col_type'|trans }}</label>
+                <select name="sessionType" class="select select-bordered select-sm">
+                    <option value="">— {{ 'session.list.col_type'|trans }} —</option>
+                    <option value="0" {{ filters.sessionType == '0' ? 'selected' : '' }}>{{ 'session.type.incidental'|trans }}</option>
+                    <option value="2" {{ filters.sessionType == '2' ? 'selected' : '' }}>{{ 'session.type.station'|trans }}</option>
+                    <option value="1" {{ filters.sessionType == '1' ? 'selected' : '' }}>{{ 'session.type.census'|trans }}</option>
+                </select>
+            </div>
+            <div class="form-control">
+                <label class="label label-text text-sm">Census ID</label>
+                <input type="text" name="censusId" value="{{ filters.censusId }}" class="input input-bordered input-sm" placeholder="UUID">
+            </div>
+            <div class="form-control">
+                <label class="label label-text text-sm">{{ 'session.list.col_date'|trans }} (des de)</label>
+                <input type="date" name="dateFrom" value="{{ filters.dateFrom }}" class="input input-bordered input-sm">
+            </div>
+            <div class="form-control">
+                <label class="label label-text text-sm">{{ 'session.list.col_date'|trans }} (fins a)</label>
+                <input type="date" name="dateTo" value="{{ filters.dateTo }}" class="input input-bordered input-sm">
+            </div>
+            <div class="form-control">
+                <label class="label label-text text-sm">{{ 'session.list.col_observations'|trans }}</label>
+                <select name="hasObservations" class="select select-bordered select-sm">
+                    <option value="">— Totes —</option>
+                    <option value="1" {{ filters.hasObservations == '1' ? 'selected' : '' }}>Amb observacions</option>
+                    <option value="0" {{ filters.hasObservations == '0' ? 'selected' : '' }}>Sense observacions</option>
+                </select>
+            </div>
+            <div class="col-span-2 md:col-span-3 flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm">Cercar</button>
+                <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm">Netejar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if sessions is empty %}
+    <div class="alert alert-info">
+        <span>{{ 'session.list.empty'|trans }}</span>
+    </div>
+{% else %}
+    <div class="overflow-x-auto">
+        <table class="table table-zebra w-full bg-base-100 shadow-sm rounded-box">
+            <thead>
+                <tr>
+                    <th>{{ 'session.list.col_user'|trans }}</th>
+                    <th>{{ 'session.list.col_type'|trans }}</th>
+                    <th>{{ 'session.list.col_date'|trans }}</th>
+                    <th>{{ 'session.list.col_observations'|trans }}</th>
+                    <th>{{ 'session.list.col_lp'|trans }}</th>
+                    <th>{{ 'session.list.col_census'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in sessions %}
+                    <tr class="cursor-pointer hover" onclick="window.location='{{ path('backoffice_session_detail', {id: session.id}) }}'">
+                        <td class="font-medium">{{ session.annotatorName }}</td>
+                        <td>
+                            {% if session.sessionType == 0 %}
+                                <span class="badge badge-ghost badge-sm">{{ 'session.type.incidental'|trans }}</span>
+                            {% elseif session.sessionType == 2 %}
+                                <span class="badge badge-info badge-sm">{{ 'session.type.station'|trans }}</span>
+                            {% else %}
+                                <span class="badge badge-primary badge-sm">{{ 'session.type.census'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-sm">{{ session.startTime ?? '—' }}</td>
+                        <td><span class="badge badge-outline badge-sm">{{ session.observationCount }}</span></td>
+                        <td>{{ session.listeningPoint ?? '—' }}</td>
+                        <td class="text-sm">{{ session.censusTitle ?? '—' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if totalPages > 1 %}
+        <div class="flex justify-center mt-6">
+            <div class="join">
+                {% if page > 1 %}
+                    <a href="{{ path('backoffice_session_list', filters|merge({page: page - 1})) }}" class="join-item btn btn-sm">«</a>
+                {% endif %}
+                {% for p in 1..totalPages %}
+                    <a href="{{ path('backoffice_session_list', filters|merge({page: p})) }}"
+                       class="join-item btn btn-sm {{ p == page ? 'btn-active' : '' }}">{{ p }}</a>
+                {% endfor %}
+                {% if page < totalPages %}
+                    <a href="{{ path('backoffice_session_list', filters|merge({page: page + 1})) }}" class="join-item btn btn-sm">»</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

@@ -260,6 +260,16 @@ class Session
         }
     }
 
+    public function restore(\DateTimeImmutable $at): void
+    {
+        $this->isDeleted = false;
+        $this->updatedAt = $at;
+
+        foreach ($this->observations as $observation) {
+            $observation->restore($at);
+        }
+    }
+
     public function hasParticipantWithCode(OrnithologistCode $code): bool
     {
         foreach ($this->participants as $existingParticipant) {
@@ -307,6 +317,7 @@ class Session
     {
         if (!$observation->isDeleted()) {
             $this->assertObservationWithinBounds($observation);
+            $this->assertAndPrepareObservationLocation($observation);
         }
 
         $existing = $this->findObservationById($observation->id());
@@ -375,6 +386,32 @@ class Session
         } elseif ($this->sessionType === SessionType::Incidental) {
             if ($obsStartDay !== $sessionDay || $obsEndDay !== $sessionDay) {
                 throw new InvalidSessionStateException('Incidental observations must occur on the same day as the session');
+            }
+        }
+    }
+
+    private function assertAndPrepareObservationLocation(Observation $observation): void
+    {
+        if ($this->sessionType === SessionType::Incidental) {
+            if ($observation->latitude() === null || $observation->longitude() === null) {
+                throw new InvalidSessionStateException('Incidentals observations must have location.');
+            }
+        }
+        else {
+            if ($observation->latitude() === null || $observation->longitude() === null) {
+
+                if ($this->latitude === null || $this->longitude === null) {
+                    throw new InvalidSessionStateException('Can heradate ubications becouse session doesnt have.');
+                }
+
+                $observation->inheritLocation(
+                    $this->latitude,
+                    $this->longitude,
+                    $this->accuracy,
+                    $this->altitude,
+                    $this->altitudeAccuracy,
+                    $this->locationSource
+                );
             }
         }
     }

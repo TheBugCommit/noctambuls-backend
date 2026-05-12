@@ -49,6 +49,8 @@ security:
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
         - { path: ^/backoffice/login, roles: PUBLIC_ACCESS }
+        - { path: ^/backoffice/sessions, roles: ROLE_REVIEWER }
+        - { path: ^/backoffice/observations, roles: ROLE_REVIEWER }
         - { path: ^/backoffice, roles: ROLE_ADMIN }
 
 when@test:

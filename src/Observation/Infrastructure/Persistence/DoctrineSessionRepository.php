@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Observation\Infrastructure\Persistence;
 
 use App\Auth\Domain\ValueObject\AuthUserId;
+use App\Observation\Domain\Entity\Observation;
 use App\Observation\Domain\Entity\Session;
+use App\Observation\Domain\Filter\SessionFilter;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
+use App\Observation\Domain\ValueObject\ObservationId;
 use App\Observation\Domain\ValueObject\SessionId;
+use App\Observation\Domain\ValueObject\SessionType;
 use App\Profile\Domain\ValueObject\OrnithologistCode;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 final readonly class DoctrineSessionRepository implements SessionRepositoryInterface
@@ -158,6 +163,69 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
             ->getResult();
     }
 
+    public function countForBackoffice(SessionFilter $filter): int
+    {
+        $qb = $this->applyFilterToQueryBuilder($filter);
+        $qb->select('COUNT(DISTINCT s.id)');
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function findPaginatedIdsForBackoffice(SessionFilter $filter, int $page, int $limit): array
+    {
+        $qb = $this->applyFilterToQueryBuilder($filter);
+
+        $qb->select('s.id')
+            ->orderBy('s.startTime', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return $qb->getQuery()->getSingleColumnResult();
+    }
+
+    public function findPaginatedDeletedIds(int $page, int $limit): array
+    {
+        return $this->em->createQueryBuilder()
+            ->select('s.id')
+            ->from(Session::class, 's')
+            ->where('s.isDeleted = true')
+            ->orderBy('s.updatedAt', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getScalarResult();
+    }
+
+    public function countDeleted(): int
+    {
+        return (int)$this->em->createQueryBuilder()
+            ->select('COUNT(s.id)')
+            ->from(Session::class, 's')
+            ->where('s.isDeleted = true')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function purgeDeleted(): int
+    {
+        return (int) $this->em->createQuery(
+            'DELETE FROM ' . Session::class . ' s WHERE s.isDeleted = true'
+        )->execute();
+    }
+
+    public function findByObservationId(ObservationId $id): ?Session
+    {
+        return $this->em->createQueryBuilder()
+            ->select('s', 'o', 'p')
+            ->from(Session::class, 's')
+            ->leftJoin('s.observations', 'o')
+            ->leftJoin('s.participants', 'p')
+            ->where('o.id = :id')
+            ->setParameter('id', $id->value())
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function save(Session $session): void
     {
         $this->em->persist($session);
@@ -166,5 +234,44 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
     public function free(Session $session): void
     {
         $this->em->detach($session);
+    }
+
+    private function applyFilterToQueryBuilder(SessionFilter $filter): QueryBuilder
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->from(Session::class, 's')
+            ->where('s.isDeleted = :isDeleted')
+            ->setParameter('isDeleted', $filter->isDeleted);
+
+        if ($filter->sessionId !== null) {
+            $qb->andWhere('s.id = :sessionId')->setParameter('sessionId', $filter->sessionId);
+        }
+        if ($filter->sessionType !== null) {
+            $qb->andWhere('s.sessionType = :sessionType')->setParameter('sessionType', $filter->sessionType);
+        }
+        if ($filter->dateFrom !== null) {
+            $qb->andWhere('s.startTime >= :dateFrom')->setParameter('dateFrom', $filter->dateFrom, Types::DATETIME_IMMUTABLE);
+        }
+        if ($filter->dateTo !== null) {
+            $qb->andWhere('s.startTime <= :dateTo')->setParameter('dateTo', $filter->dateTo, Types::DATETIME_IMMUTABLE);
+        }
+        if ($filter->hasObservations !== null) {
+            $subQb = $this->em->createQueryBuilder()
+                ->select('1')
+                ->from(Observation::class, 'obs')
+                ->where('obs.session = s')
+                ->andWhere('obs.isDeleted = false');
+
+            if ($filter->hasObservations === true) {
+                $qb->andWhere($qb->expr()->exists($subQb->getDQL()));
+            } else {
+                $qb->andWhere($qb->expr()->not($qb->expr()->exists($subQb->getDQL())));
+            }
+        }
+        if ($filter->censusId !== null) {
+            $qb->andWhere('s.censusId = :censusId')->setParameter('censusId', $filter->censusId);
+        }
+
+        return $qb;
     }
 }

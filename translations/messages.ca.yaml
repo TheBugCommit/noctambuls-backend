@@ -12,6 +12,16 @@ login:
     password: "Contrasenya"
     submit: "Iniciar sessió"
 
+error:
+    page:
+        title: "S'ha produït un error"
+        heading: "Vaja! Alguna cosa ha fallat."
+        description: "S'ha produït un error inesperat processant la teva petició. El nostre equip tècnic ja ha estat notificat."
+        dev_label: "Error:"
+    action:
+        back: "Tornar enrere"
+        home: "Anar a l'inici"
+
 census:
     nav: "Censos"
     list:
@@ -97,6 +107,63 @@ bird_catalog:
 language:
     ca: "Català"
     es: "Castellà"
+
+session:
+    nav: 'Sessions'
+    list:
+        title: 'Llistat de sessions'
+        empty: 'No hi ha sessions registrades.'
+        filter: 'Filtres'
+        col_user: 'Usuari'
+        col_type: 'Tipus'
+        col_date: 'Data'
+        col_observations: 'Observacions'
+        col_lp: 'LP'
+        col_census: 'Cens'
+        trash_button: 'Paparera'
+    trash:
+        title: 'Paparera de sessions'
+        empty: 'La paparera és buida.'
+        purge_button: 'Buidar paparera'
+        restore_button: 'Restaurar'
+        confirm_purge: 'Segur que vols eliminar permanentment totes les sessions de la paparera?'
+    detail:
+        title: 'Detall de la sessió'
+        section_environmental: 'Condicions ambientals'
+        section_info: 'Informació general'
+        section_location: 'Ubicació'
+        section_participants: 'Participants'
+        section_observations: 'Observacions'
+    type:
+        incidental: 'Incidental'
+        station: 'Estació'
+        census: 'Cens'
+    flash:
+        updated: 'Sessió actualitzada correctament.'
+        deleted: 'Sessió moguda a la paparera.'
+        restored: 'Sessió restaurada correctament.'
+        purged: 'Paparera buidada correctament.'
+        not_found: 'Sessió no trobada.'
+    error:
+        unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."
+        invalid_csrf: 'El token de seguretat no és vàlid. Torna-ho a provar.'
+    confirm:
+        delete: 'Segur que vols eliminar aquesta sessió?'
+        restore: 'Segur que vols restaurar aquesta sessió?'
+
+observation:
+    detail:
+        title: "Detall de l'observació"
+        section_data: "Dades de l'observació"
+        section_temporal: 'Temporalització'
+        section_location: 'Ubicació'
+        no_location: 'Sense coordenades GPS registrades.'
+    flash:
+        updated: 'Observació actualitzada correctament.'
+        not_found: 'Observació no trobada.'
+    error:
+        unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."
+        invalid_csrf: 'El token de seguretat no és vàlid. Torna-ho a provar.'
 
 user_management:
     nav:

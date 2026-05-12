@@ -68,7 +68,8 @@ class ParticipatedSessionsControllerTest extends WebTestCase
             ))
             ->willReturn(new GetParticipatedSessionsResponse(
                 sessions: [['id' => 'session-1']],
-                meta: ['totalItems' => 1, 'currentPage' => 1, 'totalPages' => 1, 'hasMore' => false]
+                meta: ['totalItems' => 1, 'currentPage' => 1, 'totalPages' => 1, 'hasMore' => false],
+                serverTime: '2026-01-01T00:00:00+00:00',
             ));
 
         $this->client->request('GET', '/api/sessions/participated');
@@ -95,7 +96,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
             ->with($this->callback(fn(GetParticipatedSessionsRequest $req) => $req->offset === 50 &&
                 $req->limit === 100
             ))
-            ->willReturn(new GetParticipatedSessionsResponse([], []));
+            ->willReturn(new GetParticipatedSessionsResponse([], [], '2026-01-01T00:00:00+00:00'));
 
         $this->client->request('GET', '/api/sessions/participated?offset=50&limit=500');
 

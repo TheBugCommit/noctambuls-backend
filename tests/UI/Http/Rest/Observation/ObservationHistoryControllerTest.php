@@ -44,7 +44,8 @@ class ObservationHistoryControllerTest extends WebTestCase
             ))
             ->willReturn(new GetObservationHistoryResponse(
                 sessions: [['id' => '550e8400-e29b-41d4-a716-446655440001']],
-                meta: ['totalItems' => 1, 'currentPage' => 1, 'totalPages' => 1, 'hasMore' => false]
+                meta: ['totalItems' => 1, 'currentPage' => 1, 'totalPages' => 1, 'hasMore' => false],
+                serverTime: '2026-01-01T00:00:00+00:00',
             ));
 
         $this->client->request('GET', '/api/observations/history');
@@ -70,7 +71,7 @@ class ObservationHistoryControllerTest extends WebTestCase
                 $req->offset === 0 &&
                 $req->limit === 100
             ))
-            ->willReturn(new GetObservationHistoryResponse([], []));
+            ->willReturn(new GetObservationHistoryResponse([], [], '2026-01-01T00:00:00+00:00'));
 
         $this->client->request('GET', '/api/observations/history?offset=-10&limit=500');
 

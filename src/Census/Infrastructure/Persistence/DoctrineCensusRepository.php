@@ -20,6 +20,24 @@ final readonly class DoctrineCensusRepository implements CensusRepositoryInterfa
     {
         return $this->em->getRepository(Census::class)->findOneBy(['id' => $id->value()]);
     }
+    /**
+     * @param string[] $censusIds
+     * @return Census[]
+     */
+    public function findByIds(array $censusIds): array
+    {
+        if (empty($censusIds)) {
+            return [];
+        }
+
+        return $this->em->createQueryBuilder()
+            ->select('c')
+            ->from(Census::class, 'c')
+            ->where('c.id IN (:censusIds)')
+            ->setParameter('censusIds', $censusIds)
+            ->getQuery()
+            ->getResult();
+    }
 
     public function findPaginated(int $page, int $limit): array
     {

@@ -1,0 +1,102 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'observation.detail.title'|trans }} #{{ observation.id|slice(0,8) }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center gap-3 mb-6">
+    <a href="{{ path('backoffice_session_detail', {id: observation.sessionId}) }}" class="btn btn-ghost btn-sm">←</a>
+    <h1 class="text-2xl font-bold">{{ 'observation.detail.title'|trans }}</h1>
+    <span class="badge badge-outline font-mono text-xs">{{ observation.id }}</span>
+    {% if observation.isDeleted %}
+        <span class="badge badge-error">Eliminada</span>
+    {% endif %}
+</div>
+
+<form method="post" action="{{ path('backoffice_observation_detail', {id: observation.id}) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('observation_edit') }}">
+
+    <div class="card bg-base-100 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-base">{{ 'observation.detail.section_data'|trans }}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-control">
+                    <label class="label label-text text-sm">Espècie</label>
+                    <select name="speciesId" class="select select-bordered select-sm">
+                        {% for bird in birds %}
+                            <option value="{{ bird.id }}" {{ observation.speciesId == bird.id ? 'selected' : '' }}>{{ bird.scientificName }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Tipus de contacte</label>
+                    <select name="contactType" class="select select-bordered select-sm">
+                        <option value="0" {{ observation.contactType == 0 ? 'selected' : '' }}>Visual</option>
+                        <option value="1" {{ observation.contactType == 1 ? 'selected' : '' }}>Auditiu</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Quantitat</label>
+                    <input type="number" name="quantity" value="{{ observation.quantity }}" min="1" class="input input-bordered input-sm">
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Azimut (bearing)</label>
+                    <input type="number" name="bearing" value="{{ observation.bearing }}" min="0" max="359.99" step="0.01" class="input input-bordered input-sm">
+                </div>
+                <div class="form-control md:col-span-2">
+                    <label class="label label-text text-sm">Notes</label>
+                    <textarea name="notes" class="textarea textarea-bordered text-sm" rows="3">{{ observation.notes }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-base">{{ 'observation.detail.section_temporal'|trans }}</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-control">
+                    <label class="label label-text text-sm">Inici</label>
+                    <input type="text" value="{{ observation.startTime }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Fi</label>
+                    <input type="text" value="{{ observation.endTime }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-base">{{ 'observation.detail.section_location'|trans }}</h2>
+            {% if observation.latitude and observation.longitude %}
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="form-control">
+                        <label class="label label-text text-sm">Latitud</label>
+                        <input type="text" value="{{ observation.latitude }}" class="input input-bordered input-sm bg-base-200" readonly>
+                    </div>
+                    <div class="form-control">
+                        <label class="label label-text text-sm">Longitud</label>
+                        <input type="text" value="{{ observation.longitude }}" class="input input-bordered input-sm bg-base-200" readonly>
+                    </div>
+                </div>
+                <div data-controller="map-viewer"
+                     data-map-viewer-lat-value="{{ observation.latitude }}"
+                     data-map-viewer-lng-value="{{ observation.longitude }}"
+                     data-map-viewer-label-value="Observació"
+                     data-map-viewer-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
+                     style="height: 300px;" class="rounded-lg border border-base-300">
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <span>{{ 'observation.detail.no_location'|trans }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="flex gap-2 mb-6">
+        <button type="submit" class="btn btn-primary btn-sm">{{ 'census.action.save'|trans }}</button>
+    </div>
+</form>
+{% endblock %}

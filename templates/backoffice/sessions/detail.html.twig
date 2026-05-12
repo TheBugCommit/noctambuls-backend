@@ -1,0 +1,206 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'session.detail.title'|trans }} #{{ session.id|slice(0,8) }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center gap-3 mb-6">
+    <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm">←</a>
+    <h1 class="text-2xl font-bold">{{ 'session.detail.title'|trans }}</h1>
+    <span class="badge badge-outline font-mono text-xs">{{ session.id }}</span>
+    {% if session.isDeleted %}
+        <span class="badge badge-error">Eliminada</span>
+    {% endif %}
+</div>
+
+<form method="post" id="edit-session-form" action="{{ path('backoffice_session_detail', {id: session.id}) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_edit') }}">
+
+    <div class="card bg-base-100 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-base">{{ 'session.detail.section_info'|trans }}</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="form-control">
+                    <label class="label label-text text-sm">{{ 'session.list.col_user'|trans }}</label>
+                    <input type="text" value="{{ session.annotatorName }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">{{ 'session.list.col_type'|trans }}</label>
+                    <input type="text" value="{{ session.sessionType == 0 ? 'session.type.incidental'|trans : (session.sessionType == 2 ? 'session.type.station'|trans : 'session.type.census'|trans) }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Inici</label>
+                    <input type="text" value="{{ session.startTime ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Fi</label>
+                    <input type="text" value="{{ session.endTime ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+                {% if session.censusTitle %}
+                    <div class="form-control col-span-2">
+                        <label class="label label-text text-sm">{{ 'session.list.col_census'|trans }}</label>
+                        <input type="text" value="{{ session.censusTitle }}" class="input input-bordered input-sm bg-base-200" readonly>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-base">{{ 'session.detail.section_environmental'|trans }}</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="form-control">
+                    <label class="label label-text text-sm">Temperatura</label>
+                    <select name="temperature" class="select select-bordered select-sm">
+                        <option value="0" {{ session.temperature == 0 ? 'selected' : '' }}>< 0°C</option>
+                        <option value="1" {{ session.temperature == 1 ? 'selected' : '' }}>0–10°C</option>
+                        <option value="2" {{ session.temperature == 2 ? 'selected' : '' }}>10–20°C</option>
+                        <option value="3" {{ session.temperature == 3 ? 'selected' : '' }}>20–30°C</option>
+                        <option value="4" {{ session.temperature == 4 ? 'selected' : '' }}>> 30°C</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Vent</label>
+                    <select name="wind" class="select select-bordered select-sm">
+                        <option value="0" {{ session.wind == 0 ? 'selected' : '' }}>Calma</option>
+                        <option value="1" {{ session.wind == 1 ? 'selected' : '' }}>Brisa</option>
+                        <option value="2" {{ session.wind == 2 ? 'selected' : '' }}>Moderat</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Cel</label>
+                    <select name="sky" class="select select-bordered select-sm">
+                        <option value="0" {{ session.sky == 0 ? 'selected' : '' }}>Clar</option>
+                        <option value="1" {{ session.sky == 1 ? 'selected' : '' }}>Parcialment ennuvolat</option>
+                        <option value="2" {{ session.sky == 2 ? 'selected' : '' }}>Cobert</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Pluja</label>
+                    <select name="rain" class="select select-bordered select-sm">
+                        <option value="0" {{ session.rain == 0 ? 'selected' : '' }}>Cap</option>
+                        <option value="1" {{ session.rain == 1 ? 'selected' : '' }}>Plugim</option>
+                        <option value="2" {{ session.rain == 2 ? 'selected' : '' }}>Tempesta</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Visibilitat</label>
+                    <select name="visibility" class="select select-bordered select-sm">
+                        <option value="0" {{ session.visibility == 0 ? 'selected' : '' }}>Dolenta</option>
+                        <option value="1" {{ session.visibility == 1 ? 'selected' : '' }}>Moderada</option>
+                        <option value="2" {{ session.visibility == 2 ? 'selected' : '' }}>Bona</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Lluna</label>
+                    <select name="moon" class="select select-bordered select-sm">
+                        <option value="0" {{ session.moon == 0 ? 'selected' : '' }}>Absent</option>
+                        <option value="1" {{ session.moon == 1 ? 'selected' : '' }}>Present</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-base">{{ 'session.detail.section_location'|trans }}</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="form-control">
+                    <label class="label label-text text-sm">Latitud</label>
+                    <input type="text" value="{{ session.latitude ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Longitud</label>
+                    <input type="text" value="{{ session.longitude ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">Font ubicació</label>
+                    <input type="text" value="{{ session.locationSource ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label label-text text-sm">{{ 'session.list.col_lp'|trans }}</label>
+                    <input type="number" name="listeningPoint" value="{{ session.listeningPoint }}" min="0" class="input input-bordered input-sm" placeholder="—">
+                </div>
+            </div>
+            {% if session.latitude and session.longitude %}
+                <div data-controller="map-viewer"
+                     data-map-viewer-lat-value="{{ session.latitude }}"
+                     data-map-viewer-lng-value="{{ session.longitude }}"
+                     data-map-viewer-label-value="LP {{ session.listeningPoint }}"
+                     data-map-viewer-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
+                     style="height: 300px;" class="rounded-lg border border-base-300 mt-4">
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</form>
+
+    <div class="flex gap-2 mb-6">
+        {# Aquest botó envia el formulari d'edició gràcies a l'atribut form="edit-session-form" #}
+        <button type="submit" form="edit-session-form" class="btn btn-primary btn-sm">{{ 'census.action.save'|trans }}</button>
+
+        {% if not session.isDeleted %}
+            {# Aquest és un formulari 100% independent per a l'acció d'esborrar #}
+            <form method="post" action="{{ path('backoffice_session_delete', {id: session.id}) }}"
+                  class="inline"
+                  data-controller="confirm-action"
+                  data-confirm-action-message-value="{{ 'session.confirm.delete'|trans }}"
+                  data-action="submit->confirm-action#confirm">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_delete_' ~ session.id) }}">
+                <button type="submit" class="btn btn-error btn-sm">Eliminar sessió</button>
+            </form>
+        {% endif %}
+    </div>
+
+{% if session.participants is not empty %}
+    <div class="card bg-base-100 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-base">{{ 'session.detail.section_participants'|trans }}</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for code in session.participants %}
+                    <span class="badge badge-outline font-mono">{{ code }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% if session.observations is not empty %}
+    <div class="card bg-base-100 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-base">{{ 'session.detail.section_observations'|trans }}</h2>
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                    <thead>
+                        <tr>
+                            <th>Espècie</th>
+                            <th>Contacte</th>
+                            <th>Quantitat</th>
+                            <th>Hora inici</th>
+                            <th>Estat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obs in session.observations %}
+                            <tr class="cursor-pointer hover" onclick="window.location='{{ path('backoffice_observation_detail', {id: obs.id}) }}'">
+                                <td class="text-sm font-mono">{{ obs.speciesName }}</td>
+                                <td>{{ obs.contactType == 0 ? 'Visual' : 'Auditiu' }}</td>
+                                <td>{{ obs.quantity }}</td>
+                                <td class="text-sm">{{ obs.startTime }}</td>
+                                <td>
+                                    {% if obs.isDeleted %}
+                                        <span class="badge badge-error badge-sm">Eliminada</span>
+                                    {% else %}
+                                        <span class="badge badge-success badge-sm">Activa</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

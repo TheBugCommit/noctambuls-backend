@@ -11,6 +11,7 @@ use App\Census\Domain\ValueObject\CensusStatus;
 interface CensusRepositoryInterface
 {
     public function findById(CensusId $id): ?Census;
+    public function findByIds(array $censusIds): array;
 
     /** @return Census[] */
     public function findPaginated(int $page, int $limit): array;
