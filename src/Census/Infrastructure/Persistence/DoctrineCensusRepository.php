@@ -8,6 +8,7 @@ use App\Census\Domain\Entity\Census;
 use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Census\Domain\ValueObject\CensusId;
 use App\Census\Domain\ValueObject\CensusStatus;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class DoctrineCensusRepository implements CensusRepositoryInterface
@@ -67,6 +68,26 @@ final readonly class DoctrineCensusRepository implements CensusRepositoryInterfa
             ->setParameter('status', $status->value)
             ->getQuery()
             ->getSingleColumnResult();
+    }
+
+    public function findPublishedUpcoming(?\DateTimeImmutable $since = null): array
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->select('c')
+            ->from(Census::class, 'c')
+            ->where('c.status = :status')
+            ->andWhere('c.date >= :today')
+            ->setParameter('status', CensusStatus::PUBLISHED->value)
+            ->setParameter('today', new \DateTimeImmutable('today'), Types::DATE_IMMUTABLE)
+            ->orderBy('c.date', 'ASC')
+            ->addOrderBy('c.time', 'ASC');
+
+        if ($since !== null) {
+            $qb->andWhere('c.updatedAt > :since')
+               ->setParameter('since', $since, Types::DATETIME_IMMUTABLE);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     public function count(): int

@@ -21,7 +21,7 @@ final class EndroidQrCodeGenerator implements QrCodeGeneratorInterface
                 data: $data,
                 encoding: new Encoding('UTF-8'),
                 errorCorrectionLevel: ErrorCorrectionLevel::High,
-                size: 300,
+                size: 1000,
                 margin: 10
             );
 

@@ -37,14 +37,11 @@ final readonly class JwtCensusLinkGenerator implements CensusLinkGeneratorInterf
         );
 
         $payload = [
-            'iss'   => 'taxus_backoffice',
-            'iat'   => time(),
-            'id'    => $census->id()->value(),
-            'name'  => $census->title()->value(),
-            'start' => $datetimeString,
+            'i' => $census->id()->value(),
+            't' => $census->title()->value(),
+            's' => $datetimeString,
         ];
 
-        // Lògica d'infraestructura (Firebase JWT) purament aïllada aquí
         $jwt = JWT::encode($payload, $privateKey, 'RS256');
 
         return sprintf('https://%s/census/join?token=%s', $this->appDomain, $jwt);

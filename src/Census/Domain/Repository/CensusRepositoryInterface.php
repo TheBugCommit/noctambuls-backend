@@ -22,6 +22,9 @@ interface CensusRepositoryInterface
      */
     public function findCensusIdsByStatus(array $censusIds, CensusStatus $status): array;
 
+    /** @return Census[] */
+    public function findPublishedUpcoming(?\DateTimeImmutable $since = null): array;
+
     public function count(): int;
 
     public function save(Census $census): void;

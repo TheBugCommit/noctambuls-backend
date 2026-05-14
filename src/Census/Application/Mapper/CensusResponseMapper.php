@@ -6,6 +6,7 @@ namespace App\Census\Application\Mapper;
 
 use App\Census\Application\CreateCensus\CreateCensusResponse;
 use App\Census\Application\GetCensus\GetCensusResponse;
+use App\Census\Application\GetPublishedCensuses\GetPublishedCensusesResponse;
 use App\Census\Application\ListCensuses\ListCensusesResponse;
 use App\Census\Domain\Entity\Census;
 use App\Census\Domain\ValueObject\CensusId;
@@ -31,6 +32,30 @@ final class CensusResponseMapper
             deepLink: $deepLink,
             qrBase64: $qrBase64,
         );
+    }
+
+    /**
+     * @param Census[] $censuses
+     */
+    public static function toPublishedCensusesResponse(array $censuses, string $serverTime): GetPublishedCensusesResponse
+    {
+        $items = array_map(static fn(Census $census) => self::toPublishedCensusItem($census), $censuses);
+
+        return new GetPublishedCensusesResponse($items, $serverTime);
+    }
+
+    private static function toPublishedCensusItem(Census $census): array
+    {
+        return [
+            'title'        => $census->title()->value(),
+            'date'         => $census->date()->format('Y-m-d'),
+            'time'         => $census->time()->format('H:i'),
+            'latitude'     => $census->latitude()->value(),
+            'longitude'    => $census->longitude()->value(),
+            'locationName' => $census->locationName()->value(),
+            'description'  => $census->description()?->value(),
+            'updatedAt'    => $census->updatedAt()->format(\DateTimeInterface::ATOM),
+        ];
     }
 
     public static function toCreateCensusResponse(CensusId $id): CreateCensusResponse

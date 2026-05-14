@@ -152,6 +152,11 @@ backoffice_census_publish:
     controller: App\UI\Http\Backoffice\Census\CensusPublishController
     methods: [POST]
 
+api_censuses_published:
+    path: /api/censuses
+    controller: App\UI\Http\Rest\Census\GetPublishedCensusesController
+    methods: [GET]
+
 api_sync_up:
     path: /api/sync/observations
     controller: App\UI\Http\Rest\Observation\SyncUpController
