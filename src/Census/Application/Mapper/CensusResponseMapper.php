@@ -47,6 +47,7 @@ final class CensusResponseMapper
     private static function toPublishedCensusItem(Census $census): array
     {
         return [
+            'id'           => $census->id()->value(),
             'title'        => $census->title()->value(),
             'date'         => $census->date()->format('Y-m-d'),
             'time'         => $census->time()->format('H:i'),
