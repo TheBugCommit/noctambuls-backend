@@ -142,7 +142,7 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
                ->setParameter('since', $since, Types::DATETIME_IMMUTABLE);
         }
 
-        return $qb->getQuery()->getScalarResult();
+        return $qb->getQuery()->getSingleColumnResult();
     }
 
     public function findByIdsWithRelations(array $ids): array

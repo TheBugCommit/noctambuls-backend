@@ -10,12 +10,17 @@ final class Bearing extends FloatValueObject
 {
     public function __construct(float $value)
     {
-        parent::__construct($value);
-
-        if ($value < 0 || $value >= 360) {
+        if ($value < -360.0 || $value > 360.0) {
             throw new \InvalidArgumentException(
-                'Bearing must be between 0 (inclusive) and 360 (exclusive).'
-            );
+                "Bearing reading is invalid $value. It must be between -360 and 360 degrees.");
         }
+
+        $normalized = fmod($value, 360.0);
+
+        if ($normalized < 0) {
+            $normalized += 360.0;
+        }
+
+        parent::__construct($normalized);
     }
 }

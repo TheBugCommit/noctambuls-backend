@@ -84,7 +84,6 @@ final readonly class SyncUpHandler
                 $this->sessionRepository->save($session);
 
                 $this->transactionManager->commit();
-                $transactionStarted = false;
                 $synced[] = $sessionId;
             } catch (SyncSkippedException) {
                 if ($transactionStarted) {

@@ -31,8 +31,6 @@ final readonly class GetParticipatedSessionsHandler
             )
             : [];
 
-        $ids = array_column($ids, 'id');
-
         $sessions = !empty($ids) ? $this->sessionRepository->findByIdsWithRelations($ids) : [];
 
         return new GetParticipatedSessionsResponse(

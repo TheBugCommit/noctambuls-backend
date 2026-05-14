@@ -30,7 +30,7 @@ final readonly class SyncUpController
             throw new BadRequestHttpException('Invalid payload');
         }
 
-        if (count($body['sessions']) > 100) {
+        if (count($body['sessions']) > 50) {
             throw new HttpException(
                 413,
                 'Content too large',
