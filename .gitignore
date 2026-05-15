@@ -8,7 +8,6 @@
 /var/
 /vendor/
 .github/
-
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
@@ -24,6 +23,7 @@
 coverage/
 ###< coverage ###
 /config/secrets
+/public/.well-known
 
 
 ###> symfony/asset-mapper ###
