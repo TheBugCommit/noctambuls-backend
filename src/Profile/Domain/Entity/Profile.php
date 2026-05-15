@@ -17,6 +17,7 @@ class Profile
         private PhoneNumber                 $phone,
         private readonly OrnithologistCode  $ornithologistCode,
         private readonly \DateTimeImmutable $createdAt,
+        private \DateTimeImmutable          $updatedAt,
     )
     {
     }
@@ -28,19 +29,22 @@ class Profile
         OrnithologistCode $ornithologistCode,
     ): self
     {
-        return new self($id, $name, $phone, $ornithologistCode, new \DateTimeImmutable());
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        return new self($id, $name, $phone, $ornithologistCode, $now, $now);
     }
 
     public function update(ProfileName $name, PhoneNumber $phone): void
     {
         $this->name = $name;
         $this->phone = $phone;
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function anonymize(): void
     {
         $this->name = new ProfileName('Deleted User');
         $this->phone = new PhoneNumber('+000000000');
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function id(): ProfileId
@@ -66,5 +70,10 @@ class Profile
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function updatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
     }
 }

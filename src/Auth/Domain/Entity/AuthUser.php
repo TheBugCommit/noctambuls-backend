@@ -21,6 +21,7 @@ class AuthUser
         private ?HashedPassword             $hashedPassword = null,
         private bool                        $isBlocked = false,
         private ?\DateTimeImmutable         $anonymizedAt = null,
+        private \DateTimeImmutable          $updatedAt,
     )
     {
     }
@@ -33,7 +34,8 @@ class AuthUser
         ?HashedPassword $hashedPassword = null,
     ): self
     {
-        return new self($id, $email, $provider, new \DateTimeImmutable(), $role, $hashedPassword);
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        return new self($id, $email, $provider, $now, $role, $hashedPassword, false, null, $now);
     }
 
     public static function createBackofficeUser(
@@ -46,32 +48,38 @@ class AuthUser
             throw new \DomainException("Backoffice can't have role USER.");
         }
 
-        return new self($id, $email, Provider::internal(), new \DateTimeImmutable(), $role, $hashedPassword);
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        return new self($id, $email, Provider::internal(), $now, $role, $hashedPassword, false, null, $now);
     }
 
     public function updateHashedPassword(HashedPassword $hashedPassword): void
     {
         $this->hashedPassword = $hashedPassword;
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function changeRole(Role $role): void
     {
         $this->role = $role;
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function changeEmail(Email $email): void
     {
         $this->email = $email;
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function block(): void
     {
         $this->isBlocked = true;
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function unblock(): void
     {
         $this->isBlocked = false;
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function anonymize(Email $anonymizedEmail): void
@@ -79,7 +87,8 @@ class AuthUser
         $this->email = $anonymizedEmail;
         $this->hashedPassword = null;
         $this->isBlocked = true;
-        $this->anonymizedAt = new \DateTimeImmutable();
+        $this->anonymizedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function id(): AuthUserId
@@ -100,6 +109,11 @@ class AuthUser
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function updatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
     }
 
     public function role(): Role

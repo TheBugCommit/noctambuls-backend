@@ -16,6 +16,7 @@ class ProfileResponseMapper
             $profile->phone()->value(),
             $profile->ornithologistCode()->value(),
             $profile->createdAt(),
+            $profile->updatedAt(),
         );
     }
 
@@ -27,6 +28,7 @@ class ProfileResponseMapper
             $profile->phone()->value(),
             $profile->ornithologistCode()->value(),
             $profile->createdAt(),
+            $profile->updatedAt(),
         );
     }
 }

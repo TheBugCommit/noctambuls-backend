@@ -12,6 +12,7 @@ readonly class GetProfileResponse
         public string             $phone,
         public string             $ornithologistCode,
         public \DateTimeImmutable $createdAt,
+        public \DateTimeImmutable $updatedAt,
     ) {
     }
 }

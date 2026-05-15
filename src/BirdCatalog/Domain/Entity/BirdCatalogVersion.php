@@ -15,13 +15,13 @@ class BirdCatalogVersion
 
     public static function initialize(): self
     {
-        return new self(1, 0, new \DateTimeImmutable());
+        return new self(1, 0, new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
     }
 
     public function increment(): void
     {
         $this->version++;
-        $this->lastUpdatedAt = new \DateTimeImmutable();
+        $this->lastUpdatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function id(): int
