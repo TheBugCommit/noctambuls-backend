@@ -78,7 +78,7 @@ final readonly class DoctrineCensusRepository implements CensusRepositoryInterfa
             ->where('c.status = :status')
             ->andWhere('c.date >= :today')
             ->setParameter('status', CensusStatus::PUBLISHED->value)
-            ->setParameter('today', new \DateTimeImmutable('today'), Types::DATE_IMMUTABLE)
+            ->setParameter('today', new \DateTimeImmutable('today', new \DateTimeZone('UTC')), Types::DATE_IMMUTABLE)
             ->orderBy('c.date', 'ASC')
             ->addOrderBy('c.time', 'ASC');
 

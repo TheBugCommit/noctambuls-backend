@@ -43,7 +43,7 @@ class Census
         Longitude          $longitude,
         ?CensusDescription $description,
     ): self {
-        $now = new \DateTimeImmutable();
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         return new self($id, $title, $date, $time, $latitude, $longitude, $locationName, $description, CensusStatus::DRAFT, $now, $now);
     }
@@ -66,14 +66,14 @@ class Census
         $this->latitude = $latitude;
         $this->longitude = $longitude;
         $this->description = $description;
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function publish(): void
     {
         $this->status = CensusStatus::PUBLISHED;
-        $this->publishedAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->publishedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function isEditable(): bool
@@ -83,7 +83,7 @@ class Census
         }
 
         return $this->publishedAt !== null
-            && $this->publishedAt->modify('+10 minutes') > new \DateTimeImmutable();
+            && $this->publishedAt->modify('+10 minutes') > new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function assertEditable(): void

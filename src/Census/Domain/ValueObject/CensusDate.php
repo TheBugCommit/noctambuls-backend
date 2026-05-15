@@ -12,7 +12,7 @@ final class CensusDate extends DateTimeValueObject
     public function __construct(readonly string $date)
     {
         parent::__construct($date);
-        $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $date);
+        $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $date, new \DateTimeZone('UTC'));
 
         if (!$parsed || $parsed->format('Y-m-d') !== $date) {
             throw new InvalidCensusDateException($date);

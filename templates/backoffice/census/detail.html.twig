@@ -52,7 +52,7 @@
                     {% if census.publishedAt %}
                         <div class="form-control sm:col-span-2">
                             <label class="label label-text text-xs font-semibold pb-1">Publicat</label>
-                            <input type="text" value="{{ census.publishedAt|date('d/m/Y H:i') }}"
+                            <input type="text" value="{{ census.publishedAt|date('d/m/Y H:i', 'Europe/Madrid') }}"
                                    class="input input-bordered input-sm bg-base-200 text-base-content" readonly>
                         </div>
                     {% endif %}

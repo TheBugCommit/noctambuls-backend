@@ -12,7 +12,7 @@ final class CensusTime extends DateTimeValueObject
     public function __construct(readonly string $time)
     {
         parent::__construct($time);
-        $parsed = \DateTimeImmutable::createFromFormat('H:i', $time);
+        $parsed = \DateTimeImmutable::createFromFormat('H:i', $time, new \DateTimeZone('UTC'));
 
         if (!$parsed || $parsed->format('H:i') !== $time) {
             throw new InvalidCensusTimeException($time);

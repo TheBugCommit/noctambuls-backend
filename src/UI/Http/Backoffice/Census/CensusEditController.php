@@ -43,11 +43,15 @@ final class CensusEditController extends AbstractController
         }
 
         try {
+            $utcDt = $this->toUtc(
+                trim((string) $request->request->get('date', '')),
+                trim((string) $request->request->get('time', ''))
+            );
             $this->updateHandler->handle(new UpdateCensusRequest(
                 id: $id,
                 title: trim((string) $request->request->get('title', '')),
-                date: trim((string) $request->request->get('date', '')),
-                time: trim((string) $request->request->get('time', '')),
+                date: $utcDt->format('Y-m-d'),
+                time: $utcDt->format('H:i'),
                 latitude: $request->request->get('latitude'),
                 longitude: $request->request->get('longitude'),
                 locationName: trim((string) $request->request->get('locationName', '')),
@@ -76,5 +80,14 @@ final class CensusEditController extends AbstractController
             $this->addFlash('error', 'census.error.unexpected');
             return $this->render('backoffice/census/edit.html.twig', ['census' => $census]);
         }
+    }
+
+    private function toUtc(string $date, string $time): \DateTimeImmutable
+    {
+        $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $date . ' ' . $time, new \DateTimeZone('Europe/Madrid'));
+        if ($dt === false) {
+            throw new \InvalidArgumentException('Format de data o hora invàlid. Usa YYYY-MM-DD i HH:MM.');
+        }
+        return $dt->setTimezone(new \DateTimeZone('UTC'));
     }
 }

@@ -15,11 +15,13 @@ final class CensusResponseMapper
 {
     public static function toGetCensusResponse(Census $census, string $deepLink, string $qrBase64): GetCensusResponse
     {
+        $madrid = self::utcEventToMadrid($census);
+
         return new GetCensusResponse(
             id: $census->id()->value(),
             title: $census->title()->value(),
-            date: $census->date()->format('Y-m-d'),
-            time: $census->time()->format('H:i'),
+            date: $madrid->format('Y-m-d'),
+            time: $madrid->format('H:i'),
             latitude: $census->latitude()->value(),
             longitude: $census->longitude()->value(),
             locationName: $census->locationName()->value(),
@@ -46,11 +48,13 @@ final class CensusResponseMapper
 
     private static function toPublishedCensusItem(Census $census): array
     {
+        $madrid = self::utcEventToMadrid($census);
+
         return [
             'id'           => $census->id()->value(),
             'title'        => $census->title()->value(),
-            'date'         => $census->date()->format('Y-m-d'),
-            'time'         => $census->time()->format('H:i'),
+            'date'         => $madrid->format('Y-m-d'),
+            'time'         => $madrid->format('H:i'),
             'latitude'     => $census->latitude()->value(),
             'longitude'    => $census->longitude()->value(),
             'locationName' => $census->locationName()->value(),
@@ -79,18 +83,28 @@ final class CensusResponseMapper
 
     private static function toListItem(Census $census): array
     {
+        $madrid = self::utcEventToMadrid($census);
+
         return [
             'id'           => $census->id()->value(),
             'title'        => $census->title()->value(),
-            'date'         => $census->date()->format('Y-m-d'),
-            'time'         => $census->time()->format('H:i'),
+            'date'         => $madrid->format('Y-m-d'),
+            'time'         => $madrid->format('H:i'),
             'longitude'    => $census->longitude()->value(),
             'latitude'     => $census->latitude()->value(),
             'locationName' => $census->locationName()->value(),
             'description'  => $census->description()?->value(),
             'status'       => $census->status()->value,
-            'createdAt'    => $census->createdAt()->format('d/m/Y H:i'),
+            'createdAt'    => $census->createdAt()->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('d/m/Y H:i'),
             'isEditable'   => $census->isEditable(),
         ];
+    }
+
+    private static function utcEventToMadrid(Census $census): \DateTimeImmutable
+    {
+        return (new \DateTimeImmutable(
+            $census->date()->format('Y-m-d') . ' ' . $census->time()->format('H:i'),
+            new \DateTimeZone('UTC')
+        ))->setTimezone(new \DateTimeZone('Europe/Madrid'));
     }
 }
