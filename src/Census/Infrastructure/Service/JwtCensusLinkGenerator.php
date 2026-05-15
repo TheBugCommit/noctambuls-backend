@@ -30,11 +30,8 @@ final readonly class JwtCensusLinkGenerator implements CensusLinkGeneratorInterf
             throw new \RuntimeException('Cant descifrate private KEY');
         }
 
-        $datetimeString = sprintf(
-            '%sT%s:00Z',
-            $census->date()->format('Y-m-d'),
-            $census->time()->format('H:i:s')
-        );
+        $fullDateTime = new \DateTimeImmutable($census->date()->format('Y-m-d') . ' ' . $census->time()->format('H:i:s'));
+        $datetimeString = $fullDateTime->format('c');
 
         $payload = [
             'i' => $census->id()->value(),

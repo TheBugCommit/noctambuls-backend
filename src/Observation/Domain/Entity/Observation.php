@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Observation\Domain\Entity;
 
 use App\BirdCatalog\Domain\ValueObject\BirdId;
+use App\Observation\Domain\Exception\InvalidObservationStateException;
 use App\Observation\Domain\ValueObject\Accuracy;
 use App\Observation\Domain\ValueObject\Altitude;
 use App\Observation\Domain\ValueObject\AltitudeAccuracy;
@@ -39,6 +40,7 @@ class Observation
         private bool                        $isDeleted,
     )
     {
+        $this->validateBounds();
     }
 
     public static function create(
@@ -103,6 +105,8 @@ class Observation
         $this->bearing = $bearing;
         $this->updatedAt = $updatedAt;
         $this->isDeleted = $isDeleted;
+
+        $this->validateBounds();
     }
 
     public function markDeleted(\DateTimeImmutable $updatedAt): void
@@ -221,5 +225,15 @@ class Observation
         $this->altitude = $altitude;
         $this->altitudeAccuracy = $altitudeAccuracy;
         $this->locationSource = $locationSource;
+    }
+
+    private function validateBounds(): void {
+        if($this->startTime > $this->endTime) {
+            throw new InvalidObservationStateException();
+        }
+
+        if($this->createdAt > $this->updatedAt) {
+            throw new InvalidObservationStateException();
+        }
     }
 }

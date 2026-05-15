@@ -371,10 +371,6 @@ class Session
             throw new InvalidSessionStateException('Session must have a start time to validate observation bounds');
         }
 
-        $sessionDay = $this->startTime->format('Y-m-d');
-        $obsStartDay = $observation->startTime()->format('Y-m-d');
-        $obsEndDay = $observation->endTime()->format('Y-m-d');
-
         if ($this->sessionType === SessionType::Station || $this->sessionType === SessionType::Census) {
             if ($this->endTime === null) {
                 throw new InvalidSessionStateException('Session must have an end time to validate observation bounds');
@@ -384,8 +380,12 @@ class Session
                 throw new InvalidSessionStateException('Observation must be strictly within the session time range');
             }
         } elseif ($this->sessionType === SessionType::Incidental) {
-            if ($obsStartDay !== $sessionDay || $obsEndDay !== $sessionDay) {
-                throw new InvalidSessionStateException('Incidental observations must occur on the same day as the session');
+            $minAllowedStart = (clone $this->startTime)->modify('-1 hour');
+
+            $maxAllowedEnd = (clone $this->startTime)->modify('+48 hours');
+
+            if ($observation->startTime() < $minAllowedStart || $observation->endTime() > $maxAllowedEnd) {
+                throw new InvalidSessionStateException('Incidental observations must occur within the logical day of the session (including next-day early hours).');
             }
         }
     }
@@ -441,6 +441,10 @@ class Session
             if ($this->startTime > $this->endTime) {
                 throw new InvalidSessionStateException('Session Start Time cannot be greater than End Time');
             }
+        }
+
+        if($this->createdAt > $this->updatedAt){
+            throw new InvalidSessionStateException();
         }
     }
 
