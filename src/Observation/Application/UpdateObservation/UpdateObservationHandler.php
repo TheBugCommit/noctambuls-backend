@@ -53,7 +53,7 @@ final readonly class UpdateObservationHandler
                 altitudeAccuracy: $observation->altitudeAccuracy(),
                 locationSource: $observation->locationSource(),
                 bearing: new Bearing($request->bearing),
-                updatedAt: new \DateTimeImmutable(),
+                updatedAt: new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
                 isDeleted: $observation->isDeleted(),
             );
 

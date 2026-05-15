@@ -49,7 +49,7 @@ readonly class SessionSynchronizer
      */
     public function sync(SessionSyncDto $dto, string $annotatorId, ?Session $existingSession, array $validCodesSet, array $validBirdsSet, array $validCensusSet): Session
     {
-        $incomingUpdatedAt = new \DateTimeImmutable($dto->updatedAt);
+        $incomingUpdatedAt = (new \DateTimeImmutable($dto->updatedAt))->setTimezone(new \DateTimeZone('UTC'));
 
         if ($existingSession !== null && $existingSession->updatedAt() >= $incomingUpdatedAt) {
             throw new SyncSkippedException();
@@ -90,8 +90,8 @@ readonly class SessionSynchronizer
             censusId: $dto->censusId ? new CensusId($dto->censusId) : null,
             annotatorId: new AuthUserId($annotatorId),
             sessionType: SessionType::from($dto->sessionType),
-            startTime: $dto->startTime ? new \DateTimeImmutable($dto->startTime) : null,
-            endTime: $dto->endTime ? new \DateTimeImmutable($dto->endTime) : null,
+            startTime: $dto->startTime ? (new \DateTimeImmutable($dto->startTime))->setTimezone(new \DateTimeZone('UTC')) : null,
+            endTime: $dto->endTime ? (new \DateTimeImmutable($dto->endTime))->setTimezone(new \DateTimeZone('UTC')) : null,
             temperature: TemperatureRange::from($dto->temperature),
             wind: WindLevel::from($dto->wind),
             sky: SkyCondition::from($dto->sky),
@@ -105,8 +105,8 @@ readonly class SessionSynchronizer
             altitude: $dto->altitude !== null ? new Altitude($dto->altitude) : null,
             altitudeAccuracy: $dto->altitudeAccuracy !== null ? new AltitudeAccuracy($dto->altitudeAccuracy) : null,
             locationSource: $dto->locationSource !== null ? LocationSource::from($dto->locationSource) : null,
-            createdAt: new \DateTimeImmutable($dto->createdAt),
-            updatedAt: new \DateTimeImmutable($dto->updatedAt),
+            createdAt: (new \DateTimeImmutable($dto->createdAt))->setTimezone(new \DateTimeZone('UTC')),
+            updatedAt: (new \DateTimeImmutable($dto->updatedAt))->setTimezone(new \DateTimeZone('UTC')),
         );
     }
 
@@ -115,8 +115,8 @@ readonly class SessionSynchronizer
         $session->update(
             censusId: $dto->censusId ? new CensusId($dto->censusId) : null,
             sessionType: SessionType::from($dto->sessionType),
-            startTime: $dto->startTime ? new \DateTimeImmutable($dto->startTime) : null,
-            endTime: $dto->endTime ? new \DateTimeImmutable($dto->endTime) : null,
+            startTime: $dto->startTime ? (new \DateTimeImmutable($dto->startTime))->setTimezone(new \DateTimeZone('UTC')) : null,
+            endTime: $dto->endTime ? (new \DateTimeImmutable($dto->endTime))->setTimezone(new \DateTimeZone('UTC')) : null,
             temperature: TemperatureRange::from($dto->temperature),
             wind: WindLevel::from($dto->wind),
             sky: SkyCondition::from($dto->sky),
@@ -130,7 +130,7 @@ readonly class SessionSynchronizer
             altitude: $dto->altitude !== null ? new Altitude($dto->altitude) : null,
             altitudeAccuracy: $dto->altitudeAccuracy !== null ? new AltitudeAccuracy($dto->altitudeAccuracy) : null,
             locationSource: $dto->locationSource !== null ? LocationSource::from($dto->locationSource) : null,
-            updatedAt: new \DateTimeImmutable($dto->updatedAt),
+            updatedAt: (new \DateTimeImmutable($dto->updatedAt))->setTimezone(new \DateTimeZone('UTC')),
         );
     }
 
@@ -147,8 +147,8 @@ readonly class SessionSynchronizer
                 speciesId: new BirdId($obsDto->speciesId),
                 contactType: ContactType::from($obsDto->contactType),
                 quantity: new Quantity($obsDto->quantity),
-                startTime: new \DateTimeImmutable($obsDto->startTime),
-                endTime: new \DateTimeImmutable($obsDto->endTime),
+                startTime: (new \DateTimeImmutable($obsDto->startTime))->setTimezone(new \DateTimeZone('UTC')),
+                endTime: (new \DateTimeImmutable($obsDto->endTime))->setTimezone(new \DateTimeZone('UTC')),
                 notes: $obsDto->notes,
                 latitude: $obsDto->latitude !== null ? new Latitude($obsDto->latitude) : null,
                 longitude: $obsDto->longitude !== null ? new Longitude($obsDto->longitude) : null,
@@ -157,8 +157,8 @@ readonly class SessionSynchronizer
                 altitudeAccuracy: $obsDto->altitudeAccuracy !== null ? new AltitudeAccuracy($obsDto->altitudeAccuracy) : null,
                 locationSource: $obsDto->locationSource !== null ? LocationSource::from($obsDto->locationSource) : null,
                 bearing: new Bearing($obsDto->bearing),
-                createdAt: new \DateTimeImmutable($obsDto->createdAt),
-                updatedAt: new \DateTimeImmutable($obsDto->updatedAt),
+                createdAt: (new \DateTimeImmutable($obsDto->createdAt))->setTimezone(new \DateTimeZone('UTC')),
+                updatedAt: (new \DateTimeImmutable($obsDto->updatedAt))->setTimezone(new \DateTimeZone('UTC')),
                 isDeleted: $obsDto->isDeleted,
             );
 
@@ -168,7 +168,7 @@ readonly class SessionSynchronizer
 
     private function syncParticipants(Session $session, SessionSyncDto $dto, array $validCodesSet): void
     {
-        $at = new \DateTimeImmutable($dto->updatedAt);
+        $at = (new \DateTimeImmutable($dto->updatedAt))->setTimezone(new \DateTimeZone('UTC'));
         $session->clearParticipants($at);
 
         foreach ($dto->participants as $participantDto) {

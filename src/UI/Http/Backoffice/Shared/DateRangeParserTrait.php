@@ -19,10 +19,16 @@ trait DateRangeParserTrait
 
         try {
             if ($request->query->get('dateFrom')) {
-                $dateFrom = new DateTimeImmutable($request->query->get('dateFrom'));
+                $dateFrom = new \DateTimeImmutable(
+                    $request->query->get('dateFrom') . ' 00:00:00',
+                    new \DateTimeZone('Europe/Madrid')
+                )->setTimezone(new \DateTimeZone('UTC'));
             }
             if ($request->query->get('dateTo')) {
-                $dateTo = new DateTimeImmutable($request->query->get('dateTo'))->setTime(23, 59, 59);
+                $dateTo = new \DateTimeImmutable(
+                    $request->query->get('dateTo') . ' 23:59:59',
+                    new \DateTimeZone('Europe/Madrid')
+                )->setTimezone(new \DateTimeZone('UTC'));
             }
         } catch (\Exception) {
             // Silenciem l'error i retornem nulls si el format és invàlid

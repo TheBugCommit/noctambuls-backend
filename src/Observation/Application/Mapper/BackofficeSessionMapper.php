@@ -19,8 +19,8 @@ final class BackofficeSessionMapper
                 'id' => $session->id()->value(),
                 'annotatorName' => $profileMap[$session->annotatorId()->value()] ?? $session->annotatorId()->value(),
                 'sessionType' => $session->sessionType()->value,
-                'startTime' => $session->startTime()?->format('Y-m-d H:i'),
-                'deletedAt' => $session->updatedAt()->format('Y-m-d H:i'),
+                'startTime' => $session->startTime()?->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('Y-m-d H:i'),
+                'deletedAt' => $session->updatedAt()->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('Y-m-d H:i'),
                 'censusTitle' => $censusMap[$session->censusId()?->value()] ?? null,
             ];
         }
@@ -45,7 +45,7 @@ final class BackofficeSessionMapper
                 'id'               => $session->id()->value(),
                 'annotatorName'    => $profileMap[$session->annotatorId()->value()] ?? $session->annotatorId()->value(),
                 'sessionType'      => $session->sessionType()->value,
-                'startTime'        => $session->startTime()?->format('Y-m-d H:i'),
+                'startTime'        => $session->startTime()?->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('Y-m-d H:i'),
                 'observationCount' => $activeObsCount,
                 'listeningPoint'   => $session->listeningPoint()?->value(),
                 'latitude'         => $session->latitude()?->value(),
@@ -73,7 +73,7 @@ final class BackofficeSessionMapper
                 'id' => $session->id()->value(),
                 'annotatorName' => $profileMap[$session->annotatorId()->value()] ?? $session->annotatorId()->value(),
                 'sessionType' => $session->sessionType()->value,
-                'startTime' => $session->startTime()?->format('Y-m-d H:i'),
+                'startTime' => $session->startTime()?->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('Y-m-d H:i'),
                 'observationCount' => $activeObsCount,
                 'listeningPoint' => $session->listeningPoint()?->value(),
                 'censusTitle' => $censusMap[$session->censusId()?->value()] ?? null,

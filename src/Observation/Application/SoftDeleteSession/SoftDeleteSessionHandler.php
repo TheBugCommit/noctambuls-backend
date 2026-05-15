@@ -28,7 +28,7 @@ final readonly class SoftDeleteSessionHandler
 
         $this->transactionManager->begin();
         try {
-            $session->markDeleted(new \DateTimeImmutable());
+            $session->markDeleted(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
             $this->sessionRepository->save($session);
             $this->transactionManager->commit();
         } catch (\DomainException|\InvalidArgumentException|\Throwable $e) {

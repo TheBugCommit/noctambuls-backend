@@ -59,7 +59,7 @@ final readonly class ExportSessionsHandler
             }
         }
 
-        $filename = 'sessions_export_' . new \DateTimeImmutable()->format('Ymd_His');
+        $filename = 'sessions_export_' . (new \DateTimeImmutable('now', new \DateTimeZone('Europe/Madrid')))->format('Ymd_His');
 
         return new ExportSessionsResponse(
             headers:  $headers,

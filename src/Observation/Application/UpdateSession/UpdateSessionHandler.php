@@ -9,7 +9,6 @@ use App\Observation\Domain\Repository\SessionRepositoryInterface;
 use App\Observation\Domain\ValueObject\ListeningPoint;
 use App\Observation\Domain\ValueObject\MoonPresence;
 use App\Observation\Domain\ValueObject\RainLevel;
-use App\Observation\Domain\ValueObject\SessionId;
 use App\Observation\Domain\ValueObject\SkyCondition;
 use App\Observation\Domain\ValueObject\TemperatureRange;
 use App\Observation\Domain\ValueObject\VisibilityLevel;
@@ -54,7 +53,7 @@ final readonly class UpdateSessionHandler
                 altitude: $session->altitude(),
                 altitudeAccuracy: $session->altitudeAccuracy(),
                 locationSource: $session->locationSource(),
-                updatedAt: new \DateTimeImmutable(),
+                updatedAt: new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
             );
 
             $this->sessionRepository->save($session);

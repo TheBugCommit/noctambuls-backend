@@ -28,7 +28,7 @@ final readonly class RestoreSessionHandler
 
         $this->transactionManager->begin();
         try {
-            $session->restore(new \DateTimeImmutable());
+            $session->restore(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
             $this->sessionRepository->save($session);
             $this->transactionManager->commit();
         } catch (\DomainException|\InvalidArgumentException|\Throwable $e) {
