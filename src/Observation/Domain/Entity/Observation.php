@@ -35,13 +35,15 @@ class Observation
         private ?AltitudeAccuracy           $altitudeAccuracy,
         private ?LocationSource             $locationSource,
         private Bearing                     $bearing,
-        private readonly \DateTimeImmutable $createdAt,
-        private \DateTimeImmutable          $updatedAt,
-        private bool                        $isDeleted,
+        private readonly \DateTimeImmutable  $createdAt,
+        private \DateTimeImmutable           $updatedAt,
+        private bool                         $isDeleted,
     )
     {
         $this->validateBounds();
     }
+
+    private ?\DateTimeImmutable $deletedAt = null;
 
     public static function create(
         ObservationId      $id,
@@ -111,14 +113,21 @@ class Observation
 
     public function markDeleted(\DateTimeImmutable $updatedAt): void
     {
-        $this->isDeleted = true;
-        $this->updatedAt = $updatedAt;
+        $this->isDeleted  = true;
+        $this->updatedAt  = $updatedAt;
+        $this->deletedAt  = $updatedAt;
     }
 
     public function restore(\DateTimeImmutable $updatedAt): void
     {
         $this->isDeleted = false;
         $this->updatedAt = $updatedAt;
+        // deletedAt intentionally kept — records when it was last soft-deleted
+    }
+
+    public function deletedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletedAt;
     }
 
     public function id(): ObservationId

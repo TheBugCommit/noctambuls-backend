@@ -30,7 +30,9 @@ final readonly class ApiKeySubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if (!str_starts_with($request->getPathInfo(), '/api')) {
+        $path = $request->getPathInfo();
+
+        if (!str_starts_with($path, '/api') || str_starts_with($path, '/api/internal')) {
             return;
         }
 

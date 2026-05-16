@@ -12,6 +12,11 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        cron_api:
+            pattern: ^/api/internal
+            stateless: true
+            security: false
+
         api:
             pattern: ^/api
             stateless: true
@@ -45,6 +50,7 @@ security:
         ROLE_ADMIN: [ROLE_REVIEWER]
 
     access_control:
+        - { path: ^/api/internal, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth, roles: PUBLIC_ACCESS }
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }

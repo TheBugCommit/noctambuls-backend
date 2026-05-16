@@ -122,6 +122,40 @@ services:
             $imageUploader: '@App\BirdCatalog\Infrastructure\Service\BirdImageUploader'
             $audioUploader: '@App\BirdCatalog\Infrastructure\Service\BirdAudioUploader'
 
+    # Analytics repositories
+    App\Analytics\Domain\Repository\CronStateRepositoryInterface:
+        class: App\Analytics\Infrastructure\Persistence\DoctrineCronStateRepository
+
+    App\Analytics\Domain\Repository\AnalyticsSessionQueryInterface:
+        class: App\Analytics\Infrastructure\Persistence\DoctrineAnalyticsSessionQuery
+
+    App\Analytics\Domain\Repository\MapBubbleSummaryRepositoryInterface:
+        class: App\Analytics\Infrastructure\Persistence\DoctrineMapBubbleSummaryRepository
+
+    App\Analytics\Domain\Service\AnalyticsEventDispatcherInterface:
+        class: App\Analytics\Infrastructure\Event\SymfonyAnalyticsEventDispatcher
+
+    App\Analytics\Infrastructure\EventListener\MapBubbleSummaryListener:
+        arguments:
+            $precision: '%env(int:MAP_BUBBLE_PRECISION)%'
+        tags:
+            - { name: kernel.event_listener, event: App\Analytics\Domain\Event\AnalyticsDataCollectedEvent }
+
+    App\Analytics\Infrastructure\EventListener\AnalyticsPurgeAdjustmentListener:
+        arguments:
+            $precision: '%env(int:MAP_BUBBLE_PRECISION)%'
+        tags:
+            - { name: kernel.event_listener, event: App\Observation\Domain\Event\BeforeSessionsPurgedEvent }
+
+    App\Observation\Domain\Service\SessionEventPublisherInterface:
+        class: App\Observation\Infrastructure\Event\SymfonySessionEventPublisher
+
+    App\UI\Http\Rest\Analytics\UpdateAnalyticsController:
+        arguments:
+            $cronSecretToken: '%env(CRON_SECRET_TOKEN)%'
+        tags: ['controller.service_arguments']
+
+
     # JWT Census Link GEnerator
     App\Census\Infrastructure\Service\JwtCensusLinkGenerator:
         arguments:
