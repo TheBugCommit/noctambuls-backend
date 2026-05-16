@@ -1,0 +1,33 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'analytics.dashboard.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">{{ 'analytics.dashboard.title'|trans }}</h1>
+    <form method="post" action="{{ path('backoffice_analytics_force_update') }}"
+          onsubmit="return confirm('{{ 'analytics.dashboard.confirm_update'|trans|e('js') }}')">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('analytics_force_update') }}">
+        <button type="submit" class="btn btn-primary btn-sm">
+            {{ 'analytics.dashboard.force_update'|trans }}
+        </button>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 gap-4 mb-8">
+    <div class="card bg-base-100 shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title text-sm text-base-content/60">{{ 'analytics.dashboard.last_update'|trans }}</h2>
+            <p class="text-lg font-semibold">
+                {% if lastProcessedAt %}
+                    {{ lastProcessedAt|date('d/m/Y H:i:s') }} UTC
+                {% else %}
+                    {{ 'analytics.dashboard.never'|trans }}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+{# Future KPIs and charts go here #}
+{% endblock %}

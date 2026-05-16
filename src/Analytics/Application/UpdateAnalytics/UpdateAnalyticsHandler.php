@@ -9,14 +9,13 @@ use App\Analytics\Domain\Event\AnalyticsDataCollectedEvent;
 use App\Analytics\Domain\Repository\AnalyticsSessionQueryInterface;
 use App\Analytics\Domain\Repository\CronStateRepositoryInterface;
 use App\Analytics\Domain\Service\AnalyticsEventDispatcherInterface;
+use App\Analytics\Domain\ValueObject\CronJobName;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use DateTimeImmutable;
 use DateTimeZone;
 
 final readonly class UpdateAnalyticsHandler
 {
-    private const string JOB_NAME = 'update_analytics';
-
     public function __construct(
         private CronStateRepositoryInterface      $cronStateRepository,
         private AnalyticsSessionQueryInterface    $sessionQuery,
@@ -26,8 +25,8 @@ final readonly class UpdateAnalyticsHandler
 
     public function handle(): UpdateAnalyticsResponse
     {
-        $cronState = $this->cronStateRepository->findByJobName(self::JOB_NAME)
-            ?? new CronState(self::JOB_NAME, new DateTimeImmutable('@0', new DateTimeZone('UTC')));
+        $cronState = $this->cronStateRepository->findByJobName(CronJobName::UpdateAnalytics)
+            ?? new CronState(CronJobName::UpdateAnalytics, new DateTimeImmutable('@0', new DateTimeZone('UTC')));
 
         $dataPoints = $this->sessionQuery->findDataPointsSince($cronState->lastProcessedAt());
 

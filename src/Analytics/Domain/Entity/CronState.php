@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Analytics\Domain\Entity;
 
+use App\Analytics\Domain\ValueObject\CronJobName;
 use DateTimeImmutable;
 
 class CronState
 {
     public function __construct(
-        private string            $jobName,
-        private DateTimeImmutable $lastProcessedAt,
+        private readonly CronJobName $jobName,
+        private DateTimeImmutable    $lastProcessedAt,
     ) {}
 
-    public function jobName(): string
+    public function jobName(): CronJobName
     {
         return $this->jobName;
     }

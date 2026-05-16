@@ -7,6 +7,8 @@ namespace App\Analytics\Infrastructure\EventListener;
 use App\Analytics\Domain\Repository\AnalyticsSessionQueryInterface;
 use App\Analytics\Domain\Repository\CronStateRepositoryInterface;
 use App\Analytics\Domain\Repository\MapBubbleSummaryRepositoryInterface;
+use App\Analytics\Domain\ValueObject\CronJobName;
+use App\Analytics\Infrastructure\Service\GroupDataPointsService;
 use App\Observation\Domain\Event\BeforeSessionsPurgedEvent;
 
 final readonly class AnalyticsPurgeAdjustmentListener
@@ -16,34 +18,21 @@ final readonly class AnalyticsPurgeAdjustmentListener
         private AnalyticsSessionQueryInterface      $sessionQuery,
         private MapBubbleSummaryRepositoryInterface $mapBubbleRepository,
         private int                                 $precision,
-    ) {}
+        private GroupDataPointsService              $groupDataPointsService,
+    )
+    {
+    }
 
     public function __invoke(BeforeSessionsPurgedEvent $event): void
     {
-        $cronState = $this->cronStateRepository->findByJobName('update_analytics');
+        $cronState = $this->cronStateRepository->findByJobName(CronJobName::UpdateAnalytics);
         if ($cronState === null) {
             return;
         }
 
         $dataPoints = $this->sessionQuery->findDeletedDataPoints($cronState->lastProcessedAt());
 
-        $grouped = [];
-        foreach ($dataPoints as $point) {
-            $lat = round($point->lat, $this->precision);
-            $lon = round($point->lon, $this->precision);
-            $key = "{$point->speciesId}|{$lat}|{$lon}|{$point->year}";
-
-            if (!isset($grouped[$key])) {
-                $grouped[$key] = [
-                    'speciesId' => $point->speciesId,
-                    'lat'       => $lat,
-                    'lon'       => $lon,
-                    'year'      => $point->year,
-                    'count'     => 0,
-                ];
-            }
-            $grouped[$key]['count'] += $point->delta;
-        }
+        $grouped = $this->groupDataPointsService->groupDataPoints($dataPoints, $this->precision);
 
         $this->mapBubbleRepository->upsertBatch(array_values($grouped));
     }

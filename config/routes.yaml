@@ -221,3 +221,13 @@ api_analytics_map_bubbles:
     path: /api/analytics/map-bubbles
     controller: App\UI\Http\Rest\Analytics\GetMapBubbleSummaryController
     methods: [GET]
+
+backoffice_analytics_dashboard:
+    path: /backoffice/analytics
+    controller: App\UI\Http\Backoffice\Analytics\DashboardController
+    methods: [GET]
+
+backoffice_analytics_force_update:
+    path: /backoffice/analytics/force-update
+    controller: App\UI\Http\Backoffice\Analytics\ForceUpdateAnalyticsController
+    methods: [POST]

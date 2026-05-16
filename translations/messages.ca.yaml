@@ -274,3 +274,17 @@ user_management:
         already_anonymized: "L'usuari ja ha estat anonimitzat."
         email_taken: "Ja existeix un usuari amb aquest correu electrònic."
         unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."
+
+analytics:
+    nav: "Estadístiques"
+    dashboard:
+        title: "Dashboard d'estadístiques"
+        last_update: "Última actualització"
+        never: "Mai"
+        force_update: "Forçar actualització"
+        confirm_update: "Vols forçar l'actualització de les estadístiques?"
+    flash:
+        updated: "Estadístiques actualitzades correctament."
+    error:
+        invalid_csrf: "Token CSRF no vàlid."
+        update_failed: "Error en actualitzant les estadístiques."
