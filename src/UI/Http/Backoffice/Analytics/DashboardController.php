@@ -29,9 +29,10 @@ final class DashboardController extends AbstractController
 
         return $this->render('backoffice/analytics/dashboard.html.twig', [
             'lastProcessedAt' => $response->lastProcessedAt,
-            'availableYears' => $response->availableYears,
-            'selectedYear' => $response->selectedYear,
-            'chartData' => $response->chartData,
+            'availableYears'  => $response->availableYears,
+            'selectedYear'    => $response->selectedYear,
+            'chartData'       => $response->chartData,
+            'percentageData'  => $response->percentageData,
         ]);
     }
 }

@@ -27,7 +27,7 @@ final readonly class GetDashboardAnalyticsHandler
         $rows = $this->monthlyRepository->findByYear($request->requestedYear);
 
         return DashboardResponseMapper::toDashboardResponse(
-            $cronState->lastProcessedAt(),
+            $cronState?->lastProcessedAt(),
             $availableYears,
             $request->requestedYear,
             $rows,

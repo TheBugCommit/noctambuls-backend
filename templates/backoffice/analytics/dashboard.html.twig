@@ -30,10 +30,24 @@
     </div>
 </div>
 
-<div class="card bg-base-100 shadow-sm">
+<div class="card bg-base-100 shadow-sm" data-controller="chart-tabs">
     <div class="card-body">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="card-title">{{ 'analytics.dashboard.chart.title'|trans }}</h2>
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <div role="tablist" class="tabs tabs-bordered">
+                <button role="tab" class="tab tab-active"
+                        data-chart-tabs-target="tab"
+                        data-chart-tabs-name-param="monthly"
+                        data-action="click->chart-tabs#switch">
+                    {{ 'analytics.dashboard.tab.monthly'|trans }}
+                </button>
+                <button role="tab" class="tab"
+                        data-chart-tabs-target="tab"
+                        data-chart-tabs-name-param="percentage"
+                        data-action="click->chart-tabs#switch">
+                    {{ 'analytics.dashboard.tab.percentage'|trans }}
+                </button>
+            </div>
+
             <form method="get" action="{{ path('backoffice_analytics_dashboard') }}" class="flex items-center gap-2">
                 <label for="year-filter" class="text-sm font-medium">
                     {{ 'analytics.dashboard.chart.year_filter'|trans }}
@@ -49,21 +63,40 @@
             </form>
         </div>
 
-        {% if chartData.series is empty %}
-            <p class="text-base-content/60 text-sm py-8 text-center">
-                {{ 'analytics.dashboard.chart.no_data'|trans }}
-            </p>
-        {% else %}
-            {% set monthLabels = [] %}
-            {% for i in 1..12 %}
-                {% set monthLabels = monthLabels|merge([('analytics.dashboard.chart.month.' ~ i)|trans]) %}
-            {% endfor %}
-            <canvas
-                data-controller="observations-chart"
-                data-observations-chart-chart-data-value="{{ chartData|json_encode|e('html_attr') }}"
-                data-observations-chart-month-labels-value="{{ monthLabels|json_encode|e('html_attr') }}"
-            ></canvas>
-        {% endif %}
+        {# Panel: Observacions per mes #}
+        <div data-chart-tabs-target="panel" data-chart-tabs-panel-name="monthly">
+            {% if chartData.series is empty %}
+                <p class="text-base-content/60 text-sm py-8 text-center">
+                    {{ 'analytics.dashboard.chart.no_data'|trans }}
+                </p>
+            {% else %}
+                {% set monthLabels = [] %}
+                {% for i in 1..12 %}
+                    {% set monthLabels = monthLabels|merge([('analytics.dashboard.chart.month.' ~ i)|trans]) %}
+                {% endfor %}
+                <canvas
+                    data-controller="observations-chart"
+                    data-observations-chart-chart-data-value="{{ chartData|json_encode|e('html_attr') }}"
+                    data-observations-chart-month-labels-value="{{ monthLabels|json_encode|e('html_attr') }}"
+                ></canvas>
+            {% endif %}
+        </div>
+
+        {# Panel: % per espècie #}
+        <div class="hidden" data-chart-tabs-target="panel" data-chart-tabs-panel-name="percentage">
+            {% if percentageData.labels is empty %}
+                <p class="text-base-content/60 text-sm py-8 text-center">
+                    {{ 'analytics.dashboard.percentage_chart.no_data'|trans }}
+                </p>
+            {% else %}
+                <canvas
+                    data-controller="species-percentage-chart"
+                    data-species-percentage-chart-labels-value="{{ percentageData.labels|json_encode|e('html_attr') }}"
+                    data-species-percentage-chart-data-value="{{ percentageData.data|json_encode|e('html_attr') }}"
+                    data-species-percentage-chart-colors-value="{{ percentageData.colors|json_encode|e('html_attr') }}"
+                ></canvas>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
