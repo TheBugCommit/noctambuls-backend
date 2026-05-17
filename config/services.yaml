@@ -156,6 +156,25 @@ services:
         tags: ['controller.service_arguments']
 
 
+    # Notification repositories
+    App\Notification\Domain\Repository\CensusNotificationTemplateRepositoryInterface:
+        class: App\Notification\Infrastructure\Persistence\DoctrineCensusNotificationTemplateRepository
+
+    # Push notification sender
+    App\Shared\Domain\Service\PushNotificationSenderInterface:
+        alias: App\Notification\Infrastructure\Firebase\FirebasePushNotificationSender
+
+    App\Notification\Infrastructure\Firebase\FirebasePushNotificationSender:
+        arguments:
+            $googleClient: '@firebase.google_client'
+            $projectId: '%env(FIREBASE_PROJECT_ID)%'
+            $topic: '%env(FCM_TOPIC)%'
+
+    # Census notification event listener
+    App\Notification\Infrastructure\EventListener\CensusNotificationListener:
+        tags:
+            - { name: kernel.event_subscriber }
+
     # JWT Census Link GEnerator
     App\Census\Infrastructure\Service\JwtCensusLinkGenerator:
         arguments:

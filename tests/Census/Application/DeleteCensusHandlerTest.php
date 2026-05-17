@@ -14,19 +14,22 @@ use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Census\Domain\Entity\Census;
 use App\Census\Domain\ValueObject\CensusId;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class DeleteCensusHandlerTest extends TestCase
 {
     private CensusRepositoryInterface&MockObject $repository;
     private TransactionManagerInterface&MockObject $transactionManager;
+    private EventDispatcherInterface&MockObject $eventDispatcher;
     private DeleteCensusHandler $handler;
 
     protected function setUp(): void
     {
         $this->repository = $this->createMock(CensusRepositoryInterface::class);
         $this->transactionManager = $this->createMock(TransactionManagerInterface::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $this->handler = new DeleteCensusHandler($this->repository, $this->transactionManager);
+        $this->handler = new DeleteCensusHandler($this->repository, $this->transactionManager, $this->eventDispatcher);
     }
 
     public function testItHardDeletesDraftCensus(): void

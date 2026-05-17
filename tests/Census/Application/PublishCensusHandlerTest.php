@@ -13,6 +13,7 @@ use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Census\Domain\Entity\Census;
 use App\Census\Domain\ValueObject\CensusId;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class PublishCensusHandlerTest extends TestCase
 {
@@ -38,7 +39,8 @@ final class PublishCensusHandlerTest extends TestCase
         $tx->expects($this->once())->method('commit');
         $repo->expects($this->once())->method('save');
 
-        $handler = new PublishCensusHandler($repo, $tx);
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $handler = new PublishCensusHandler($repo, $tx, $dispatcher);
 
         $handler->handle(new PublishCensusRequest('00000000-0000-0000-0000-000000000300'));
 
@@ -52,7 +54,8 @@ final class PublishCensusHandlerTest extends TestCase
 
         $repo->method('findById')->willReturn(null);
 
-        $handler = new PublishCensusHandler($repo, $tx);
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $handler = new PublishCensusHandler($repo, $tx, $dispatcher);
 
         $this->expectException(\App\Census\Domain\Exception\CensusNotFoundException::class);
 

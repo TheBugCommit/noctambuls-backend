@@ -10,3 +10,10 @@ services:
             # Authentication with "OAuth 2.0" or "Service account" using JSON
             #- [setAuthConfig, ['%env(resolve:GOOGLE_AUTH_CONFIG)%']]
             - [setCache, ['@cache.app']]
+
+    firebase.google_client:
+        class: Google\Client
+        calls:
+            - [ setAuthConfig, [ '%env(resolve:FIREBASE_CREDENTIALS_PATH)%' ] ]
+            - [ addScope, [ 'https://www.googleapis.com/auth/firebase.messaging' ] ]
+            - [ setCache, [ '@cache.app' ] ]

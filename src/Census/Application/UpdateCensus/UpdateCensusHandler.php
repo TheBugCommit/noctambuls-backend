@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Census\Application\UpdateCensus;
 
+use App\Census\Domain\Event\CensusDateChangedEvent;
 use App\Census\Domain\Exception\CensusNotFoundException;
 use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Census\Domain\ValueObject\CensusDate;
@@ -15,6 +16,7 @@ use App\Census\Domain\ValueObject\CensusTitle;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Shared\Domain\ValueObject\Latitude;
 use App\Shared\Domain\ValueObject\Longitude;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
 readonly class UpdateCensusHandler
@@ -22,6 +24,7 @@ readonly class UpdateCensusHandler
     public function __construct(
         private CensusRepositoryInterface   $censusRepository,
         private TransactionManagerInterface $transactionManager,
+        private EventDispatcherInterface    $eventDispatcher,
     ) {
     }
 
@@ -33,6 +36,11 @@ readonly class UpdateCensusHandler
         if ($census === null) {
             throw new CensusNotFoundException();
         }
+
+        $shouldNotify = $census->status()->isPublished()
+            && !$census->isWithinGracePeriod()
+            && ($census->date()->format('Y-m-d') !== $request->date
+                || $census->time()->format('H:i') !== $request->time);
 
         $census->update(
             new CensusTitle($request->title),
@@ -53,6 +61,10 @@ readonly class UpdateCensusHandler
         } catch (Throwable $e) {
             $this->transactionManager->rollback();
             throw $e;
+        }
+
+        if ($shouldNotify) {
+            $this->eventDispatcher->dispatch(new CensusDateChangedEvent($census->id()->value()));
         }
     }
 }

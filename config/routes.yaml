@@ -231,3 +231,13 @@ backoffice_analytics_force_update:
     path: /backoffice/analytics/force-update
     controller: App\UI\Http\Backoffice\Analytics\ForceUpdateAnalyticsController
     methods: [POST]
+
+backoffice_notifications:
+    path: /backoffice/notifications
+    controller: App\UI\Http\Backoffice\Notification\NotificationSettingsController
+    methods: [GET]
+
+backoffice_notifications_update:
+    path: /backoffice/notifications/{event}
+    controller: App\UI\Http\Backoffice\Notification\NotificationSettingsController
+    methods: [POST]

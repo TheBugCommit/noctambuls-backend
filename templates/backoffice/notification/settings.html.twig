@@ -1,0 +1,54 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'notification.settings.title'|trans }}{% endblock %}
+
+{% block content %}
+    <h1 class="text-2xl font-bold mb-6">{{ 'notification.settings.title'|trans }}</h1>
+
+    {% set eventLabels = {
+        'census.published':    'notification.settings.event.census_published'|trans,
+        'census.date_changed': 'notification.settings.event.census_date_changed'|trans,
+        'census.cancelled':    'notification.settings.event.census_cancelled'|trans
+    } %}
+
+    <div class="flex flex-col gap-6">
+        {% for template in templates %}
+            <div class="card bg-base-100 shadow-sm border border-base-200">
+                <div class="card-body">
+                    <h2 class="card-title text-base mb-4">
+                        {{ eventLabels[template.event] ?? template.event }}
+                    </h2>
+
+                    <form method="post"
+                          action="{{ path('backoffice_notifications_update', {event: template.event}) }}">
+                        <input type="hidden" name="_csrf_token"
+                               value="{{ csrf_token('notification_' ~ template.event) }}">
+
+                        <div class="form-control mb-4">
+                            <label class="label">
+                                <span class="label-text font-medium">{{ 'notification.field.title'|trans }}</span>
+                            </label>
+                            <input type="text" name="title" required
+                                   class="input input-bordered w-full"
+                                   value="{{ template.title }}">
+                        </div>
+
+                        <div class="form-control mb-4">
+                            <label class="label">
+                                <span class="label-text font-medium">{{ 'notification.field.body'|trans }}</span>
+                            </label>
+                            <textarea name="body" rows="3" required
+                                      class="textarea textarea-bordered w-full">{{ template.body }}</textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                {{ 'notification.action.save'|trans }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

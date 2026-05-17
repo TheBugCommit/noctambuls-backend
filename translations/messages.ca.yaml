@@ -289,3 +289,23 @@ analytics:
     error:
         invalid_csrf: "Token CSRF no vàlid."
         update_failed: "Error en actualitzant les estadístiques."
+
+notification:
+    nav: "Notificacions"
+    settings:
+        title: "Plantilles de notificació"
+        event:
+            census_published: "Publicació de cens"
+            census_date_changed: "Canvi de data de cens"
+            census_cancelled: "Cancel·lació de cens"
+    field:
+        title: "Títol"
+        body: "Missatge"
+    action:
+        save: "Desar"
+    flash:
+        updated: "Plantilla actualitzada correctament."
+    error:
+        not_found: "Plantilla de notificació no trobada."
+        invalid_csrf: "Token de seguretat invàlid."
+        unexpected: "Error inesperat. Contacta amb l'administrador."

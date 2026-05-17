@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Census\Application;
 
 use App\Census\Domain\Exception\CensusNotFoundException;
+use App\Census\Domain\ValueObject\CensusStatus;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use App\Census\Application\UpdateCensus\UpdateCensusHandler;
@@ -12,19 +13,22 @@ use App\Census\Application\UpdateCensus\UpdateCensusRequest;
 use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Census\Domain\Entity\Census;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class UpdateCensusHandlerTest extends TestCase
 {
     private CensusRepositoryInterface&MockObject $repository;
     private TransactionManagerInterface&MockObject $transactionManager;
+    private EventDispatcherInterface&MockObject $eventDispatcher;
     private UpdateCensusHandler $handler;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(CensusRepositoryInterface::class);
+        $this->repository       = $this->createMock(CensusRepositoryInterface::class);
         $this->transactionManager = $this->createMock(TransactionManagerInterface::class);
+        $this->eventDispatcher  = $this->createMock(EventDispatcherInterface::class);
 
-        $this->handler = new UpdateCensusHandler($this->repository, $this->transactionManager);
+        $this->handler = new UpdateCensusHandler($this->repository, $this->transactionManager, $this->eventDispatcher);
     }
 
     public function testItUpdatesACensusSuccessfully(): void
@@ -43,6 +47,7 @@ final class UpdateCensusHandlerTest extends TestCase
         $censusMock = $this->createMock(Census::class);
 
         $this->repository->method('findById')->willReturn($censusMock);
+        $censusMock->method('status')->willReturn(CensusStatus::DRAFT);
 
         $censusMock->expects($this->once())->method('update');
 
