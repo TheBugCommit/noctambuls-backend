@@ -31,6 +31,7 @@ final class CensusResponseMapper
             updatedAt: $census->updatedAt()->format(\DateTimeInterface::ATOM),
             publishedAt: $census->publishedAt()?->format(\DateTimeInterface::ATOM),
             isEditable: $census->isEditable(),
+            isDeleted: $census->isDeleted(),
             deepLink: $deepLink,
             qrBase64: $qrBase64,
         );
@@ -60,6 +61,7 @@ final class CensusResponseMapper
             'locationName' => $census->locationName()->value(),
             'description'  => $census->description()?->value(),
             'updatedAt'    => $census->updatedAt()->format(\DateTimeInterface::ATOM),
+            'isDeleted'    => $census->isDeleted(),
         ];
     }
 
@@ -97,6 +99,7 @@ final class CensusResponseMapper
             'status'       => $census->status()->value,
             'createdAt'    => $census->createdAt()->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('d/m/Y H:i'),
             'isEditable'   => $census->isEditable(),
+            'isDeleted'    => $census->isDeleted(),
         ];
     }
 

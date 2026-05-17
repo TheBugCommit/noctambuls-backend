@@ -9,3 +9,4 @@ services:
             #- [setClientSecret, ['%env(GOOGLE_CLIENT_SECRET)%']]
             # Authentication with "OAuth 2.0" or "Service account" using JSON
             #- [setAuthConfig, ['%env(resolve:GOOGLE_AUTH_CONFIG)%']]
+            - [setCache, ['@cache.app']]

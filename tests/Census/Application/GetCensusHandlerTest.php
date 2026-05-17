@@ -10,7 +10,9 @@ use App\Census\Domain\ValueObject\CensusDate;
 use App\Census\Domain\ValueObject\CensusDescription;
 use App\Census\Domain\ValueObject\CensusLocationName;
 use App\Census\Domain\ValueObject\CensusTime;
+use App\Census\Domain\Service\CensusLinkGeneratorInterface;
 use App\Census\Domain\ValueObject\CensusTitle;
+use App\Shared\Application\Service\QrCodeGeneratorInterface;
 use App\Shared\Domain\ValueObject\Latitude;
 use App\Shared\Domain\ValueObject\Longitude;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -24,12 +26,16 @@ use App\Census\Domain\ValueObject\CensusId;
 final class GetCensusHandlerTest extends TestCase
 {
     private CensusRepositoryInterface&MockObject $repository;
+    private CensusLinkGeneratorInterface&MockObject $linkGenerator;
+    private QrCodeGeneratorInterface&MockObject $qrGenerator;
     private GetCensusHandler $handler;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(CensusRepositoryInterface::class);
-        $this->handler = new GetCensusHandler($this->repository);
+        $this->repository    = $this->createMock(CensusRepositoryInterface::class);
+        $this->linkGenerator = $this->createMock(CensusLinkGeneratorInterface::class);
+        $this->qrGenerator   = $this->createMock(QrCodeGeneratorInterface::class);
+        $this->handler = new GetCensusHandler($this->repository, $this->linkGenerator, $this->qrGenerator);
     }
 
     public function testItGetsACensusSuccessfully(): void

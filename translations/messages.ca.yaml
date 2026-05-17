@@ -54,6 +54,7 @@ census:
     status:
         draft: "Esborrany"
         published: "Publicat"
+        deleted: "Eliminat"
     action:
         publish: "Publicar"
         edit: "Editar"

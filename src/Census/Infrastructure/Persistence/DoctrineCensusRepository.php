@@ -76,15 +76,17 @@ final readonly class DoctrineCensusRepository implements CensusRepositoryInterfa
             ->select('c')
             ->from(Census::class, 'c')
             ->where('c.status = :status')
-            ->andWhere('c.date >= :today')
             ->setParameter('status', CensusStatus::PUBLISHED->value)
-            ->setParameter('today', new \DateTimeImmutable('today', new \DateTimeZone('UTC')), Types::DATE_IMMUTABLE)
             ->orderBy('c.date', 'ASC')
             ->addOrderBy('c.time', 'ASC');
 
         if ($since !== null) {
             $qb->andWhere('c.updatedAt > :since')
                ->setParameter('since', $since, Types::DATETIME_IMMUTABLE);
+        } else {
+            $qb->andWhere('c.isDeleted = false')
+               ->andWhere('c.date >= :today')
+               ->setParameter('today', new \DateTimeImmutable('today', new \DateTimeZone('UTC')), Types::DATE_IMMUTABLE);
         }
 
         return $qb->getQuery()->getResult();

@@ -30,6 +30,8 @@ class Census
         private readonly \DateTimeImmutable $createdAt,
         private \DateTimeImmutable          $updatedAt,
         private ?\DateTimeImmutable         $publishedAt = null,
+        private bool                        $isDeleted = false,
+        private ?\DateTimeImmutable         $deletedAt = null,
     ) {
     }
 
@@ -76,14 +78,17 @@ class Census
         $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
+    public function softDelete(): void
+    {
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $this->isDeleted = true;
+        $this->deletedAt = $now;
+        $this->updatedAt = $now;
+    }
+
     public function isEditable(): bool
     {
-        if ($this->status === CensusStatus::DRAFT) {
-            return true;
-        }
-
-        return $this->publishedAt !== null
-            && $this->publishedAt->modify('+10 minutes') > new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        return !$this->isDeleted;
     }
 
     public function assertEditable(): void
@@ -91,6 +96,15 @@ class Census
         if (!$this->isEditable()) {
             throw new CensusNotEditableException();
         }
+    }
+
+    public function isWithinGracePeriod(): bool
+    {
+        if ($this->publishedAt === null) {
+            return false;
+        }
+
+        return $this->publishedAt->modify('+10 minutes') > new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function id(): CensusId
@@ -151,5 +165,15 @@ class Census
     public function publishedAt(): ?\DateTimeImmutable
     {
         return $this->publishedAt;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function deletedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletedAt;
     }
 }

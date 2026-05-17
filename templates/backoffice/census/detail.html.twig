@@ -10,7 +10,9 @@
         </a>
         <h1 class="text-2xl font-bold">{{ census.title|default('Detall del Cens') }}</h1>
         <div class="flex flex-col gap-2">
-            {% if census.status == 'PUBLISHED' %}
+            {% if census.isDeleted %}
+                <span class="badge badge-error font-medium">{{ 'census.status.deleted'|trans|default('Eliminat') }}</span>
+            {% elseif census.status == 'PUBLISHED' %}
                 <span
                     class="badge badge-success text-success-content font-medium">{{ 'census.status.published'|trans|default('Publicat') }}</span>
             {% else %}

@@ -33,7 +33,9 @@
                         <td>{{ census.date }} {{ census.time }}</td>
                         <td>{{ census.locationName }}</td>
                         <td>
-                            {% if census.status == 'PUBLISHED' %}
+                            {% if census.isDeleted %}
+                                <span class="badge badge-error badge-sm">{{ 'census.status.deleted'|trans }}</span>
+                            {% elseif census.status == 'PUBLISHED' %}
                                 <span class="badge badge-success badge-sm">{{ 'census.status.published'|trans }}</span>
                             {% else %}
                                 <span class="badge badge-ghost badge-sm">{{ 'census.status.draft'|trans }}</span>

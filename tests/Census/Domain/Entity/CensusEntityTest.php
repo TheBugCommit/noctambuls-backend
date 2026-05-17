@@ -71,19 +71,61 @@ class CensusEntityTest extends TestCase
         $census->assertEditable();
     }
 
-    public function testItThrowsExceptionWhenUpdatingANonEditableCensus(): void
+    public function testItCanEditPublishedCensusAfterGracePeriod(): void
     {
         $census = $this->createValidCensus();
-
         $census->publish();
 
         $reflection = new \ReflectionClass($census);
-        $publishedAtProperty = $reflection->getProperty('publishedAt');
-        $publishedAtProperty->setAccessible(true);
-        $publishedAtProperty->setValue($census, new \DateTimeImmutable('-20 minutes'));
+        $prop = $reflection->getProperty('publishedAt');
+        $prop->setAccessible(true);
+        $prop->setValue($census, new \DateTimeImmutable('-20 minutes'));
+
+        $this->expectNotToPerformAssertions();
+        $census->assertEditable();
+    }
+
+    public function testSoftDeletedCensusIsNotEditable(): void
+    {
+        $census = $this->createValidCensus();
+        $census->publish();
+        $census->softDelete();
 
         $this->expectException(CensusNotEditableException::class);
-
         $census->assertEditable();
+    }
+
+    public function testSoftDeleteSetsFields(): void
+    {
+        $census = $this->createValidCensus();
+        $census->publish();
+
+        $before = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $census->softDelete();
+
+        $this->assertTrue($census->isDeleted());
+        $this->assertNotNull($census->deletedAt());
+        $this->assertGreaterThanOrEqual($before, $census->deletedAt());
+    }
+
+    public function testIsWithinGracePeriodReturnsTrueWhenRecentlyPublished(): void
+    {
+        $census = $this->createValidCensus();
+        $census->publish();
+
+        $this->assertTrue($census->isWithinGracePeriod());
+    }
+
+    public function testIsWithinGracePeriodReturnsFalseAfterTenMinutes(): void
+    {
+        $census = $this->createValidCensus();
+        $census->publish();
+
+        $reflection = new \ReflectionClass($census);
+        $prop = $reflection->getProperty('publishedAt');
+        $prop->setAccessible(true);
+        $prop->setValue($census, new \DateTimeImmutable('-20 minutes'));
+
+        $this->assertFalse($census->isWithinGracePeriod());
     }
 }
