@@ -11,6 +11,7 @@ final readonly class ObservationDataPoint
         public float  $lat,
         public float  $lon,
         public int    $year,
+        public int    $month,
         public int    $delta = 1,
     ) {}
 }

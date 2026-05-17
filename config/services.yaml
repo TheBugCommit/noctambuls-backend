@@ -132,6 +132,9 @@ services:
     App\Analytics\Domain\Repository\MapBubbleSummaryRepositoryInterface:
         class: App\Analytics\Infrastructure\Persistence\DoctrineMapBubbleSummaryRepository
 
+    App\Analytics\Domain\Repository\MonthlyObservationSummaryRepositoryInterface:
+        class: App\Analytics\Infrastructure\Persistence\DoctrineMonthlyObservationSummaryRepository
+
     App\Analytics\Domain\Service\AnalyticsEventDispatcherInterface:
         class: App\Analytics\Infrastructure\Event\SymfonyAnalyticsEventDispatcher
 
@@ -141,9 +144,17 @@ services:
         tags:
             - { name: kernel.event_listener, event: App\Analytics\Domain\Event\AnalyticsDataCollectedEvent }
 
+    App\Analytics\Infrastructure\EventListener\MonthlyObservationSummaryListener:
+        tags:
+            - { name: kernel.event_listener, event: App\Analytics\Domain\Event\AnalyticsDataCollectedEvent }
+
     App\Analytics\Infrastructure\EventListener\AnalyticsPurgeAdjustmentListener:
         arguments:
             $precision: '%env(int:MAP_BUBBLE_PRECISION)%'
+        tags:
+            - { name: kernel.event_listener, event: App\Observation\Domain\Event\BeforeSessionsPurgedEvent }
+
+    App\Analytics\Infrastructure\EventListener\MonthlyObservationPurgeAdjustmentListener:
         tags:
             - { name: kernel.event_listener, event: App\Observation\Domain\Event\BeforeSessionsPurgedEvent }
 
@@ -157,8 +168,8 @@ services:
 
 
     # Notification repositories
-    App\Notification\Domain\Repository\CensusNotificationTemplateRepositoryInterface:
-        class: App\Notification\Infrastructure\Persistence\DoctrineCensusNotificationTemplateRepository
+    App\Notification\Domain\Repository\NotificationTemplateRepositoryInterface:
+        class: App\Notification\Infrastructure\Persistence\NotificationTemplateRepository
 
     # Push notification sender
     App\Shared\Domain\Service\PushNotificationSenderInterface:

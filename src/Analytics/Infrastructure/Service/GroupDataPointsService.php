@@ -4,7 +4,7 @@ namespace App\Analytics\Infrastructure\Service;
 
 class GroupDataPointsService
 {
-    public function groupDataPoints(array $dataPoints, int $precision) : array {
+    public function groupBubbleDataPoints(array $dataPoints, int $precision) : array {
         $grouped = [];
 
         foreach ($dataPoints as $point) {
@@ -23,6 +23,27 @@ class GroupDataPointsService
             }
             $grouped[$key]['count'] += $point->delta;
         }
+
+        return $grouped;
+    }
+
+
+    public function groupMonthlyDataPoints(array $dataPoints) : array {
+        $grouped = [];
+
+        foreach ($dataPoints as $point) {
+            $key = "{$point->speciesId}|{$point->year}|{$point->month}";
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [
+                    'speciesId' => $point->speciesId,
+                    'year'      => $point->year,
+                    'month'     => $point->month,
+                    'count'     => 0,
+                ];
+            }
+            $grouped[$key]['count'] += $point->delta;
+        }
+
 
         return $grouped;
     }

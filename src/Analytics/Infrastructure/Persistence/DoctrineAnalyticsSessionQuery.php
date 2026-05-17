@@ -22,7 +22,8 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
             SELECT o.species_id,
                    COALESCE(o.latitude,  s.latitude)  AS lat,
                    COALESCE(o.longitude, s.longitude) AS lon,
-                   YEAR(COALESCE(s.start_time, s.created_at)) AS obs_year,
+                   YEAR(COALESCE(s.start_time, s.created_at))  AS obs_year,
+                   MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month,
                    1 AS delta
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
@@ -38,7 +39,8 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
             SELECT o.species_id,
                    COALESCE(o.latitude,  s.latitude)  AS lat,
                    COALESCE(o.longitude, s.longitude) AS lon,
-                   YEAR(COALESCE(s.start_time, s.created_at)) AS obs_year,
+                   YEAR(COALESCE(s.start_time, s.created_at))  AS obs_year,
+                   MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month,
                    -1 AS delta
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
@@ -54,7 +56,8 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
             SELECT o.species_id,
                    COALESCE(o.latitude,  s.latitude)  AS lat,
                    COALESCE(o.longitude, s.longitude) AS lon,
-                   YEAR(COALESCE(s.start_time, s.created_at)) AS obs_year,
+                   YEAR(COALESCE(s.start_time, s.created_at))  AS obs_year,
+                   MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month,
                    1 AS delta
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
@@ -75,6 +78,7 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
                 lat:       (float) $row['lat'],
                 lon:       (float) $row['lon'],
                 year:      (int)   $row['obs_year'],
+                month:     (int)   $row['obs_month'],
                 delta:     (int)   $row['delta'],
             ),
             $rows,
@@ -87,7 +91,8 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
             SELECT o.species_id,
                    COALESCE(o.latitude,  s.latitude)  AS lat,
                    COALESCE(o.longitude, s.longitude) AS lon,
-                   YEAR(COALESCE(s.start_time, s.created_at)) AS obs_year
+                   YEAR(COALESCE(s.start_time, s.created_at))  AS obs_year,
+                   MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
             WHERE s.is_deleted = 1
@@ -106,6 +111,7 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
                 lat:       (float) $row['lat'],
                 lon:       (float) $row['lon'],
                 year:      (int)   $row['obs_year'],
+                month:     (int)   $row['obs_month'],
                 delta:     -1,
             ),
             $rows,

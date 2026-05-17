@@ -20,7 +20,7 @@ final readonly class MapBubbleSummaryListener
 
     public function __invoke(AnalyticsDataCollectedEvent $event): void
     {
-        $grouped = $this->groupDataPointsService->groupDataPoints($event->dataPoints(), $this->precision);
+        $grouped = $this->groupDataPointsService->groupBubbleDataPoints($event->dataPoints(), $this->precision);
         $this->repository->upsertBatch(array_values($grouped));
     }
 }

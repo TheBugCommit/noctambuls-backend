@@ -6,9 +6,10 @@
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">{{ 'analytics.dashboard.title'|trans }}</h1>
     <form method="post" action="{{ path('backoffice_analytics_force_update') }}"
-          onsubmit="return confirm('{{ 'analytics.dashboard.confirm_update'|trans|e('js') }}')">
+          data-controller="confirm-action"
+          data-confirm-action-message-value="{{ 'analytics.dashboard.confirm_update'|trans }}">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('analytics_force_update') }}">
-        <button type="submit" class="btn btn-primary btn-sm">
+        <button type="submit" class="btn btn-primary btn-sm" data-action="confirm-action#confirm">
             {{ 'analytics.dashboard.force_update'|trans }}
         </button>
     </form>
@@ -29,5 +30,40 @@
     </div>
 </div>
 
-{# Future KPIs and charts go here #}
+<div class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="card-title">{{ 'analytics.dashboard.chart.title'|trans }}</h2>
+            <form method="get" action="{{ path('backoffice_analytics_dashboard') }}" class="flex items-center gap-2">
+                <label for="year-filter" class="text-sm font-medium">
+                    {{ 'analytics.dashboard.chart.year_filter'|trans }}
+                </label>
+                <select id="year-filter" name="year" class="select select-bordered select-sm">
+                    {% for year in availableYears %}
+                        <option value="{{ year }}" {% if year == selectedYear %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-sm btn-outline">
+                    {{ 'analytics.dashboard.chart.apply'|trans }}
+                </button>
+            </form>
+        </div>
+
+        {% if chartData.series is empty %}
+            <p class="text-base-content/60 text-sm py-8 text-center">
+                {{ 'analytics.dashboard.chart.no_data'|trans }}
+            </p>
+        {% else %}
+            {% set monthLabels = [] %}
+            {% for i in 1..12 %}
+                {% set monthLabels = monthLabels|merge([('analytics.dashboard.chart.month.' ~ i)|trans]) %}
+            {% endfor %}
+            <canvas
+                data-controller="observations-chart"
+                data-observations-chart-chart-data-value="{{ chartData|json_encode|e('html_attr') }}"
+                data-observations-chart-month-labels-value="{{ monthLabels|json_encode|e('html_attr') }}"
+            ></canvas>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

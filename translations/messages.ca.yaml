@@ -284,6 +284,24 @@ analytics:
         never: "Mai"
         force_update: "Forçar actualització"
         confirm_update: "Vols forçar l'actualització de les estadístiques?"
+        chart:
+            title: "Observacions per mes"
+            year_filter: "Filtrar per any"
+            apply: "Aplicar"
+            no_data: "Sense dades per a l'any seleccionat"
+            month:
+                "1": "Gen"
+                "2": "Feb"
+                "3": "Mar"
+                "4": "Abr"
+                "5": "Mai"
+                "6": "Jun"
+                "7": "Jul"
+                "8": "Ago"
+                "9": "Set"
+                "10": "Oct"
+                "11": "Nov"
+                "12": "Des"
     flash:
         updated: "Estadístiques actualitzades correctament."
     error:

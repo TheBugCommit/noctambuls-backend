@@ -32,7 +32,7 @@ final readonly class AnalyticsPurgeAdjustmentListener
 
         $dataPoints = $this->sessionQuery->findDeletedDataPoints($cronState->lastProcessedAt());
 
-        $grouped = $this->groupDataPointsService->groupDataPoints($dataPoints, $this->precision);
+        $grouped = $this->groupDataPointsService->groupBubbleDataPoints($dataPoints, $this->precision);
 
         $this->mapBubbleRepository->upsertBatch(array_values($grouped));
     }
