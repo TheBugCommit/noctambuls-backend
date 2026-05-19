@@ -53,6 +53,7 @@ final class ObservationResponseMapper
         return [
             'id' => $o->id()->value(),
             'sessionId' => $o->session()->id()->value(),
+            'sessionType' => $o->session()->sessionType()->value,
             'speciesId' => $o->speciesId()->value(),
             'contactType' => $o->contactType()->value,
             'quantity' => $o->quantity()->value(),

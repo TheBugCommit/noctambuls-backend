@@ -128,36 +128,68 @@
                     {{ 'observation.detail.section_location'|trans }}
                 </h2>
 
-                {% if observation.latitude and observation.longitude %}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs font-bold text-base-content/60 uppercase tracking-wider">{{ 'observation.field.latitude'|trans }}</span>
-                            <div class="flex items-center gap-2 font-mono text-sm bg-base-200/50 p-2.5 rounded-lg border border-base-200">
-                                <span>{{ observation.latitude }}</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs font-bold text-base-content/60 uppercase tracking-wider">{{ 'observation.field.longitude'|trans }}</span>
-                            <div class="flex items-center gap-2 font-mono text-sm bg-base-200/50 p-2.5 rounded-lg border border-base-200">
-                                <span>{{ observation.longitude }}</span>
-                            </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-base-content/60 uppercase tracking-wider">{{ 'observation.field.latitude'|trans }}</span>
+                        <div class="flex items-center gap-2 font-mono text-sm bg-base-200/50 p-2.5 rounded-lg border border-base-200">
+                            <span>{{ observation.latitude|dash_if_empty }}</span>
                         </div>
                     </div>
-
-                    <div class="rounded-xl overflow-hidden border border-base-300 shadow-inner">
-                        <div data-controller="map-viewer"
-                             data-map-viewer-lat-value="{{ observation.latitude }}"
-                             data-map-viewer-lng-value="{{ observation.longitude }}"
-                             data-map-viewer-label-value="{{ 'observation.detail.title'|trans }}"
-                             data-map-viewer-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
-                             style="height: 350px;" class="w-full z-0">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-base-content/60 uppercase tracking-wider">{{ 'observation.field.longitude'|trans }}</span>
+                        <div class="flex items-center gap-2 font-mono text-sm bg-base-200/50 p-2.5 rounded-lg border border-base-200">
+                            <span>{{ observation.longitude|dash_if_empty }}</span>
                         </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-base-content/60 uppercase tracking-wider">{{ 'observation.field.accuracy'|trans }}</span>
+                        {% set rounded_acc = observation.accuracy ? observation.accuracy|round(2) : null %}
+                        <div class="flex items-center gap-2 font-mono text-sm p-2.5 rounded-lg border {{ observation.accuracy > 100 ? 'border-warning bg-warning/10 text-warning' : 'bg-base-200/50 border-base-200' }}">
+                            <span>{{ rounded_acc is not null ? rounded_acc ~ ' m' : '—' }}</span>
+                            {% if observation.accuracy > 100 %}
+                                {{ ux_icon('lucide:triangle-alert', {class: 'w-4 h-4 text-warning ml-auto shrink-0'}) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-base-content/60 uppercase tracking-wider">{{ 'observation.field.location_source'|trans }}</span>
+                        <div class="flex items-center gap-2 text-sm bg-base-200/50 p-2.5 rounded-lg border border-base-200">
+                            <span>{{ observation.locationSource is not null ? observation.locationSource|location_source_config|trans : '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if observation.sessionType == 0 %}
+                    <p class="text-sm text-neutral opacity-60 mb-2">{{ 'observation.detail.map_click_hint'|trans }}</p>
+                    <div data-controller="session-location-map"
+                         data-session-location-map-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
+                         data-session-location-map-icon-retina-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}">
+                        <div class="w-full rounded-xl overflow-hidden border border-base-300 shadow-inner"
+                             style="height: 350px;"
+                             data-session-location-map-target="map">
+                        </div>
+                        <input type="hidden" name="latitude"       value="{{ observation.latitude }}"       data-session-location-map-target="lat">
+                        <input type="hidden" name="longitude"      value="{{ observation.longitude }}"      data-session-location-map-target="lng">
+                        <input type="hidden" name="accuracy"       value="{{ observation.accuracy }}"       data-session-location-map-target="accuracy">
+                        <input type="hidden" name="locationSource" value="{{ observation.locationSource }}" data-session-location-map-target="locationSource">
                     </div>
                 {% else %}
-                    <div class="flex items-center gap-3 bg-base-200/50 p-4 rounded-lg border border-base-200 text-base-content/70">
-                        {{ ux_icon('lucide:map-x', {class: 'w-5 h-5 shrink-0'}) }}
-                        <span>{{ 'observation.detail.no_location'|trans }}</span>
-                    </div>
+                    {% if observation.latitude and observation.longitude %}
+                        <div class="rounded-xl overflow-hidden border border-base-300 shadow-inner">
+                            <div data-controller="map-viewer"
+                                 data-map-viewer-lat-value="{{ observation.latitude }}"
+                                 data-map-viewer-lng-value="{{ observation.longitude }}"
+                                 data-map-viewer-label-value="{{ 'observation.detail.title'|trans }}"
+                                 data-map-viewer-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
+                                 style="height: 350px;" class="w-full z-0">
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center gap-3 bg-base-200/50 p-4 rounded-lg border border-base-200 text-base-content/70">
+                            {{ ux_icon('lucide:map-x', {class: 'w-5 h-5 shrink-0'}) }}
+                            <span>{{ 'observation.detail.no_location'|trans }}</span>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

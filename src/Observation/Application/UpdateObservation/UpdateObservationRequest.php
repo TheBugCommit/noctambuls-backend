@@ -13,6 +13,10 @@ final readonly class UpdateObservationRequest
         public int $quantity,
         public ?string $notes,
         public float $bearing,
+        public ?float $latitude = null,
+        public ?float $longitude = null,
+        public ?float $accuracy = null,
+        public ?int $locationSource = null,
     ) {
     }
 }

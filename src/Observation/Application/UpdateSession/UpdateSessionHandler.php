@@ -7,6 +7,8 @@ namespace App\Observation\Application\UpdateSession;
 use App\Observation\Domain\Exception\SessionNotFoundException;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
 use App\Observation\Domain\ValueObject\Accuracy;
+use App\Observation\Domain\ValueObject\Altitude;
+use App\Observation\Domain\ValueObject\AltitudeAccuracy;
 use App\Observation\Domain\ValueObject\ListeningPoint;
 use App\Observation\Domain\ValueObject\LocationSource;
 use App\Observation\Domain\ValueObject\MoonPresence;
@@ -41,11 +43,15 @@ final readonly class UpdateSessionHandler
             $latitude = new Latitude($request->latitude);
             $longitude = new Longitude($request->longitude);
             $accuracy = new Accuracy($request->accuracy ?? 0.0);
+            $altitude = new Altitude(0.0);
+            $altitudeAccuracy = new AltitudeAccuracy(0.0);
             $locationSource = LocationSource::from($request->locationSource ?? LocationSource::Manual->value);
         } else {
             $latitude = $session->latitude();
             $longitude = $session->longitude();
             $accuracy = $session->accuracy();
+            $altitude = $session->altitude();
+            $altitudeAccuracy = $session->altitudeAccuracy();
             $locationSource = $session->locationSource();
         }
 
@@ -66,11 +72,19 @@ final readonly class UpdateSessionHandler
                 latitude: $latitude,
                 longitude: $longitude,
                 accuracy: $accuracy,
-                altitude: $session->altitude(),
-                altitudeAccuracy: $session->altitudeAccuracy(),
+                altitude: $altitude,
+                altitudeAccuracy: $altitudeAccuracy,
                 locationSource: $locationSource,
                 updatedAt: new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
             );
+
+            if ($request->latitude !== null && $request->longitude !== null) {
+                foreach ($session->observations() as $obs) {
+                    if (!$obs->isDeleted()) {
+                        $obs->inheritLocation($latitude, $longitude, $accuracy, $altitude, $altitudeAccuracy, $locationSource);
+                    }
+                }
+            }
 
             $this->sessionRepository->save($session);
             $this->transactionManager->commit();

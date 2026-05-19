@@ -328,6 +328,7 @@ observation:
         section_temporal: "Registre temporal"
         section_location: "Ubicació"
         no_location: "Aquesta observació no té coordenades registrades."
+        map_click_hint: "Fes clic al mapa per establir o modificar la ubicació d'aquesta observació."
     field:
         species: "Espècie"
         contact_type: "Tipus de contacte"
@@ -338,6 +339,8 @@ observation:
         end_time: "Fi"
         latitude: "Latitud"
         longitude: "Longitud"
+        accuracy: "Precisió (m)"
+        location_source: "Font d'ubicació"
     contact:
         visual: "Visual"
         auditory: "Auditiu"

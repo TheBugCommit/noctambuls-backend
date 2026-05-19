@@ -31,7 +31,11 @@ final class ObservationDetailController extends AbstractController
             }
 
             try {
-                $notes = $request->request->get('notes');
+                $notes  = $request->request->get('notes');
+                $latRaw = $request->request->get('latitude');
+                $lngRaw = $request->request->get('longitude');
+                $accRaw = $request->request->get('accuracy');
+                $lsRaw  = $request->request->get('locationSource');
                 $this->updateHandler->handle(new UpdateObservationRequest(
                     observationId: $id,
                     speciesId: (string)$request->request->get('speciesId'),
@@ -39,6 +43,10 @@ final class ObservationDetailController extends AbstractController
                     quantity: (int)$request->request->get('quantity'),
                     notes: $notes !== '' ? $notes : null,
                     bearing: (float)$request->request->get('bearing'),
+                    latitude: $latRaw !== null && $latRaw !== '' ? (float)$latRaw : null,
+                    longitude: $lngRaw !== null && $lngRaw !== '' ? (float)$lngRaw : null,
+                    accuracy: $accRaw !== null && $accRaw !== '' ? (float)$accRaw : null,
+                    locationSource: $lsRaw !== null && $lsRaw !== '' ? (int)$lsRaw : null,
                 ));
                 $this->addFlash('success', 'observation.flash.updated');
             } catch (SessionNotFoundException $e) {
