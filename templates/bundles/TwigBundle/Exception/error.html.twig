@@ -1,46 +1,65 @@
 {% extends 'backoffice/layout.html.twig' %}
 
-{% block title %}{{ 'error.page.title'|trans }}{% endblock %}
+{% block title %}{{ 'error.page.title'|trans }} ({{ status_code|default(500) }}){% endblock %}
 
 {% block content %}
+    {% set code = status_code|default(500) %}
+
+    {% set config = code == 404
+        ? { icon: 'lucide:file-question', color: 'text-warning', bg: 'bg-warning/10', border: 'border-warning/20' }
+        : (code == 403
+        ? { icon: 'lucide:shield-alert', color: 'text-error', bg: 'bg-error/10', border: 'border-error/20' }
+        : { icon: 'lucide:triangle-alert', color: 'text-error', bg: 'bg-error/10', border: 'border-error/20' }) %}
+
     <div class="min-h-[70vh] flex items-center justify-center p-4">
 
-        <div class="card w-full max-w-lg bg-base-100 shadow-xl border border-base-200">
-            <div class="card-body items-center text-center">
+        <div class="card w-full max-w-lg bg-base-100 shadow-2xl border border-base-200/60 relative overflow-hidden">
 
-                <div class="text-error mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
+            <div
+                class="absolute -top-12 -right-6 text-[12rem] font-black opacity-[0.03] pointer-events-none select-none leading-none">
+                {{ code }}
+            </div>
+
+            <div class="card-body items-center text-center p-8 sm:p-10 z-10">
+
+                <div
+                    class="p-5 rounded-full {{ config.bg }} {{ config.color }} mb-6 border {{ config.border }} shadow-sm">
+                    {{ ux_icon(config.icon, {class: 'w-12 h-12'}) }}
                 </div>
 
-                <h1 class="text-6xl font-black text-error mb-2">
-                    {{ status_code|default(500) }}
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-neutral mb-3">
+                    <span class="{{ config.color }}">{{ code }}</span> - {{ 'error.page.heading'|trans }}
                 </h1>
 
-                <h2 class="card-title text-2xl mb-2">
-                    {{ 'error.page.heading'|trans }}
-                </h2>
-
-                <p class="text-base-content/70 mb-6">
+                <p class="text-base-content/70 text-base mb-8 max-w-sm leading-relaxed">
                     {{ 'error.page.description'|trans }}
                 </p>
 
-                {% if app.environment == 'dev' %}
-                    <div class="mockup-code w-full text-left text-sm mb-6 bg-error/10 text-error rounded-box">
-                        <pre data-prefix=">"><code class="whitespace-pre-wrap">{{ status_text|default(exception.message) }}</code></pre>
+                <div
+                    class="w-full text-left mb-8 bg-base-300/50 rounded-box border border-base-300 overflow-hidden shadow-inner">
+                    <div class="bg-base-300 px-4 py-2 flex items-center gap-2 border-b border-base-300/50">
+                        <div class="w-3 h-3 rounded-full bg-error/70"></div>
+                        <div class="w-3 h-3 rounded-full bg-warning/70"></div>
+                        <div class="w-3 h-3 rounded-full bg-success/70"></div>
+                        <span class="text-xs font-mono ml-2 text-base-content/60">Developer Mode</span>
                     </div>
-                {% endif %}
+                    <div class="p-4 overflow-x-auto">
+                        <pre
+                            class="text-xs font-mono text-error/90 whitespace-pre-wrap leading-tight"><code>{{ status_text|default(exception.message|default('Error desconegut')) }}</code></pre>
+                    </div>
+                </div>
 
-                <div class="card-actions justify-center w-full mt-2">
-                    <div class="flex flex-col sm:flex-row gap-3 w-full">
-                        <button onclick="window.history.back()" class="btn btn-outline flex-1">
-                            {{ 'error.action.back'|trans }}
-                        </button>
-                        <a href="{{ path('backoffice_session_list') }}" class="btn btn-primary flex-1">
-                            {{ 'error.action.home'|trans }}
-                        </a>
-                    </div>
+                <div class="flex flex-col sm:flex-row gap-3 w-full mt-2">
+                    <button onclick="window.history.back()"
+                            class="btn btn-outline flex-1 flex items-center justify-center gap-2 hover:bg-base-200 hover:text-base-content hover:border-base-300 transition-colors">
+                        {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+                        {{ 'error.action.back'|trans }}
+                    </button>
+                    <a href="{{ path('backoffice_session_list') }}"
+                       class="btn btn-primary flex-1 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all">
+                        {{ ux_icon('lucide:home', {class: 'w-4 h-4'}) }}
+                        {{ 'error.action.home'|trans }}
+                    </a>
                 </div>
 
             </div>
