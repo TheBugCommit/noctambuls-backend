@@ -16,7 +16,8 @@
 
     <body class="bg-base-200 flex h-screen overflow-hidden w-full" data-controller="sidebar">
 
-    <aside data-sidebar-target="menu" class="bg-base-100 w-64 flex-shrink-0 border-r shadow-lg absolute inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 md:relative md:translate-x-0 flex flex-col">
+    <aside data-sidebar-target="menu"
+           class="bg-base-100 w-64 flex-shrink-0 border-r shadow-lg absolute inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 md:relative md:translate-x-0 flex flex-col">
 
         <div class="h-16 flex items-center justify-between px-4 border-b">
                 <span class="text-xl font-bold text-primary flex items-center gap-2">
@@ -50,7 +51,8 @@
         </div>
     </aside>
 
-    <div data-sidebar-target="overlay" data-action="click->sidebar#toggle" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+    <div data-sidebar-target="overlay" data-action="click->sidebar#toggle"
+         class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
 
     <div class="flex-1 flex flex-col h-screen min-w-0">
         <header class="h-16 bg-base-100 shadow-sm flex items-center px-4 z-10 border-b">
@@ -62,7 +64,8 @@
                 {% block page_title %}Tauler de control{% endblock %}
             </div>
 
-            <button data-controller="theme" data-action="click->theme#toggle" class="btn btn-ghost btn-circle" aria-label="Canviar tema">
+            <button data-controller="theme" data-action="click->theme#toggle" class="btn btn-ghost btn-circle"
+                    aria-label="Canviar tema">
                 <div data-theme-target="moon" class="hidden text-neutral">
                     {{ ux_icon('lucide:moon', {class: 'w-5 h-5'}) }}
                 </div>
@@ -75,20 +78,42 @@
 
         <main class="flex-1 overflow-y-auto p-4 md:p-8 bg-base-200">
             <div class="max-w-6xl mx-auto">
-                {% for type, messages in app.flashes %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ type == 'error' ? 'error' : 'success' }} mb-6 shadow-sm flex items-center gap-2">
-                            {{ ux_icon(type == 'error' ? 'lucide:alert-circle' : 'lucide:check-circle', {class: 'w-5 h-5'}) }}
-                            <span>{{ message|trans }}</span>
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-
                 <div class="bg-base-100 rounded-box shadow-sm p-6">
                     {% block content %}{% endblock %}
                 </div>
             </div>
         </main>
+
+        <div class="fixed bottom-4 right-4 z-[100] p-0 pointer-events-none flex flex-col items-end gap-3 w-full max-w-xs sm:max-w-sm">
+            {% for label, messages in app.flashes %}
+
+                {% set config = label == 'error'
+                    ? { border: 'border-l-error', iconColor: 'text-error', icon: 'lucide:x-circle' }
+                    : (label == 'success'
+                    ? { border: 'border-l-success', iconColor: 'text-success', icon: 'lucide:check-circle' }
+                    : (label == 'warning'
+                    ? { border: 'border-l-warning', iconColor: 'text-warning', icon: 'lucide:triangle-alert' }
+                    : { border: 'border-l-info', iconColor: 'text-info', icon: 'lucide:info' })) %}
+
+                {% for message in messages %}
+                    <div class="flex items-start sm:items-center gap-3 p-4 bg-base-100 text-base-content border border-base-300 border-l-4 {{ config.border }} shadow-2xl rounded-box transition-all duration-500 ease-in-out transform translate-x-full opacity-0 pointer-events-auto w-full"
+                         data-controller="flash"
+                         data-flash-timeout-value="5000">
+                        {{ ux_icon(config.icon, {class: 'w-5 h-5 shrink-0 ' ~ config.iconColor}) }}
+
+                        <div class="flex-1 text-sm font-medium leading-snug">
+                            {{ message|trans }}
+                        </div>
+
+                        <button class="btn btn-ghost btn-xs btn-circle shrink-0 opacity-40 hover:opacity-100 text-base-content"
+                                data-action="click->flash#close"
+                                aria-label="Tancar">
+                            {{ ux_icon('lucide:x', {class: 'w-3.5 h-3.5'}) }}
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
     </div>
     </body>
 {% endblock %}

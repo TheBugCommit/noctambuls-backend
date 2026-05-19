@@ -1,13 +1,28 @@
 <!DOCTYPE html>
-<html lang="{{ app.request.locale }}" data-theme="app_light">
+<html lang="{{ app.request.locale }}">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="light dark">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="robots" content="noindex, nofollow">
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#1d232a" media="(prefers-color-scheme: dark)">
+
         <title>{% block title %}{% endblock %}</title>
         <link rel="icon" href="{{ asset('icons/logo.svg') }}">
         {% block stylesheets %}
             <link rel="stylesheet" href="{{ asset('vendor/leaflet/dist/leaflet.min.css') }}">
             <link rel="stylesheet" href="{{ asset('vendor/flatpickr/dist/flatpickr.min.css') }}">
         {% endblock %}
+
+        <script>
+            if (localStorage.getItem('theme') === 'app_dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'app_dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'app_light');
+            }
+        </script>
 
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}

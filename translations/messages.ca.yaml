@@ -412,6 +412,7 @@ notification:
     flash:
         updated: "Plantilla actualitzada correctament."
     error:
+        no_templates: "No s'han trobat plantilles de notificació per configurar."
         not_found: "Plantilla de notificació no trobada."
         invalid_csrf: "Token de seguretat invàlid."
         unexpected: "Error inesperat. Contacta amb l'administrador."
