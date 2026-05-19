@@ -8,6 +8,7 @@ nav:
 
 login:
     title: "Iniciar sessió"
+    subtitle: "Introdueix les teves credencials."
     email: "Correu electrònic"
     password: "Contrasenya"
     submit: "Iniciar sessió"

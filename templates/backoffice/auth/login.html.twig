@@ -1,54 +1,81 @@
 {% extends 'base.html.twig' %}
+
 {% block title %} {{ 'login.title'|trans }} – {{ 'page_title.title'|trans }} {% endblock %}
+
 {% block body %}
-<body class="min-h-screen flex items-center justify-center bg-base-200">
-    <div class="card w-full max-w-sm shadow-xl bg-base-100">
-        <div class="card-body">
-            <h1 class="card-title text-2xl justify-center mb-4">{{ 'login.title'|trans }}</h1>
+    <body class="min-h-screen flex items-center justify-center bg-base-200 p-4">
+
+    <div class="card w-full max-w-md shadow-2xl bg-base-100 border border-base-200/60">
+        <div class="card-body p-8">
+
+            <div class="flex justify-center mb-2">
+                <div class="p-4 bg-primary/10 rounded-full text-primary shrink-0">
+                    {{ ux_icon('lucide:bird', {class: 'w-10 h-10'}) }}
+                </div>
+            </div>
+
+            <h1 class="card-title text-2xl md:text-3xl justify-center font-bold text-neutral mb-1">
+                {{ 'login.title'|trans }}
+            </h1>
+            <p class="text-center text-base-content/60 text-sm mb-6">
+                {{ 'login.subtitle'|trans }}
+            </p>
 
             {% if error %}
-                <div class="alert alert-error mb-4">
+                <div class="alert alert-error mb-6 shadow-sm flex items-start gap-3 text-sm">
+                    {{ ux_icon('lucide:triangle-alert', {class: 'w-5 h-5 shrink-0 mt-0.5'}) }}
                     <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
                 </div>
             {% endif %}
 
-            <form method="post">
+            <form method="post" class="flex flex-col gap-4">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                <div class="form-control mb-3">
-                    <label class="label" for="email">
-                        <span class="label-text">{{ 'login.email'|trans }}</span>
+                <div class="form-control">
+                    <label class="label py-1" for="email">
+                        <span class="label-text font-semibold text-neutral/80">{{ 'login.email'|trans }}</span>
                     </label>
-                    <input
-                        id="email"
-                        type="email"
-                        name="email"
-                        value="{{ last_username }}"
-                        class="input input-bordered"
-                        autocomplete="email"
-                        required
-                    >
+                    <label class="input input-bordered flex items-center gap-3 bg-base-200/30 focus-within:bg-base-100 focus-within:border-primary transition-colors">
+                        {{ ux_icon('lucide:mail', {class: 'w-4 h-4 text-base-content/40'}) }}
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value="{{ last_username }}"
+                            class="grow font-medium"
+                            placeholder="correu@exemple.cat"
+                            autocomplete="email"
+                            required
+                            autofocus
+                        >
+                    </label>
                 </div>
 
-                <div class="form-control mb-6">
-                    <label class="label" for="password">
-                        <span class="label-text">{{ 'login.password'|trans }}</span>
+                <div class="form-control">
+                    <label class="label py-1" for="password">
+                        <span class="label-text font-semibold text-neutral/80">{{ 'login.password'|trans }}</span>
                     </label>
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        class="input input-bordered"
-                        autocomplete="current-password"
-                        required
-                    >
+                    <label class="input input-bordered flex items-center gap-3 bg-base-200/30 focus-within:bg-base-100 focus-within:border-primary transition-colors">
+                        {{ ux_icon('lucide:lock', {class: 'w-4 h-4 text-base-content/40'}) }}
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            class="grow font-medium"
+                            placeholder="••••••••"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </label>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-full">
+                <button type="submit" class="btn btn-primary w-full shadow-md hover:shadow-lg transition-all mt-2 flex items-center gap-2">
                     {{ 'login.submit'|trans }}
+                    {{ ux_icon('lucide:log-in', {class: 'w-5 h-5'}) }}
                 </button>
             </form>
+
         </div>
     </div>
-</body>
+    </body>
 {% endblock %}
