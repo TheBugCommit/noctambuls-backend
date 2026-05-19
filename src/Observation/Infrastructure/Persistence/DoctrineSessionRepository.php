@@ -253,7 +253,7 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
             ->setParameter('isDeleted', $filter->isDeleted);
 
         if ($filter->sessionId !== null) {
-            $qb->andWhere('s.id = :sessionId')->setParameter('sessionId', $filter->sessionId);
+            $qb->andWhere('s.id LIKE :sessionId')->setParameter('sessionId', '%' . $filter->sessionId . '%');
         }
         if ($filter->sessionType !== null) {
             $qb->andWhere('s.sessionType = :sessionType')->setParameter('sessionType', $filter->sessionType);
@@ -278,7 +278,7 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
             }
         }
         if ($filter->censusId !== null) {
-            $qb->andWhere('s.censusId = :censusId')->setParameter('censusId', $filter->censusId);
+            $qb->andWhere('s.censusId LIKE :censusId')->setParameter('censusId', '%' . $filter->censusId . '%');
         }
 
         return $qb;

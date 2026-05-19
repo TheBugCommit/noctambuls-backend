@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Observation\Application\GetSessionsForBackoffice;
 
-use App\Census\Domain\ValueObject\CensusId;
 use App\Observation\Application\Mapper\BackofficeSessionMapper;
 use App\Observation\Application\Service\SessionHydrator;
 use App\Observation\Domain\Filter\SessionFilter;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
-use App\Observation\Domain\ValueObject\SessionId;
 use App\Observation\Domain\ValueObject\SessionType;
 
 final readonly class GetSessionsForBackofficeHandler
@@ -23,12 +21,12 @@ final readonly class GetSessionsForBackofficeHandler
     public function handle(GetSessionsForBackofficeRequest $request): GetSessionsForBackofficeResponse
     {
         $filter = new SessionFilter(
-            sessionId: $request->sessionId !== null ? new SessionId($request->sessionId) : null,
+            sessionId: $request->sessionId,
             sessionType: $request->sessionType !== null ? SessionType::from((int)$request->sessionType) : null,
             dateFrom: $request->dateFrom,
             dateTo: $request->dateTo,
             hasObservations: $request->hasObservations,
-            censusId: $request->censusId !== null ? new CensusId($request->censusId) : null,
+            censusId: $request->censusId,
             isDeleted: false
         );
 
