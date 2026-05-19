@@ -129,7 +129,9 @@ final class ObservationResponseMapper
         $result = [];
         foreach ($sessions as $session) {
             $tmp = self::sessionArray($session);
-            $tmp['observations'] = self::toObservationArray($session->observations());
+            $tmp['observations'] = self::toObservationArray(
+                $session->observations()->filter(fn(Observation $o) => !$o->isDeleted())
+            );
             $tmp['participants'] = self::toParticipantArray($session->participants());
             $result[] = $tmp;
         }

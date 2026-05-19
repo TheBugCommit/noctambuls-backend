@@ -18,12 +18,24 @@
 
             {% if observation.isDeleted %}
                 <span class="badge badge-error font-medium gap-1.5 mt-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>
                     {{ 'observation.status.deleted'|trans }}
                 </span>
             {% endif %}
         </div>
     </div>
+
+    {% if not observation.isDeleted %}
+        <form method="post" id="delete-form" action="{{ path('backoffice_observation_delete', {id: observation.id}) }}"
+              data-controller="confirm-action"
+              data-confirm-action-message-value="{{ 'observation.confirm.delete'|trans }}"
+              data-action="submit->confirm-action#confirm">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('observation_delete_' ~ observation.id) }}">
+        </form>
+    {% else %}
+        <form method="post" id="restore-form" action="{{ path('backoffice_observation_restore', {id: observation.id}) }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('observation_restore_' ~ observation.id) }}">
+        </form>
+    {% endif %}
 
     <form method="post" action="{{ path('backoffice_observation_detail', {id: observation.id}) }}" class="max-w-4xl space-y-6">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('observation_edit') }}">
@@ -194,15 +206,33 @@
             </div>
         </div>
 
-        <div class="mt-8 pt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 border-t border-transparent">
-            <a href="{{ path('backoffice_session_detail', {id: observation.sessionId}) }}" class="btn btn-ghost w-full sm:w-auto flex items-center gap-2">
-                {{ ux_icon('lucide:x', {class: 'w-4 h-4'}) }}
-                {{ 'census.action.cancel'|trans|default('Cancel·lar') }}
-            </a>
-            <button type="submit" class="btn btn-primary w-full sm:w-auto shadow-sm flex items-center gap-2">
-                {{ ux_icon('lucide:save', {class: 'w-4 h-4'}) }}
-                {{ 'census.action.save'|trans }}
-            </button>
+        <div class="mt-8 pt-6 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-transparent">
+            <div class="w-full sm:w-auto">
+                {% if not observation.isDeleted %}
+                    <button type="submit" form="delete-form" class="btn btn-outline btn-error w-full sm:w-auto flex items-center justify-center gap-2">
+                        {{ ux_icon('lucide:trash-2', {class: 'w-4 h-4'}) }}
+                        <span>{{ 'observation.action.delete'|trans }}</span>
+                    </button>
+                {% else %}
+                    <button type="submit" form="restore-form" class="btn btn-outline btn-success w-full sm:w-auto flex items-center justify-center gap-2">
+                        {{ ux_icon('lucide:undo-2', {class: 'w-4 h-4'}) }}
+                        <span>{{ 'observation.action.restore'|trans }}</span>
+                    </button>
+                {% endif %}
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <a href="{{ path('backoffice_session_detail', {id: observation.sessionId}) }}" class="btn btn-ghost w-full sm:w-auto flex items-center gap-2">
+                    {{ ux_icon('lucide:x', {class: 'w-4 h-4'}) }}
+                    {{ 'census.action.cancel'|trans|default('Cancel·lar') }}
+                </a>
+                {% if not observation.isDeleted %}
+                    <button type="submit" class="btn btn-primary w-full sm:w-auto shadow-sm flex items-center gap-2">
+                        {{ ux_icon('lucide:save', {class: 'w-4 h-4'}) }}
+                        {{ 'census.action.save'|trans }}
+                    </button>
+                {% endif %}
+            </div>
         </div>
     </form>
 {% endblock %}

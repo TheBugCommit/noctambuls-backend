@@ -348,8 +348,14 @@ observation:
         deleted: "Eliminada"
     action:
         back_to_session: "Tornar a la sessió"
+        delete: "Enviar a la paperera"
+        restore: "Restaurar observació"
+    confirm:
+        delete: "Estàs segur que vols enviar aquesta observació a la paperera?"
     flash:
         updated: 'Observació actualitzada correctament.'
+        deleted: "Observació enviada a la paperera."
+        restored: "Observació restaurada correctament."
         not_found: 'Observació no trobada.'
     error:
         unexpected: "S'ha produït un error inesperat. Contacta amb l'administrador si el problema persisteix."

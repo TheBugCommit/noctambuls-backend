@@ -212,6 +212,16 @@ backoffice_observation_detail:
     controller: App\UI\Http\Backoffice\Observation\ObservationDetailController
     methods: [GET, POST]
 
+backoffice_observation_delete:
+    path: /backoffice/observations/{id}/delete
+    controller: App\UI\Http\Backoffice\Observation\ObservationDeleteController
+    methods: [POST]
+
+backoffice_observation_restore:
+    path: /backoffice/observations/{id}/restore
+    controller: App\UI\Http\Backoffice\Observation\ObservationRestoreController
+    methods: [POST]
+
 api_internal_update_analytics:
     path: /api/internal/update/analytics
     controller: App\UI\Http\Rest\Analytics\UpdateAnalyticsController
