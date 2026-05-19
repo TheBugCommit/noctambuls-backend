@@ -10,101 +10,140 @@ Variables expected:
 
 <input type="hidden" name="_csrf_token" value="{{ csrf_token_value }}">
 
-<div class="card bg-base-100 shadow-sm mb-6">
-    <div class="card-body">
-        <h2 class="card-title text-lg mb-4">{{ 'bird_catalog.section.details'|trans }}</h2>
+<div class="mb-10">
+    <h2 class="text-lg font-bold text-neutral mb-5 flex items-center gap-2 border-b border-base-200 pb-2">
+        {{ ux_icon('lucide:feather', {class: 'w-5 h-5 text-primary'}) }}
+        {{ 'bird_catalog.section.details'|trans }}
+    </h2>
 
-        <div class="form-control mb-3">
-            <label class="label" for="scientificName">
-                <span class="label-text">{{ 'bird_catalog.field.scientific_name'|trans }}</span>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="form-control w-full">
+            <label class="label py-1" for="scientificName">
+                <span class="label-text font-semibold text-neutral/80">{{ 'bird_catalog.field.scientific_name'|trans }}</span>
             </label>
             <input id="scientificName" type="text" name="scientificName"
                    value="{{ data.scientificName ?? (bird ? bird.scientificName : '') }}"
-                   class="input input-bordered" required>
+                   class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors font-medium italic"
+                   placeholder="{{ 'bird_catalog.form.placeholder.scientific_name'|trans }}"
+                   required>
         </div>
 
-        <div class="form-control mb-3">
-            <label class="label" for="imageFile">
-                <span class="label-text">{{ 'bird_catalog.field.image_path'|trans }} (WebP, min 1500px amplada)</span>
-            </label>
-            {% if bird and bird.imagePath %}
-                <div class="mb-2">
-                    <img src="{{ bird.imagePath }}" alt="Imatge actual" class="h-32 w-auto object-cover rounded shadow">
-                    <input type="hidden" name="currentImagePath" value="{{ bird.imagePath }}">
-                </div>
-            {% endif %}
-            <input id="imageFile" type="file" name="imageFile" accept="image/webp"
-                   class="file-input file-input-bordered w-full" {{ not bird ? 'required' : '' }}>
-        </div>
-        <div class="form-control mb-3">
-            <label class="label" for="audioFile">
-                <span class="label-text">{{ 'bird_catalog.field.audio_path'|trans }} (OGG, màx 400KB)</span>
-            </label>
-            {% if bird and bird.audioPath %}
-                <div class="mb-2 mt-2">
-                    <audio controls src="{{ bird.audioPath }}" class="w-full max-w-md"></audio>
-                    <input type="hidden" name="currentAudioPath" value="{{ bird.audioPath }}">
-                </div>
-            {% endif %}
-            <input id="audioFile" type="file" name="audioFile" accept="audio/ogg"
-                   class="file-input file-input-bordered w-full" {{ not bird ? 'required' : '' }}>
-        </div>
-        <div class="form-control mb-3">
-            <label class="label" for="informationUrl">
-                <span class="label-text">{{ 'bird_catalog.field.information_url'|trans }}</span>
+        <div class="form-control w-full">
+            <label class="label py-1" for="informationUrl">
+                <span class="label-text font-semibold text-neutral/80">{{ 'bird_catalog.field.information_url'|trans }}</span>
             </label>
             <input id="informationUrl" type="url" name="informationUrl"
                    value="{{ data.informationUrl ?? (bird ? bird.informationUrl : '') }}"
-                   class="input input-bordered" required>
+                   class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors"
+                   placeholder="{{ 'bird_catalog.form.placeholder.url'|trans }}"
+                   required>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+        <div class="form-control w-full p-4 rounded-box border border-base-200 bg-base-100 shadow-sm">
+            <label class="label pt-0" for="imageFile">
+                <span class="label-text font-semibold text-neutral flex items-center gap-2">
+                    {{ ux_icon('lucide:image', {class: 'w-4 h-4'}) }}
+                    {{ 'bird_catalog.field.image_path'|trans }}
+                </span>
+                <span class="label-text-alt badge badge-ghost text-[10px]">WebP, min 1500px</span>
+            </label>
+
+            {% if bird and bird.imagePath %}
+                <div class="mb-3 p-2 bg-base-200/50 rounded-lg flex items-center gap-3 border border-base-200">
+                    <img src="{{ bird.imagePath }}" alt="Imatge actual" class="h-14 w-14 object-cover rounded shadow-sm">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-semibold">{{ 'bird_catalog.form.current_image'|trans }}</span>
+                        <span class="text-[10px] opacity-60">{{ 'bird_catalog.form.upload_new_image'|trans }}</span>
+                    </div>
+                    <input type="hidden" name="currentImagePath" value="{{ bird.imagePath }}">
+                </div>
+            {% endif %}
+
+            <input id="imageFile" type="file" name="imageFile" accept="image/webp"
+                   class="file-input file-input-bordered file-input-sm w-full" {{ not bird ? 'required' : '' }}>
+        </div>
+
+        <div class="form-control w-full p-4 rounded-box border border-base-200 bg-base-100 shadow-sm">
+            <label class="label pt-0" for="audioFile">
+                <span class="label-text font-semibold text-neutral flex items-center gap-2">
+                    {{ ux_icon('lucide:music', {class: 'w-4 h-4'}) }}
+                    {{ 'bird_catalog.field.audio_path'|trans }}
+                </span>
+                <span class="label-text-alt badge badge-ghost text-[10px]">OGG, màx 400KB</span>
+            </label>
+
+            {% if bird and bird.audioPath %}
+                <div class="mb-3 p-2 bg-base-200/50 rounded-lg flex flex-col gap-2 border border-base-200">
+                    <span class="text-xs font-semibold px-1">{{ 'bird_catalog.form.current_audio'|trans }}</span>
+                    <audio controls src="{{ bird.audioPath }}" class="w-full h-8"></audio>
+                    <input type="hidden" name="currentAudioPath" value="{{ bird.audioPath }}">
+                </div>
+            {% endif %}
+
+            <input id="audioFile" type="file" name="audioFile" accept="audio/ogg"
+                   class="file-input file-input-bordered file-input-sm w-full" {{ not bird ? 'required' : '' }}>
         </div>
     </div>
 </div>
 
-<div class="card bg-base-100 shadow-sm mb-6">
-    <div class="card-body">
-        <h2 class="card-title text-lg mb-4">{{ 'bird_catalog.section.translations'|trans }}</h2>
+<div class="mb-2">
+    <h2 class="text-lg font-bold text-neutral mb-5 flex items-center gap-2 border-b border-base-200 pb-2">
+        {{ ux_icon('lucide:languages', {class: 'w-5 h-5 text-primary'}) }}
+        {{ 'bird_catalog.section.translations'|trans }}
+    </h2>
 
-        {% set languages = enum('App\\BirdCatalog\\Domain\\ValueObject\\LanguageCode').cases %}
+    {% set languages = enum('App\\BirdCatalog\\Domain\\ValueObject\\LanguageCode').cases %}
+    {% set existingTranslations = {} %}
+    {% if bird %}
+        {% for t in bird.translations %}
+            {% set existingTranslations = existingTranslations|merge({(t.languageCode): t}) %}
+        {% endfor %}
+    {% endif %}
 
-        {% set existingTranslations = {} %}
-        {% if bird %}
-            {% for t in bird.translations %}
-                {% set existingTranslations = existingTranslations|merge({(t.languageCode): t}) %}
-            {% endfor %}
-        {% endif %}
+    <div role="tablist" class="tabs tabs-lifted">
+        {% for lang in languages %}
+            <input type="radio" name="translation_tabs" role="tab"
+                   class="tab font-medium whitespace-nowrap [--tab-bg:var(--fallback-b1,oklch(var(--b1)))]"
+                   aria-label="{{ ('language.' ~ lang.value)|trans }}"
+                {{ loop.first ? 'checked' : '' }}>
 
-        <div role="tablist" class="tabs tabs-bordered mb-4">
-            {% for lang in languages %}
-                <input type="radio" name="translation_tabs" role="tab"
-                       class="tab" aria-label="{{ ('language.' ~ lang.value)|trans }}"
-                    {{ loop.first ? 'checked' : '' }}>
-                <div role="tabpanel" class="tab-content pt-4">
-                    <div class="form-control mb-3">
-                        <label class="label">
-                            <span class="label-text">{{ 'bird_catalog.field.common_name'|trans }}</span>
-                        </label>
+            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box rounded-tl-none p-5 sm:p-6 shadow-sm">
 
-                        {% set submittedCommon = data.translations[lang.value].commonName ?? null %}
-                        {% set existingCommon = existingTranslations[lang.value].commonName ?? '' %}
+                <div class="form-control mb-4">
+                    <label class="label py-1">
+                        <span class="label-text font-semibold text-neutral/80">{{ 'bird_catalog.field.common_name'|trans }}</span>
+                    </label>
 
-                        <input type="text"
-                               name="translations[{{ lang.value }}][commonName]"
-                               value="{{ submittedCommon is not empty ? submittedCommon : existingCommon }}"
-                               class="input input-bordered" required>
-                    </div>
-                    <div class="form-control mb-3">
-                        <label class="label">
-                            <span class="label-text">{{ 'bird_catalog.field.description'|trans }}</span>
-                        </label>
-                        {% set submittedDesc = data.translations[lang.value].description ?? null %}
-                        {% set existingDesc = existingTranslations[lang.value].description ?? '' %}
+                    {% set submittedCommon = data.translations[lang.value].commonName ?? null %}
+                    {% set existingCommon = existingTranslations[lang.value].commonName ?? '' %}
 
-                        <textarea name="translations[{{ lang.value }}][description]"
-                                  class="textarea textarea-bordered h-28" required
-                        >{{ submittedDesc is not empty ? submittedDesc : existingDesc }}</textarea>
-                    </div>
+                    <input type="text"
+                           name="translations[{{ lang.value }}][commonName]"
+                           value="{{ submittedCommon is not empty ? submittedCommon : existingCommon }}"
+                           class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors"
+                           placeholder="{{ 'bird_catalog.form.placeholder.common_name'|trans }}"
+                           required>
                 </div>
-            {% endfor %}
-        </div>
+
+                <div class="form-control mb-1">
+                    <label class="label py-1">
+                        <span class="label-text font-semibold text-neutral/80">{{ 'bird_catalog.field.description'|trans }}</span>
+                    </label>
+
+                    {% set submittedDesc = data.translations[lang.value].description ?? null %}
+                    {% set existingDesc = existingTranslations[lang.value].description ?? '' %}
+
+                    <textarea name="translations[{{ lang.value }}][description]"
+                              class="textarea textarea-bordered w-full h-32 bg-base-200/30 focus:bg-base-100 transition-colors leading-relaxed"
+                              placeholder="{{ 'bird_catalog.form.placeholder.description'|trans }}"
+                              required
+                    >{{ submittedDesc is not empty ? submittedDesc : existingDesc }}</textarea>
+                </div>
+
+            </div>
+        {% endfor %}
     </div>
 </div>

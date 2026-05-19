@@ -1,30 +1,42 @@
 {% extends 'backoffice/layout.html.twig' %}
 
 {% block title %}{{ 'bird_catalog.edit.title'|trans }}{% endblock %}
+{% block page_title %}{{ 'bird_catalog.nav'|trans }}{% endblock %}
 
 {% block content %}
-<div class="mb-6">
-    <a href="{{ path('backoffice_bird_catalog_list') }}" class="btn btn-ghost btn-sm">
-        ← {{ 'bird_catalog.list.title'|trans }}
-    </a>
-    <h1 class="text-2xl font-bold mt-2">
-        {{ 'bird_catalog.edit.title'|trans }}: <span class="italic">{{ bird.scientificName }}</span>
-    </h1>
-</div>
-
-<form method="post" enctype="multipart/form-data" action="{{ path('backoffice_bird_catalog_edit', {id: bird.id}) }}">
-    {% include 'backoffice/bird_catalog/_form.html.twig' with {
-        csrf_token_value: csrf_token('bird_catalog'),
-        bird: bird
-    } %}
-
-    <div class="flex gap-3">
-        <button type="submit" class="btn btn-primary">
-            {{ 'bird_catalog.action.save'|trans }}
-        </button>
-        <a href="{{ path('backoffice_bird_catalog_list') }}" class="btn btn-ghost">
-            {{ 'bird_catalog.action.cancel'|trans }}
+    <div class="mb-6 sm:mb-8">
+        <a href="{{ path('backoffice_bird_catalog_list') }}" class="btn btn-ghost btn-sm mb-2 text-base-content/70 hover:text-primary transition-colors flex items-center gap-1.5 w-fit">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+            {{ 'bird_catalog.list.title'|trans }}
         </a>
+        <h1 class="text-2xl md:text-3xl font-bold text-neutral flex flex-wrap items-center gap-x-3 gap-y-1">
+            {{ ux_icon('lucide:pencil', {class: 'w-7 h-7 text-primary shrink-0'}) }}
+            <span>{{ 'bird_catalog.edit.title'|trans }}:</span>
+            <span class="italic font-medium text-base-content/60">{{ bird.scientificName }}</span>
+        </h1>
     </div>
-</form>
+
+    <div class="card bg-base-100 shadow-sm border border-base-200 max-w-4xl">
+        <form method="post" enctype="multipart/form-data" action="{{ path('backoffice_bird_catalog_edit', {id: bird.id}) }}">
+            <div class="card-body p-6 sm:p-8">
+
+                {% include 'backoffice/bird_catalog/_form.html.twig' with {
+                    csrf_token_value: csrf_token('bird_catalog'),
+                    bird: bird
+                } %}
+
+                <div class="mt-8 pt-6 border-t border-base-200 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
+                    <a href="{{ path('backoffice_bird_catalog_list') }}" class="btn btn-ghost w-full sm:w-auto flex items-center gap-2">
+                        {{ ux_icon('lucide:x', {class: 'w-4 h-4'}) }}
+                        {{ 'bird_catalog.action.cancel'|trans }}
+                    </a>
+                    <button type="submit" class="btn btn-primary w-full sm:w-auto shadow-sm flex items-center gap-2">
+                        {{ ux_icon('lucide:save', {class: 'w-4 h-4'}) }}
+                        {{ 'bird_catalog.action.save'|trans }}
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
 {% endblock %}

@@ -1,60 +1,135 @@
 {% extends 'backoffice/layout.html.twig' %}
 
 {% block title %}{{ 'bird_catalog.list.title'|trans }}{% endblock %}
+{% block page_title %}{{ 'bird_catalog.nav'|trans }}{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">{{ 'bird_catalog.list.title'|trans }}</h1>
-    <a href="{{ path('backoffice_bird_catalog_create') }}" class="btn btn-primary btn-sm">
-        + {{ 'bird_catalog.create.title'|trans }}
-    </a>
-</div>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-neutral flex items-center gap-3">
+                {{ ux_icon('lucide:book-open', {class: 'w-7 h-7 text-primary'}) }}
+                {{ 'bird_catalog.list.title'|trans }}
+            </h1>
+            <p class="text-base-content opacity-70 mt-1 text-sm">
+                {{ 'bird_catalog.list.description'|trans }}
+            </p>
+        </div>
 
-{% if birds is empty %}
-    <div class="alert alert-info">
-        <span>{{ 'bird_catalog.list.empty'|trans }}</span>
+        <a href="{{ path('backoffice_bird_catalog_create') }}"
+           class="btn btn-primary btn-sm flex items-center gap-2 shadow-sm">
+            {{ ux_icon('lucide:plus', {class: 'w-4 h-4'}) }}
+            {{ 'bird_catalog.create.title'|trans }}
+        </a>
     </div>
-{% else %}
-    <div class="overflow-x-auto">
-        <table class="table table-zebra w-full bg-base-100 shadow-sm rounded-box">
-            <thead>
-                <tr>
-                    <th>{{ 'bird_catalog.field.scientific_name'|trans }}</th>
-                    <th>{{ 'bird_catalog.list.translations'|trans }}</th>
-                    <th class="text-right">{{ 'bird_catalog.list.actions'|trans }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for bird in birds %}
+
+    {% if birds is empty %}
+        <div class="card bg-base-100 shadow-sm border border-base-200 py-16 text-center">
+            <div class="flex flex-col items-center justify-center">
+                <div class="p-4 bg-base-200/50 rounded-full text-base-content/30 mb-4">
+                    {{ ux_icon('lucide:bird', {class: 'w-12 h-12'}) }}
+                </div>
+                <h3 class="text-lg font-bold text-neutral mb-2">{{ 'bird_catalog.list.empty'|trans }}</h3>
+                <p class="text-base-content/60 max-w-sm text-sm mb-6">
+                    {{ 'bird_catalog.list.empty_description'|trans }}
+                </p>
+                <a href="{{ path('backoffice_bird_catalog_create') }}" class="btn btn-outline btn-primary btn-sm">
+                    {{ ux_icon('lucide:plus', {class: 'w-4 h-4'}) }}
+                    {{ 'bird_catalog.create.title'|trans }}
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+
+                    <thead class="bg-base-200/50 text-neutral text-sm">
                     <tr>
-                        <td class="font-medium italic">{{ bird.scientificName }}</td>
-                        <td>
-                            {% for translation in bird.translations %}
-                                <span class="badge badge-outline badge-sm mr-1">
-                                    {{ translation.languageCode }}: {{ translation.commonName }}
-                                </span>
-                            {% endfor %}
-                        </td>
-                        <td class="text-right">
-                            <a href="{{ path('backoffice_bird_catalog_edit', {id: bird.id}) }}"
-                               class="btn btn-ghost btn-xs">
-                                {{ 'bird_catalog.action.edit'|trans }}
-                            </a>
-                            <form method="post"
-                                  action="{{ path('backoffice_bird_catalog_delete', {id: bird.id}) }}"
-                                  class="inline"
-                                  onsubmit="return confirm('{{ 'bird_catalog.confirm.delete'|trans|e('js') }}')">
-                                <input type="hidden" name="_csrf_token"
-                                       value="{{ csrf_token('bird_delete_' ~ bird.id) }}">
-                                <button type="submit" class="btn btn-ghost btn-xs text-error">
-                                    {{ 'bird_catalog.action.delete'|trans }}
-                                </button>
-                            </form>
-                        </td>
+                        <th class="w-1/3">{{ 'bird_catalog.field.scientific_name'|trans }}</th>
+                        <th>{{ 'bird_catalog.list.translations'|trans }}</th>
+                        <th class="text-right w-32">{{ 'bird_catalog.list.actions'|trans }}</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-{% endif %}
+                    </thead>
+
+                    <tbody>
+                    {% for bird in birds %}
+                        <tr class="hover">
+
+                            <td>
+                                <div class="flex items-center gap-3">
+
+                                    {% if bird.imagePath %}
+                                        <div class="avatar">
+                                            <div
+                                                class="w-10 h-10 rounded-full border border-base-300 shadow-sm bg-base-100">
+                                                <img src="{{ asset(bird.imagePath) }}"
+                                                     alt="Imatge de {{ bird.scientificName }}"
+                                                     class="object-cover"/>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="avatar placeholder">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-base-200 text-base-content/40 border border-base-300">
+                                                {{ ux_icon('lucide:feather', {class: 'w-5 h-5'}) }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    <span class="font-medium italic text-neutral">{{ bird.scientificName }}</span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="flex flex-wrap gap-1.5">
+                                    {% for translation in bird.translations %}
+                                        <div class="badge badge-neutral badge-outline badge-sm gap-1 bg-base-100">
+                                            <span
+                                                class="font-bold opacity-60 uppercase text-[10px]">{{ translation.languageCode }}</span>
+                                            {{ translation.commonName }}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-xs text-base-content/50 italic">-</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+
+                            <td class="text-right">
+                                <div class="flex justify-end gap-2">
+
+                                    <div class="tooltip tooltip-left sm:tooltip-top"
+                                         data-tip="{{ 'bird_catalog.action.edit'|trans }}">
+                                        <a href="{{ path('backoffice_bird_catalog_edit', {id: bird.id}) }}"
+                                           class="btn btn-ghost btn-sm btn-square flex items-center justify-center text-neutral hover:text-primary">
+                                            {{ ux_icon('lucide:pencil', {class: 'w-4.5 h-4.5'}) }}
+                                        </a>
+                                    </div>
+
+                                    <form method="post"
+                                          action="{{ path('backoffice_bird_catalog_delete', {id: bird.id}) }}"
+                                          class="inline"
+                                          data-controller="confirm-action"
+                                          data-confirm-action-message-value="{{ 'bird_catalog.confirm.delete'|trans }}">
+                                        <input type="hidden" name="_csrf_token"
+                                               value="{{ csrf_token('bird_delete_' ~ bird.id) }}">
+
+                                        <div class="tooltip tooltip-left sm:tooltip-top"
+                                             data-tip="{{ 'bird_catalog.action.delete'|trans }}">
+                                            <button type="submit"
+                                                    class="btn btn-ghost btn-sm btn-square flex items-center justify-center text-error hover:bg-error/10"
+                                                    data-action="confirm-action#confirm">
+                                                {{ ux_icon('lucide:trash-2', {class: 'w-4.5 h-4.5'}) }}
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

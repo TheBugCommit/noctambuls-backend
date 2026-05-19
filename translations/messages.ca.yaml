@@ -86,11 +86,13 @@ census:
 bird_catalog:
     nav: "Catàleg d'ocells"
     section:
-        details: "Detalls de l'ocell"
-        translations: "Traduccions"
+        details: "Detalls de l'espècie"
+        translations: "Textos i Traduccions"
     list:
-        title: "Ocells"
-        empty: "Encara no hi ha ocells al catàleg."
+        title: "Catàleg"
+        description: "Gestiona les espècies d'ocells disponibles per als censos i les seves traduccions."
+        empty: "Catàleg buit"
+        empty_description: "Encara no s'han afegit ocells al catàleg. Comença afegint-ne un per poder utilitzar-lo als censos."
         translations: "Traduccions"
         actions: "Accions"
     create:
@@ -99,9 +101,9 @@ bird_catalog:
         title: "Editar ocell"
     field:
         scientific_name: "Nom científic"
-        image_path: "Ruta de la imatge"
-        audio_path: "Ruta de l'àudio"
-        information_url: "URL d'informació"
+        image_path: "Fotografia"
+        audio_path: "Cant / Àudio"
+        information_url: "Enllaç d'informació (URL)"
         common_name: "Nom comú"
         description: "Descripció"
     action:
@@ -111,6 +113,15 @@ bird_catalog:
         cancel: "Cancel·lar"
     confirm:
         delete: "Estàs segur que vols eliminar aquest ocell?"
+    form:
+        current_image: "Imatge actual penjada"
+        upload_new_image: "Puja'n una de nova per substituir-la"
+        current_audio: "Àudio actual penjat:"
+        placeholder:
+            scientific_name: "Ex: Erithacus rubecula"
+            url: "https://..."
+            common_name: "Ex: Pit-roig..."
+            description: "Escriu la descripció de l'ocell per a aquest idioma..."
     flash:
         created: "Ocell creat correctament."
         updated: "Ocell actualitzat correctament."
