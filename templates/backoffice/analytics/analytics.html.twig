@@ -60,37 +60,41 @@
         <div class="card-body p-6">
 
             <div
-                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-base-200">
-                <div role="tablist" class="tabs tabs-boxed bg-base-200/50 p-1">
-                    <button role="tab" class="tab tab-active transition-all font-medium"
+                class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8 pb-4 border-b border-base-200">
+
+                <div role="tablist" class="tabs tabs-boxed bg-base-200/50 p-1 w-full lg:w-auto flex">
+
+                    <button role="tab" class="tab tab-active transition-all font-medium hover:[&:not(.tab-active)]:bg-base-300/70 flex-1 h-auto py-2 min-h-[2.5rem] flex items-center justify-center gap-1.5"
                             data-chart-tabs-target="tab"
                             data-chart-tabs-name-param="monthly"
                             data-action="click->chart-tabs#switch">
-                        {{ ux_icon('lucide:line-chart', {class: 'w-4 h-4 mr-2'}) }}
-                        {{ 'analytics.dashboard.tab.monthly'|trans }}
+                        {{ ux_icon('lucide:line-chart', {class: 'w-4 h-4 shrink-0'}) }}
+                        <span class="text-xs sm:text-sm whitespace-normal leading-tight text-left">{{ 'analytics.dashboard.tab.monthly'|trans }}</span>
                     </button>
-                    <button role="tab" class="tab transition-all font-medium"
+
+                    <button role="tab" class="tab transition-all font-medium hover:[&:not(.tab-active)]:bg-base-300/70 flex-1 h-auto py-2 min-h-[2.5rem] flex items-center justify-center gap-1.5"
                             data-chart-tabs-target="tab"
                             data-chart-tabs-name-param="percentage"
                             data-action="click->chart-tabs#switch">
-                        {{ ux_icon('lucide:pie-chart', {class: 'w-4 h-4 mr-2'}) }}
-                        {{ 'analytics.dashboard.tab.percentage'|trans }}
+                        {{ ux_icon('lucide:pie-chart', {class: 'w-4 h-4 shrink-0'}) }}
+                        <span class="text-xs sm:text-sm whitespace-normal leading-tight text-left">{{ 'analytics.dashboard.tab.percentage'|trans }}</span>
                     </button>
                 </div>
 
                 <form method="get" action="{{ path('backoffice_analytics_dashboard') }}"
-                      class="flex items-center gap-2 w-full sm:w-auto">
+                      class="flex items-center gap-2 w-full lg:w-auto">
                     <label for="year-filter" class="text-sm font-semibold text-neutral hidden sm:block">
                         {{ 'analytics.dashboard.chart.year_filter'|trans }}:
                     </label>
                     <select id="year-filter" name="year"
-                            class="select select-bordered select-sm flex-1 sm:w-32 bg-base-100 font-medium">
+                            class="select select-bordered select-sm flex-1 lg:w-32 bg-base-100 font-medium hover:border-neutral/40 transition-colors">
                         {% for year in availableYears %}
                             <option value="{{ year }}"
                                     {% if year == selectedYear %}selected{% endif %}>{{ year }}</option>
                         {% endfor %}
                     </select>
-                    <button type="submit" class="btn btn-sm btn-neutral flex-none">
+                    <button type="submit"
+                            class="btn btn-sm btn-neutral flex-none hover:btn-neutral-content/10 transition-colors">
                         {{ 'analytics.dashboard.chart.apply'|trans }}
                     </button>
                 </form>
