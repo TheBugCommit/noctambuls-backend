@@ -56,8 +56,6 @@ final class ObservationDetailController extends AbstractController
 
         try {
             $response = $this->getHandler->handle(new GetObservationDetailRequest($id));
-
-
         } catch (SessionNotFoundException $e) {
             $this->addFlash('error', 'session.flash.not_found');
             return $this->redirectToRoute('backoffice_session_list');

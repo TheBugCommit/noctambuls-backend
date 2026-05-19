@@ -243,8 +243,7 @@
                     {{ ux_icon('lucide:bird', {class: 'w-5 h-5 text-primary'}) }}
                     {{ 'session.detail.section_observations'|trans }}
                 </h2>
-                <span
-                    class="badge badge-neutral shadow-sm font-semibold text-base px-3 py-2.5">{{ session.observations|length }}</span>
+                <span class="badge badge-primary badge-outline badge-lg text-sm font-bold ml-2 shadow-sm">{{ session.observations|length }}</span>
             </div>
 
             {% if session.observations is empty %}
