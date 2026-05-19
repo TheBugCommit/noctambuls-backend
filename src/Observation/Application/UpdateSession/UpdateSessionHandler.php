@@ -6,7 +6,9 @@ namespace App\Observation\Application\UpdateSession;
 
 use App\Observation\Domain\Exception\SessionNotFoundException;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
+use App\Observation\Domain\ValueObject\Accuracy;
 use App\Observation\Domain\ValueObject\ListeningPoint;
+use App\Observation\Domain\ValueObject\LocationSource;
 use App\Observation\Domain\ValueObject\MoonPresence;
 use App\Observation\Domain\ValueObject\RainLevel;
 use App\Observation\Domain\ValueObject\SkyCondition;
@@ -14,6 +16,8 @@ use App\Observation\Domain\ValueObject\TemperatureRange;
 use App\Observation\Domain\ValueObject\VisibilityLevel;
 use App\Observation\Domain\ValueObject\WindLevel;
 use App\Shared\Domain\Service\TransactionManagerInterface;
+use App\Shared\Domain\ValueObject\Latitude;
+use App\Shared\Domain\ValueObject\Longitude;
 
 final readonly class UpdateSessionHandler
 {
@@ -33,6 +37,18 @@ final readonly class UpdateSessionHandler
             throw new SessionNotFoundException();
         }
 
+        if ($request->latitude !== null && $request->longitude !== null) {
+            $latitude = new Latitude($request->latitude);
+            $longitude = new Longitude($request->longitude);
+            $accuracy = new Accuracy($request->accuracy ?? 0.0);
+            $locationSource = LocationSource::from($request->locationSource ?? LocationSource::Manual->value);
+        } else {
+            $latitude = $session->latitude();
+            $longitude = $session->longitude();
+            $accuracy = $session->accuracy();
+            $locationSource = $session->locationSource();
+        }
+
         $this->transactionManager->begin();
         try {
             $session->update(
@@ -47,12 +63,12 @@ final readonly class UpdateSessionHandler
                 visibility: VisibilityLevel::from($request->visibility),
                 moon: MoonPresence::from($request->moon),
                 listeningPoint: $request->listeningPoint !== null ? new ListeningPoint($request->listeningPoint) : $session->listeningPoint(),
-                latitude: $session->latitude(),
-                longitude: $session->longitude(),
-                accuracy: $session->accuracy(),
+                latitude: $latitude,
+                longitude: $longitude,
+                accuracy: $accuracy,
                 altitude: $session->altitude(),
                 altitudeAccuracy: $session->altitudeAccuracy(),
-                locationSource: $session->locationSource(),
+                locationSource: $locationSource,
                 updatedAt: new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
             );
 

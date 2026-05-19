@@ -242,6 +242,7 @@ session:
         section_environmental: "Condicions ambientals"
         section_location: "Dades de localització"
         section_map: "Localització"
+        map_click_hint: "Fes clic al mapa per establir o modificar la ubicació de la sessió."
         section_observations: "Observacions detectades"
         observations_empty: "No s'ha registrat cap observació ornitològica per a aquesta sessió."
         placeholder_date: "clica per modificar"

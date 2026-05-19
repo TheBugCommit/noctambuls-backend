@@ -15,6 +15,10 @@ final readonly class UpdateSessionRequest
         public int $visibility,
         public int $moon,
         public ?int $listeningPoint,
+        public ?float $latitude = null,
+        public ?float $longitude = null,
+        public ?float $accuracy = null,
+        public ?int $locationSource = null,
     ) {
     }
 }

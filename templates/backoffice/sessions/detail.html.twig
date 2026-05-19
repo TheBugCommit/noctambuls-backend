@@ -203,14 +203,39 @@
                 {{ 'session.detail.section_map'|trans }}
             </h2>
 
-            <div id="session-map-container"
-                 class="w-full h-80 rounded-box border border-base-300 overflow-hidden shadow-inner bg-base-100 mt-2"
-                 data-controller="map-viewer"
-                 data-map-viewer-lat-value="{{ session.latitude }}"
-                 data-map-viewer-lng-value="{{ session.longitude }}"
-                 data-map-viewer-label-value="LP {{ session.listeningPoint }}"
-                 data-map-viewer-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}">
-            </div>
+            {% if session.sessionType == 0 %}
+                {% set obs_markers = [] %}
+                {% for obs in session.observations %}
+                    {% if not obs.isDeleted and obs.latitude is not null and obs.longitude is not null %}
+                        {% set obs_markers = obs_markers|merge([{lat: obs.latitude, lng: obs.longitude, label: obs.id ~ ' ' ~ obs.speciesName}]) %}
+                    {% endif %}
+                {% endfor %}
+                <div class="w-full h-80 rounded-box border border-base-300 overflow-hidden shadow-inner bg-base-100 mt-2"
+                     data-controller="sessions-map"
+                     data-sessions-map-markers-value="{{ obs_markers|json_encode }}"
+                     data-sessions-map-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}">
+                </div>
+            {% else %}
+                <p class="text-sm text-neutral opacity-60 mt-1 mb-2">{{ 'session.detail.map_click_hint'|trans }}</p>
+                <div data-controller="session-location-map"
+                     data-session-location-map-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}">
+                    <div class="w-full h-80 rounded-box border border-base-300 overflow-hidden shadow-inner bg-base-100"
+                         data-session-location-map-target="map">
+                    </div>
+                    <input type="hidden" form="edit-session-form" name="latitude"
+                           value="{{ session.latitude }}"
+                           data-session-location-map-target="lat">
+                    <input type="hidden" form="edit-session-form" name="longitude"
+                           value="{{ session.longitude }}"
+                           data-session-location-map-target="lng">
+                    <input type="hidden" form="edit-session-form" name="accuracy"
+                           value="{{ session.accuracy }}"
+                           data-session-location-map-target="accuracy">
+                    <input type="hidden" form="edit-session-form" name="locationSource"
+                           value="{{ session.locationSource }}"
+                           data-session-location-map-target="locationSource">
+                </div>
+            {% endif %}
         </div>
     </div>
 

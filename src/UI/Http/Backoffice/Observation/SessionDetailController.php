@@ -31,7 +31,11 @@ final class SessionDetailController extends AbstractController
             }
 
             try {
-                $lpRaw = $request->request->get('listeningPoint');
+                $lpRaw  = $request->request->get('listeningPoint');
+                $latRaw = $request->request->get('latitude');
+                $lngRaw = $request->request->get('longitude');
+                $accRaw = $request->request->get('accuracy');
+                $lsRaw  = $request->request->get('locationSource');
                 $this->updateHandler->handle(new UpdateSessionRequest(
                     sessionId: $id,
                     temperature: (int)$request->request->get('temperature'),
@@ -41,6 +45,10 @@ final class SessionDetailController extends AbstractController
                     visibility: (int)$request->request->get('visibility'),
                     moon: (int)$request->request->get('moon'),
                     listeningPoint: $lpRaw !== null && $lpRaw !== '' ? (int)$lpRaw : null,
+                    latitude: $latRaw !== null && $latRaw !== '' ? (float)$latRaw : null,
+                    longitude: $lngRaw !== null && $lngRaw !== '' ? (float)$lngRaw : null,
+                    accuracy: $accRaw !== null && $accRaw !== '' ? (float)$accRaw : null,
+                    locationSource: $lsRaw !== null && $lsRaw !== '' ? (int)$lsRaw : null,
                 ));
                 $this->addFlash('success', 'session.flash.updated');
             } catch (SessionNotFoundException $e) {
