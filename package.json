@@ -1,0 +1,17 @@
+{
+    "name": "noctambuls-backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "tailwind.config.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github-penguin:TheBugCommit/noctambuls-backend.git"
+    },
+    "private": true,
+    "devDependencies": {
+        "daisyui": "^4.12.24"
+    }
+}

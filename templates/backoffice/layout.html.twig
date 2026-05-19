@@ -1,54 +1,87 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ 'page_title.title'|trans }}{{ 'page_title.ref'|trans }}{% endblock %}
-{% block body %}
-    <body class="min-h-screen bg-base-200">
 
-    <div class="navbar bg-base-100 shadow-sm px-4">
-        <div class="flex-1">
-            <span class="text-lg font-bold">{{ 'nav.title'|trans }}</span>
+{% block body %}
+    {% set menu_items = [
+        { label: 'session.nav', route: 'backoffice_session_list', icon: 'lucide:calendar', role: null },
+        { label: 'census.nav', route: 'backoffice_census_list', icon: 'lucide:clipboard-list', role: 'ROLE_ADMIN' },
+        { label: 'bird_catalog.nav', route: 'backoffice_bird_catalog_list', icon: 'lucide:bird', role: 'ROLE_ADMIN' },
+        { label: 'user_management.nav.app_users', route: 'backoffice_users_list', icon: 'lucide:users', role: 'ROLE_ADMIN' },
+        { label: 'user_management.nav.backoffice_users', route: 'backoffice_backoffice_users_list', icon: 'lucide:user-cog', role: 'ROLE_ADMIN' },
+        { label: 'analytics.nav', route: 'backoffice_analytics_dashboard', icon: 'lucide:bar-chart-2', role: 'ROLE_ADMIN' },
+        { label: 'notification.nav', route: 'backoffice_notifications', icon: 'lucide:bell', role: 'ROLE_ADMIN' }
+    ] %}
+
+    <body class="bg-base-200 flex h-screen overflow-hidden w-full" data-controller="sidebar">
+
+    <aside data-sidebar-target="menu" class="bg-base-100 w-64 flex-shrink-0 border-r shadow-lg absolute inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 md:relative md:translate-x-0 flex flex-col">
+
+        <div class="h-16 flex items-center justify-between px-4 border-b">
+                <span class="text-xl font-bold text-primary flex items-center gap-2">
+                    {{ 'nav.title'|trans }}
+                </span>
+            <button data-action="sidebar#toggle" class="btn btn-sm btn-ghost md:hidden">✕</button>
         </div>
-        <div class="flex-none gap-2">
-            <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm">
-                {{ 'session.nav'|trans }}
-            </a>
-            {% if is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('backoffice_census_list') }}" class="btn btn-ghost btn-sm">
-                    {{ 'census.nav'|trans }}
-                </a>
-                <a href="{{ path('backoffice_bird_catalog_list') }}" class="btn btn-ghost btn-sm">
-                    {{ 'bird_catalog.nav'|trans }}
-                </a>
-                <a href="{{ path('backoffice_users_list') }}" class="btn btn-ghost btn-sm">
-                    {{ 'user_management.nav.app_users'|trans }}
-                </a>
-                <a href="{{ path('backoffice_backoffice_users_list') }}" class="btn btn-ghost btn-sm">
-                    {{ 'user_management.nav.backoffice_users'|trans }}
-                </a>
-                <a href="{{ path('backoffice_analytics_dashboard') }}" class="btn btn-ghost btn-sm">
-                    {{ 'analytics.nav'|trans }}
-                </a>
-                <a href="{{ path('backoffice_notifications') }}" class="btn btn-ghost btn-sm">
-                    {{ 'notification.nav'|trans }}
-                </a>
-            {% endif %}
-            <a href="{{ path('backoffice_logout') }}" class="btn btn-ghost btn-sm">
+
+        <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+            {% for item in menu_items %}
+                {% if item.role is null or is_granted(item.role) %}
+                    <a href="{{ path(item.route) }}" class="btn btn-ghost justify-start w-full font-normal flex items-center gap-3">
+                        {{ ux_icon(item.icon, {class: 'w-5 h-5 text-gray-500'}) }}
+                        <span>{{ item.label|trans }}</span>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </nav>
+
+        <div class="p-4 border-t">
+            <a href="{{ path('backoffice_logout') }}" class="btn btn-outline btn-error w-full flex items-center gap-2">
+                {{ ux_icon('lucide:log-out', {class: 'w-4 h-4'}) }}
                 {{ 'nav.logout'|trans }}
             </a>
         </div>
-    </div>
+    </aside>
 
-    <main class="container mx-auto px-4 py-8 max-w-5xl">
-        {% for type, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="alert alert-{{ type == 'error' ? 'error' : 'success' }} mb-4">
-                    <span>{{ message|trans }}</span>
+    <div data-sidebar-target="overlay" data-action="click->sidebar#toggle" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+    <div class="flex-1 flex flex-col h-screen min-w-0">
+        <header class="h-16 bg-base-100 shadow-sm flex items-center px-4 z-10 border-b">
+            <button data-action="sidebar#toggle" class="btn btn-square btn-ghost mr-3 md:hidden">
+                {{ ux_icon('lucide:menu', {class: 'w-6 h-6'}) }}
+            </button>
+
+            <div class="flex-1 font-semibold text-lg text-neutral">
+                Tauler de control
+            </div>
+
+            <button data-controller="theme" data-action="click->theme#toggle" class="btn btn-ghost btn-circle" aria-label="Canviar tema">
+                <div data-theme-target="moon" class="hidden text-neutral">
+                    {{ ux_icon('lucide:moon', {class: 'w-5 h-5'}) }}
                 </div>
-            {% endfor %}
-        {% endfor %}
 
-        {% block content %}{% endblock %}
-    </main>
+                <div data-theme-target="sun" class="hidden text-warning">
+                    {{ ux_icon('lucide:sun', {class: 'w-5 h-5'}) }}
+                </div>
+            </button>
+        </header>
 
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 bg-base-200">
+            <div class="max-w-6xl mx-auto">
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ type == 'error' ? 'error' : 'success' }} mb-6 shadow-sm flex items-center gap-2">
+                            {{ ux_icon(type == 'error' ? 'lucide:alert-circle' : 'lucide:check-circle', {class: 'w-5 h-5'}) }}
+                            <span>{{ message|trans }}</span>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <div class="bg-base-100 rounded-box shadow-sm p-6">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+    </div>
     </body>
 {% endblock %}

@@ -24,7 +24,7 @@ coverage/
 ###< coverage ###
 /config/secrets
 /public/.well-known
-
+node_modules
 
 ###> symfony/asset-mapper ###
 /public/assets/

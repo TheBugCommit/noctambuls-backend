@@ -1,7 +1,5 @@
 /* DaisyUI v4 prebuilt — vendored from https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css
    To regenerate: make assets-vendor */
-@import "../vendor/daisyui.min.css";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
