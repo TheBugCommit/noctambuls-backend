@@ -27,8 +27,8 @@ final class DashboardController extends AbstractController
             new GetDashboardAnalyticsRequest($selectedYear)
         );
 
-        return $this->render('backoffice/analytics/dashboard.html.twig', [
-            'lastProcessedAt' => $response->lastProcessedAt,
+        return $this->render('backoffice/analytics/analytics.html.twig', [
+            'lastProcessedAt' => $response->lastProcessedAt->format('c'),
             'availableYears'  => $response->availableYears,
             'selectedYear'    => $response->selectedYear,
             'chartData'       => $response->chartData,

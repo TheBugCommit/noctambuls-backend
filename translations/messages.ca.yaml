@@ -361,14 +361,15 @@ user_management:
 analytics:
     nav: "Estadístiques"
     dashboard:
-        title: "Dashboard d'estadístiques"
+        title: "Panell d'Analítica"
+        description: "Consulta les estadístiques i l'evolució de les observacions al llarg del temps."
         last_update: "Última actualització"
         never: "Mai"
         force_update: "Forçar actualització"
         confirm_update: "Vols forçar l'actualització de les estadístiques?"
         tab:
             monthly: "Observacions per mes"
-            percentage: "% per espècie"
+            percentage: "Distribució per espècie"
         chart:
             title: "Observacions per mes"
             year_filter: "Filtrar per any"

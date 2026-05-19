@@ -1,0 +1,138 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ 'analytics.dashboard.title'|trans }}{% endblock %}
+{% block page_title %}{{ 'analytics.dashboard.title'|trans }}{% endblock %}
+
+{% block content %}
+    <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-neutral flex items-center gap-3">
+            {{ ux_icon('lucide:bar-chart-3', {class: 'w-7 h-7 text-primary'}) }}
+            {{ 'analytics.dashboard.title'|trans }}
+        </h1>
+        <p class="text-base-content opacity-70 mt-1 text-sm">
+            {{ 'analytics.dashboard.description'|trans }}
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+
+        <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card-body p-5 flex flex-col gap-4">
+                <div class="flex flex-row items-center justify-between gap-4">
+                    <div class="flex flex-row items-center gap-4">
+                        <div class="p-3 bg-primary/10 rounded-xl text-primary shrink-0">
+                            {{ ux_icon('lucide:clock', {class: 'w-6 h-6'}) }}
+                        </div>
+                        <div>
+                            <h2 class="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-1">
+                                {{ 'analytics.dashboard.last_update'|trans }}
+                            </h2>
+                            <p class="text-lg font-bold text-neutral">
+                                {% if lastProcessedAt %}
+                                    {{ lastProcessedAt|format_datetime }}
+                                {% else %}
+                                    <span class="opacity-50 italic">{{ 'analytics.dashboard.never'|trans }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{{ path('backoffice_analytics_force_update') }}"
+                          data-controller="confirm-action"
+                          data-confirm-action-message-value="{{ 'analytics.dashboard.confirm_update'|trans }}"
+                          class="shrink-0">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('analytics_force_update') }}">
+                        <button type="submit"
+                                class="btn btn-circle btn-ghost btn-sm text-primary tooltip tooltip-left hover:bg-primary/10 transition-colors"
+                                data-tip="{{ 'analytics.dashboard.force_update'|trans }}"
+                                data-action="confirm-action#confirm"
+                                aria-label="{{ 'analytics.dashboard.force_update'|trans }}">
+                            {{ ux_icon('lucide:refresh-cw', {class: 'w-5 h-5 hover:rotate-180 transition-transform duration-300'}) }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-200" data-controller="chart-tabs">
+        <div class="card-body p-6">
+
+            <div
+                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-base-200">
+                <div role="tablist" class="tabs tabs-boxed bg-base-200/50 p-1">
+                    <button role="tab" class="tab tab-active transition-all font-medium"
+                            data-chart-tabs-target="tab"
+                            data-chart-tabs-name-param="monthly"
+                            data-action="click->chart-tabs#switch">
+                        {{ ux_icon('lucide:line-chart', {class: 'w-4 h-4 mr-2'}) }}
+                        {{ 'analytics.dashboard.tab.monthly'|trans }}
+                    </button>
+                    <button role="tab" class="tab transition-all font-medium"
+                            data-chart-tabs-target="tab"
+                            data-chart-tabs-name-param="percentage"
+                            data-action="click->chart-tabs#switch">
+                        {{ ux_icon('lucide:pie-chart', {class: 'w-4 h-4 mr-2'}) }}
+                        {{ 'analytics.dashboard.tab.percentage'|trans }}
+                    </button>
+                </div>
+
+                <form method="get" action="{{ path('backoffice_analytics_dashboard') }}"
+                      class="flex items-center gap-2 w-full sm:w-auto">
+                    <label for="year-filter" class="text-sm font-semibold text-neutral hidden sm:block">
+                        {{ 'analytics.dashboard.chart.year_filter'|trans }}:
+                    </label>
+                    <select id="year-filter" name="year"
+                            class="select select-bordered select-sm flex-1 sm:w-32 bg-base-100 font-medium">
+                        {% for year in availableYears %}
+                            <option value="{{ year }}"
+                                    {% if year == selectedYear %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-neutral flex-none">
+                        {{ 'analytics.dashboard.chart.apply'|trans }}
+                    </button>
+                </form>
+            </div>
+
+            <div data-chart-tabs-target="panel" data-chart-tabs-panel-name="monthly"
+                 class="relative min-h-[300px] w-full">
+                {% if chartData.series is empty %}
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-base-content/40">
+                        {{ ux_icon('lucide:bar-chart-2', {class: 'w-16 h-16 mb-4 opacity-20'}) }}
+                        <p class="text-base font-medium">{{ 'analytics.dashboard.chart.no_data'|trans }}</p>
+                    </div>
+                {% else %}
+                    {% set monthLabels = [] %}
+                    {% for i in 1..12 %}
+                        {% set monthLabels = monthLabels|merge([('analytics.dashboard.chart.month.' ~ i)|trans]) %}
+                    {% endfor %}
+                    <canvas
+                        data-controller="observations-chart"
+                        data-observations-chart-chart-data-value="{{ chartData|json_encode|e('html_attr') }}"
+                        data-observations-chart-month-labels-value="{{ monthLabels|json_encode|e('html_attr') }}"
+                    ></canvas>
+                {% endif %}
+            </div>
+
+            <div class="hidden relative min-h-[300px] w-full" data-chart-tabs-target="panel"
+                 data-chart-tabs-panel-name="percentage">
+                {% if percentageData.labels is empty %}
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-base-content/40">
+                        {{ ux_icon('lucide:pie-chart', {class: 'w-16 h-16 mb-4 opacity-20'}) }}
+                        <p class="text-base font-medium">{{ 'analytics.dashboard.percentage_chart.no_data'|trans }}</p>
+                    </div>
+                {% else %}
+                    <canvas
+                        data-controller="species-percentage-chart"
+                        data-species-percentage-chart-labels-value="{{ percentageData.labels|json_encode|e('html_attr') }}"
+                        data-species-percentage-chart-data-value="{{ percentageData.data|json_encode|e('html_attr') }}"
+                        data-species-percentage-chart-colors-value="{{ percentageData.colors|json_encode|e('html_attr') }}"
+                    ></canvas>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
