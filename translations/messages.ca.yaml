@@ -398,16 +398,17 @@ analytics:
 notification:
     nav: "Notificacions"
     settings:
-        title: "Plantilles de notificació"
+        title: "Configuració de Notificacions"
+        description: "Gestiona els textos i títols de les notificacions automàtiques que rebran els usuaris a la seva aplicació."
         event:
-            census_published: "Publicació de cens"
-            census_date_changed: "Canvi de data de cens"
-            census_cancelled: "Cancel·lació de cens"
+            census_published: "S'ha publicat un nou cens"
+            census_date_changed: "S'ha modificat la data d'un cens"
+            census_cancelled: "S'ha cancel·lat un cens"
     field:
-        title: "Títol"
-        body: "Missatge"
+        title: "Títol de la notificació"
+        body: "Cos del missatge (Text principal)"
     action:
-        save: "Desar"
+        save: "Desar configuració"
     flash:
         updated: "Plantilla actualitzada correctament."
     error:

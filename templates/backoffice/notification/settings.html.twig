@@ -1,9 +1,19 @@
 {% extends 'backoffice/layout.html.twig' %}
 
 {% block title %}{{ 'notification.settings.title'|trans }}{% endblock %}
+{% block page_title %}{{ 'notification.settings.title'|trans }}{% endblock %}
 
 {% block content %}
-    <h1 class="text-2xl font-bold mb-6">{{ 'notification.settings.title'|trans }}</h1>
+    {# --- CAPÇALERA DE LA PÀGINA --- #}
+    <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-neutral flex items-center gap-3">
+            {{ ux_icon('lucide:bell-ring', {class: 'w-6 h-6 text-primary'}) }}
+            {{ 'notification.settings.title'|trans }}
+        </h1>
+        <p class="text-base-content opacity-70 mt-2 text-base">
+            {{ 'notification.settings.description'|trans|default('Gestiona els textos i títols de les notificacions automàtiques que rebran els usuaris a la seva aplicació.') }}
+        </p>
+    </div>
 
     {% set eventLabels = {
         'census.published':    'notification.settings.event.census_published'|trans,
@@ -11,43 +21,60 @@
         'census.cancelled':    'notification.settings.event.census_cancelled'|trans
     } %}
 
-    <div class="flex flex-col gap-6">
+    {# --- GRAELLA DE FORMULARIS --- #}
+    {# Utilitzem 1 columna en mòbil i 2 en pantalles grans (lg:grid-cols-2) #}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {% for template in templates %}
-            <div class="card bg-base-100 shadow-sm border border-base-200">
-                <div class="card-body">
-                    <h2 class="card-title text-base mb-4">
-                        {{ eventLabels[template.event] ?? template.event }}
-                    </h2>
+            <div class="card bg-base-100 shadow-sm border border-base-300 transition-all hover:border-primary/40 hover:shadow-md">
+                <div class="card-body p-6">
 
-                    <form method="post"
-                          action="{{ path('backoffice_notifications_update', {event: template.event}) }}">
-                        <input type="hidden" name="_csrf_token"
-                               value="{{ csrf_token('notification_' ~ template.event) }}">
+                    {# Capçalera de la targeta amb títol traduït i Badge del codi #}
+                    <div class="flex items-start justify-between mb-4 pb-4 border-b border-base-200">
+                        <h2 class="card-title text-lg font-bold text-neutral flex items-center gap-2">
+                            {{ ux_icon('lucide:mail', {class: 'w-5 h-5 text-primary'}) }}
+                            {{ eventLabels[template.event] ?? template.event }}
+                        </h2>
+                    </div>
 
-                        <div class="form-control mb-4">
-                            <label class="label">
-                                <span class="label-text font-medium">{{ 'notification.field.title'|trans }}</span>
+                    {# Formulari d'edició #}
+                    <form method="post" action="{{ path('backoffice_notifications_update', {event: template.event}) }}" class="flex flex-col gap-4">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('notification_' ~ template.event) }}">
+
+                        <div class="form-control w-full">
+                            <label class="label py-1">
+                                <span class="label-text text-sm font-semibold text-neutral opacity-80">{{ 'notification.field.title'|trans }}</span>
                             </label>
-                            <input type="text" name="title" required
-                                   class="input input-bordered w-full"
+                            <input type="text"
+                                   name="title"
+                                   required
+                                   class="input input-bordered input-md w-full bg-base-200/30 text-neutral font-medium focus:border-primary focus:bg-base-100"
                                    value="{{ template.title }}">
                         </div>
 
-                        <div class="form-control mb-4">
-                            <label class="label">
-                                <span class="label-text font-medium">{{ 'notification.field.body'|trans }}</span>
+                        <div class="form-control w-full">
+                            <label class="label py-1">
+                                <span class="label-text text-sm font-semibold text-neutral opacity-80">{{ 'notification.field.body'|trans }}</span>
                             </label>
-                            <textarea name="body" rows="3" required
-                                      class="textarea textarea-bordered w-full">{{ template.body }}</textarea>
+                            <textarea name="body"
+                                      rows="3"
+                                      required
+                                      class="textarea textarea-bordered textarea-md w-full bg-base-200/30 text-neutral leading-relaxed focus:border-primary focus:bg-base-100">{{ template.body }}</textarea>
                         </div>
 
-                        <div class="flex justify-end">
-                            <button type="submit" class="btn btn-primary btn-sm">
+                        <div class="flex justify-end mt-2">
+                            <button type="submit" class="btn btn-primary btn-sm flex items-center gap-1.5 px-6">
+                                {{ ux_icon('lucide:save', {class: 'w-4 h-4'}) }}
                                 {{ 'notification.action.save'|trans }}
                             </button>
                         </div>
                     </form>
                 </div>
+            </div>
+        {% else %}
+            {# Empty state elegant per si la base de dades no retorna cap plantila #}
+            <div class="col-span-full text-center py-12 bg-base-200 rounded-box border border-dashed border-base-300">
+                {{ ux_icon('lucide:bell-off', {class: 'w-12 h-12 mx-auto text-base-content opacity-40 mb-3'}) }}
+                <p class="text-base-content opacity-70 text-base">No s'han trobat plantilles de notificació per configurar.</p>
             </div>
         {% endfor %}
     </div>
