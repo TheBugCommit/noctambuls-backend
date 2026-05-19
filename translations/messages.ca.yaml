@@ -162,13 +162,31 @@ session:
     list:
         title: 'Llistat de sessions'
         empty: 'No hi ha sessions registrades.'
-        filter: 'Filtres'
+        filter_search: "Filtrar cerca"
         col_user: 'Usuari'
         col_type: 'Tipus'
         col_date: 'Data'
         col_observations: 'Observacions'
         col_lp: "Punt d'Escolta"
         col_census: 'Cens'
+        filters:
+            session_id: "ID de Sessió"
+            type: "Tipus de sessió"
+            all: "Tots"
+            census_id: "ID de Cens"
+            date_from: "Data inici (Des de)"
+            date_to: "Data fi (Fins a)"
+            observations: "Observacions"
+            has_observations: "Amb observacions"
+            no_observations: "Sense observacions"
+            clear: "Netejar"
+            submit: "Filtrar"
+        columns:
+            type: "Tipus"
+            start_time: "Hora d'inici"
+            observations: "Observacions"
+            listening_point: "Punt d'escolta"
+            census_title: "Títol del cens"
         trash_button: 'Paparera'
     trash:
         title: 'Paparera de sessions'
@@ -176,13 +194,77 @@ session:
         purge_button: 'Buidar paparera'
         restore_button: 'Restaurar'
         confirm_purge: 'Segur que vols eliminar permanentment totes les sessions de la paparera?'
+        columns:
+            actions: "Accions"
+    status:
+        deleted: "Eliminada"
+        active: "Activa"
+    action:
+        save: "Desar canvis"
+        delete: "Eliminar"
     detail:
-        title: 'Detall de la sessió'
-        section_environmental: 'Condicions ambientals'
-        section_info: 'Informació general'
-        section_location: 'Ubicació'
-        section_participants: 'Participants'
-        section_observations: 'Observacions'
+        title: "Detall de la sessió"
+        section_info: "Informació de la sessió"
+        section_environmental: "Condicions ambientals"
+        section_location: "Dades de localització"
+        section_map: "Localització"
+        section_observations: "Observacions detectades"
+        observations_empty: "No s'ha registrat cap observació ornitològica per a aquesta sessió."
+        placeholder_date: "clica per modificar"
+        fields:
+            user: "Usuari que ha registrat"
+            temperature: "Temperatura"
+            wind: "Vent"
+            sky: "Cel"
+            rain: "Pluja"
+            visibility: "Visibilitat"
+            moon: "Lluna"
+            latitude: "Latitud"
+            longitude: "Longitud"
+            locationSource: "Font d'ubicació"
+            end_time: "Data i hora de fi"
+            accuracy: "Precisió (Metres)"
+        warnings:
+            high_accuracy: "Precisió baixa (>100m)"
+        observation_columns:
+            species: "Espècie d'ocell"
+            contact: "Mètode de contacte"
+            quantity: "Quantitat"
+            start_time: "Hora d'inici"
+            end_time: "Hora fi"
+            status: "Estat"
+        contact:
+            visual: "Visual"
+            audio: "Auditiu"
+    location_source:
+        gps: "GPS"
+        manual: "Manual"
+    env:
+        temp:
+            subzero: "< 0°C"
+            "0_10": "0–10°C"
+            "10_20": "10–20°C"
+            "20_30": "20–30°C"
+            over30: "> 30°C"
+        wind:
+            calm: "Calma"
+            breeze: "Brisa"
+            moderate: "Moderat"
+        sky:
+            clear: "Clar"
+            partly_cloudy: "Parcialment ennuvolat"
+            overcast: "Cobert"
+        rain:
+            none: "Cap"
+            drizzle: "Plugim"
+            storm: "Tempesta"
+        visibility:
+            bad: "Dolenta"
+            moderate: "Moderada"
+            good: "Bona"
+        moon:
+            absent: "Absent"
+            present: "Present"
     type:
         incidental: 'Incidental'
         station: 'Estació'

@@ -1,91 +1,113 @@
 {% extends 'backoffice/layout.html.twig' %}
 
 {% block title %}{{ 'session.trash.title'|trans }}{% endblock %}
+{% block page_title %}{{ 'session.trash.title'|trans }} – {{ 'session.nav'|trans }}{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <div class="flex items-center gap-3">
-        <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm">←</a>
-        <h1 class="text-2xl font-bold">{{ 'session.trash.title'|trans }}</h1>
-        <span class="badge badge-neutral">{{ total }}</span>
-    </div>
-    {% if total > 0 %}
-        <form method="post" action="{{ path('backoffice_session_trash_purge') }}"
-              data-controller="confirm-action"
-              data-confirm-action-message-value="{{ 'session.trash.confirm_purge'|trans }}"
-              data-action="submit->confirm-action#confirm">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_purge') }}">
-            <button type="submit" class="btn btn-error btn-sm">{{ 'session.trash.purge_button'|trans }}</button>
-        </form>
-    {% endif %}
-</div>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+            <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm btn-circle text-neutral">
+                {{ ux_icon('lucide:arrow-left', {class: 'w-5 h-5'}) }}
+            </a>
+            <h1 class="text-2xl font-bold text-neutral">{{ 'session.trash.title'|trans }}</h1>
+            <span class="badge badge-neutral shadow-sm font-semibold">{{ total }}</span>
+        </div>
 
-{% if sessions is empty %}
-    <div class="alert alert-info">
-        <span>{{ 'session.trash.empty'|trans }}</span>
+        {% if total > 0 %}
+            <form method="post" action="{{ path('backoffice_session_trash_purge') }}"
+                  data-controller=\"confirm-action\"
+                  data-confirm-action-message-value="{{ 'session.trash.confirm_purge'|trans }}"
+                  data-action="submit->confirm-action#confirm"
+                  class="w-full sm:w-auto">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_purge') }}">
+                <button type="submit" class="btn btn-error btn-sm w-full sm:w-auto flex items-center justify-center gap-1">
+                    {{ ux_icon('lucide:trash-2', {class: 'w-4 h-4'}) }}
+                    {{ 'session.trash.purge_button'|trans }}
+                </button>
+            </form>
+        {% endif %}
     </div>
-{% else %}
-    <div class="overflow-x-auto">
-        <table class="table table-zebra w-full bg-base-100 shadow-sm rounded-box">
-            <thead>
+
+    {% if sessions is empty %}
+        <div class="text-center py-12 bg-base-200 rounded-box border border-dashed border-base-300">
+            {{ ux_icon('lucide:trash', {class: 'w-12 h-12 mx-auto text-base-content opacity-40 mb-3'}) }}
+            <p class="text-base-content opacity-70">{{ 'session.trash.empty'|trans }}</p>
+        </div>
+    {% else %}
+        <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100 shadow-sm">
+            <table class="table table-lg w-full">
+                <thead class="bg-base-200 text-neutral">
                 <tr>
-                    <th>{{ 'session.list.col_user'|trans }}</th>
-                    <th>{{ 'session.list.col_type'|trans }}</th>
-                    <th>{{ 'session.list.col_date'|trans }}</th>
-                    <th>Eliminat el</th>
-                    <th>{{ 'session.list.col_census'|trans }}</th>
-                    <th class="text-right">Accions</th>
+                    <th class="font-bold">{{ 'session.list.columns.type'|trans }}</th>
+                    <th class="font-bold">{{ 'session.list.columns.start_time'|trans }}</th>
+                    <th class="font-bold">{{ 'session.list.columns.census_title'|trans }}</th>
+                    <th class="font-bold text-right">{{ 'session.trash.columns.actions'|trans }}</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 {% for session in sessions %}
-                    <tr>
-                        <td class="font-medium">{{ session.annotatorName }}</td>
+                    <tr class="hover transition-colors">
                         <td>
-                            {% if session.sessionType == 0 %}
-                                <span class="badge badge-ghost badge-sm">{{ 'session.type.incidental'|trans }}</span>
-                            {% elseif session.sessionType == 2 %}
-                                <span class="badge badge-info badge-sm">{{ 'session.type.station'|trans }}</span>
+                            {% set type = session.sessionType|session_type_config %}
+                            <span class="badge {{ type.color }} badge-sm font-medium flex items-center gap-1">
+                                {{ ux_icon(type.icon, {class: 'w-3 h-3'}) }}
+                                {{ ('session.type.' ~ type.key)|trans }}
+                            </span>
+                        </td>
+                        <td class="text-sm whitespace-nowrap font-mono">{{ session.startTime|format_datetime }}</td>
+                        <td class="text-sm font-medium text-primary">
+                            {% if session.censusTitle %}
+                                <div class="flex items-center gap-1">
+                                    {{ ux_icon('lucide:clipboard-list', {class: 'w-4 h-4'}) }}
+                                    {{ session.censusTitle }}
+                                </div>
                             {% else %}
-                                <span class="badge badge-primary badge-sm">{{ 'session.type.census'|trans }}</span>
+                                {{ session.censusTitle|dash_if_empty }}
                             {% endif %}
                         </td>
-                        <td class="text-sm">{{ session.startTime ?? '—' }}</td>
-                        <td class="text-sm">{{ session.deletedAt }}</td>
-                        <td class="text-sm">{{ session.censusTitle ?? '—' }}</td>
+
                         <td class="text-right">
                             <form method="post" action="{{ path('backoffice_session_restore', {id: session.id}) }}"
-                                  class="inline"
                                   data-controller="confirm-action"
                                   data-confirm-action-message-value="{{ 'session.confirm.restore'|trans }}"
-                                  data-action="submit->confirm-action#confirm">
+                                  data-action="submit->confirm-action#confirm"
+                                  class="inline-block">
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_restore_' ~ session.id) }}">
-                                <button type="submit" class="btn btn-ghost btn-xs text-success">
-                                    {{ 'session.trash.restore_button'|trans }}
+                                <button type="submit" class="btn btn-ghost btn-sm text-success flex items-center gap-1 normal-case">
+                                    {{ ux_icon('lucide:rotate-ccw', {class: 'w-4 h-4'}) }}
+                                    <span>{{ 'session.trash.restore_button'|trans }}</span>
                                 </button>
                             </form>
                         </td>
                     </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    {% if totalPages > 1 %}
-        <div class="flex justify-center mt-6">
-            <div class="join">
-                {% if page > 1 %}
-                    <a href="{{ path('backoffice_session_trash', {page: page - 1}) }}" class="join-item btn btn-sm">«</a>
-                {% endif %}
-                {% for p in 1..totalPages %}
-                    <a href="{{ path('backoffice_session_trash', {page: p}) }}"
-                       class="join-item btn btn-sm {{ p == page ? 'btn-active' : '' }}">{{ p }}</a>
-                {% endfor %}
-                {% if page < totalPages %}
-                    <a href="{{ path('backoffice_session_trash', {page: page + 1}) }}" class="join-item btn btn-sm">»</a>
-                {% endif %}
-            </div>
+                </tbody>
+            </table>
         </div>
+
+        {% if totalPages > 1 %}
+            <div class="flex justify-center mt-8">
+                <div class="join shadow-sm border border-base-300">
+                    {% if page > 1 %}
+                        <a href="{{ path('backoffice_session_trash', {page: page - 1}) }}" class="join-item btn btn-sm bg-base-100 hover:bg-base-200">
+                            {{ ux_icon('lucide:chevron-left', {class: 'w-4 h-4'}) }}
+                        </a>
+                    {% endif %}
+
+                    {% for p in 1..totalPages %}
+                        <a href="{{ path('backoffice_session_trash', {page: p}) }}"
+                           class="join-item btn btn-sm {{ p == page ? 'btn-primary text-primary-content' : 'bg-base-100 hover:bg-base-200' }}">
+                            {{ p }}
+                        </a>
+                    {% endfor %}
+
+                    {% if page < totalPages %}
+                        <a href="{{ path('backoffice_session_trash', {page: page + 1}) }}" class="join-item btn btn-sm bg-base-100 hover:bg-base-200">
+                            {{ ux_icon('lucide:chevron-right', {class: 'w-4 h-4'}) }}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
-{% endif %}
 {% endblock %}

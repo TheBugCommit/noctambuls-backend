@@ -1,127 +1,205 @@
 {% extends 'backoffice/layout.html.twig' %}
 
 {% block title %}{{ 'session.list.title'|trans }}{% endblock %}
+{% block page_title %}{{ 'session.nav'|trans }}{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">{{ 'session.list.title'|trans }}</h1>
-    <div class="flex gap-2">
-        <span class="badge badge-neutral self-center">{{ total }}</span>
-        {% if is_granted('ROLE_ADMIN') %}
-            <a href="{{ path('backoffice_session_export', filters|merge({format: 'csv'})) }}" class="btn btn-success btn-sm">
-                {{ 'session.export.csv_button'|trans }}
-            </a>
-            <a href="{{ path('backoffice_session_export', filters|merge({format: 'xlsx'})) }}" class="btn btn-success btn-sm">
-                {{ 'session.export.xlsx_button'|trans }}
-            </a>
-        {% endif %}
-        <a href="{{ path('backoffice_session_trash') }}" class="btn btn-outline btn-sm">
-            {{ 'session.list.trash_button'|trans }}
-        </a>
-    </div>
-</div>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-bold text-neutral">{{ 'session.list.title'|trans }}</h1>
+            <span class="badge badge-neutral shadow-sm font-semibold">{{ total }}</span>
+        </div>
 
-<div class="collapse collapse-arrow bg-base-100 shadow-sm rounded-box mb-4">
-    <input type="checkbox" {% if filters.sessionId or filters.sessionType or filters.dateFrom or filters.dateTo or filters.hasObservations != '' or filters.censusId %}checked{% endif %} />
-    <div class="collapse-title font-medium">{{ 'session.list.filter'|trans }}</div>
-    <div class="collapse-content">
-        <form method="get" action="{{ path('backoffice_session_list') }}" class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-2">
-            <div class="form-control">
-                <label class="label label-text text-sm">Session ID</label>
-                <input type="text" name="sessionId" value="{{ filters.sessionId }}" class="input input-bordered input-sm" placeholder="UUID">
-            </div>
-            <div class="form-control">
-                <label class="label label-text text-sm">{{ 'session.list.col_type'|trans }}</label>
-                <select name="sessionType" class="select select-bordered select-sm">
-                    <option value="">— {{ 'session.list.col_type'|trans }} —</option>
-                    <option value="0" {{ filters.sessionType == '0' ? 'selected' : '' }}>{{ 'session.type.incidental'|trans }}</option>
-                    <option value="2" {{ filters.sessionType == '2' ? 'selected' : '' }}>{{ 'session.type.station'|trans }}</option>
-                    <option value="1" {{ filters.sessionType == '1' ? 'selected' : '' }}>{{ 'session.type.census'|trans }}</option>
-                </select>
-            </div>
-            <div class="form-control">
-                <label class="label label-text text-sm">Census ID</label>
-                <input type="text" name="censusId" value="{{ filters.censusId }}" class="input input-bordered input-sm" placeholder="UUID">
-            </div>
-            <div class="form-control">
-                <label class="label label-text text-sm">{{ 'session.list.col_date'|trans }} (des de)</label>
-                <input type="date" name="dateFrom" value="{{ filters.dateFrom }}" class="input input-bordered input-sm">
-            </div>
-            <div class="form-control">
-                <label class="label label-text text-sm">{{ 'session.list.col_date'|trans }} (fins a)</label>
-                <input type="date" name="dateTo" value="{{ filters.dateTo }}" class="input input-bordered input-sm">
-            </div>
-            <div class="form-control">
-                <label class="label label-text text-sm">{{ 'session.list.col_observations'|trans }}</label>
-                <select name="hasObservations" class="select select-bordered select-sm">
-                    <option value="">— Totes —</option>
-                    <option value="1" {{ filters.hasObservations == '1' ? 'selected' : '' }}>Amb observacions</option>
-                    <option value="0" {{ filters.hasObservations == '0' ? 'selected' : '' }}>Sense observacions</option>
-                </select>
-            </div>
-            <div class="col-span-2 md:col-span-3 flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm">Cercar</button>
-                <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm">Netejar</a>
-            </div>
-        </form>
+        <div class="flex flex-wrap gap-2">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('backoffice_session_export', filters|merge({format: 'csv'})) }}" class="btn btn-success btn-sm flex items-center gap-1">
+                    {{ ux_icon('lucide:download', {class: 'w-4 h-4'}) }}
+                    {{ 'session.export.csv_button'|trans }}
+                </a>
+                <a href="{{ path('backoffice_session_export', filters|merge({format: 'xlsx'})) }}" class="btn btn-success btn-sm flex items-center gap-1">
+                    {{ ux_icon('lucide:file-spreadsheet', {class: 'w-4 h-4'}) }}
+                    {{ 'session.export.xlsx_button'|trans }}
+                </a>
+            {% endif %}
+            <a href="{{ path('backoffice_session_trash') }}" class="btn btn-outline btn-sm flex items-center gap-1">
+                {{ ux_icon('lucide:trash-2', {class: 'w-4 h-4'}) }}
+                {{ 'session.list.trash_button'|trans }}
+            </a>
+        </div>
     </div>
-</div>
 
-{% if sessions is empty %}
-    <div class="alert alert-info">
-        <span>{{ 'session.list.empty'|trans }}</span>
+    <div class="collapse collapse-arrow bg-base-200 border border-base-300 rounded-box mb-6 shadow-sm">
+        <input type="checkbox" {% if filters.sessionId != '' or filters.sessionType != '' or filters.dateFrom != '' or filters.dateTo != '' or filters.hasObservations != '' or filters.censusId != '' %}checked{% endif %} />
+
+        <div class="collapse-title text-sm font-medium flex items-center gap-2 text-neutral">
+            {{ ux_icon('lucide:filter', {class: 'w-4 h-4 text-primary'}) }}
+            <span>{{ 'session.list.filter_search'|trans }}</span>
+        </div>
+
+        <div class="collapse-content">
+            <form method="get" action="{{ path('backoffice_session_list') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-semibold text-neutral opacity-70">{{ 'session.list.filters.session_id'|trans }}</span>
+                    </label>
+                    <input type="text" name="sessionId" value="{{ filters.sessionId }}" class="input input-bordered input-sm w-full" />
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-semibold text-neutral opacity-70">{{ 'session.list.filters.type'|trans }}</span>
+                    </label>
+                    <select name="sessionType" class="select select-bordered select-sm w-full">
+                        <option value="">{{ 'session.list.filters.all'|trans }}</option>
+                        <option value="0" {{ filters.sessionType == '0' ? 'selected' : '' }}>{{ 'session.type.incidental'|trans }}</option>
+                        <option value="1" {{ filters.sessionType == '1' ? 'selected' : '' }}>{{ 'session.type.station'|trans }}</option>
+                        <option value="2" {{ filters.sessionType == '2' ? 'selected' : '' }}>{{ 'session.type.census'|trans }}</option>
+                    </select>
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-semibold text-neutral opacity-70">{{ 'session.list.filters.census_id'|trans }}</span>
+                    </label>
+                    <input type="text" name="censusId" value="{{ filters.censusId }}" class="input input-bordered input-sm w-full" />
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-semibold text-neutral opacity-70">{{ 'session.list.filters.date_from'|trans }}</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text"
+                               name="dateFrom"
+                               value="{{ filters.dateFrom }}"
+                               data-controller="datetime-picker"
+                               placeholder="clica per seleccionar"
+                               readonly
+                               class="input input-bordered input-sm w-full pr-10 cursor-pointer bg-base-100" />
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none opacity-60">
+                            {{ ux_icon('lucide:calendar', {class: 'w-4 h-4'}) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-semibold text-neutral opacity-70">{{ 'session.list.filters.date_to'|trans }}</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text"
+                               name="dateTo"
+                               value="{{ filters.dateTo }}"
+                               data-controller="datetime-picker"
+                               placeholder="clica per seleccionar"
+                               readonly
+                               class="input input-bordered input-sm w-full pr-10 cursor-pointer bg-base-100" />
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none opacity-60">
+                            {{ ux_icon('lucide:calendar', {class: 'w-4 h-4'}) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-semibold text-neutral opacity-70">{{ 'session.list.filters.observations'|trans }}</span>
+                    </label>
+                    <select name="hasObservations" class="select select-bordered select-sm w-full">
+                        <option value="">{{ 'session.list.filters.all'|trans }}</option>
+                        <option value="1" {{ filters.hasObservations == '1' ? 'selected' : '' }}>{{ 'session.list.filters.has_observations'|trans }}</option>
+                        <option value="0" {{ filters.hasObservations == '0' ? 'selected' : '' }}>{{ 'session.list.filters.no_observations'|trans }}</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2 md:col-span-3 flex justify-end gap-2 mt-2">
+                    <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm flex items-center gap-1">
+                        {{ ux_icon('lucide:rotate-ccw', {class: 'w-4 h-4'}) }}
+                        {{ 'session.list.filters.clear'|trans }}
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm flex items-center gap-1">
+                        {{ ux_icon('lucide:search', {class: 'w-4 h-4'}) }}
+                        {{ 'session.list.filters.submit'|trans }}
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-{% else %}
-    <div class="overflow-x-auto">
-        <table class="table table-zebra w-full bg-base-100 shadow-sm rounded-box">
-            <thead>
+
+    {% if total == 0 %}
+        <div class="text-center py-12 bg-base-200 rounded-box border border-dashed border-base-300">
+            {{ ux_icon('lucide:folder-open', {class: 'w-12 h-12 mx-auto text-base-content opacity-40 mb-3'}) }}
+            <p class="text-base-content opacity-70">{{ 'session.list.empty'|trans }}</p>
+        </div>
+    {% else %}
+        <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100 shadow-sm">
+            <table class="table table-md w-full">
+                <thead class="bg-base-200 text-neutral">
                 <tr>
-                    <th>{{ 'session.list.col_user'|trans }}</th>
-                    <th>{{ 'session.list.col_type'|trans }}</th>
-                    <th>{{ 'session.list.col_date'|trans }}</th>
-                    <th>{{ 'session.list.col_observations'|trans }}</th>
-                    <th>{{ 'session.list.col_lp'|trans }}</th>
-                    <th>{{ 'session.list.col_census'|trans }}</th>
+                    <th class="font-bold">{{ 'session.list.columns.type'|trans }}</th>
+                    <th class="font-bold">{{ 'session.list.columns.start_time'|trans }}</th>
+                    <th class="font-bold">{{ 'session.list.columns.observations'|trans }}</th>
+                    <th class="font-bold">{{ 'session.list.columns.listening_point'|trans }}</th>
+                    <th class="font-bold">{{ 'session.list.columns.census_title'|trans }}</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 {% for session in sessions %}
-                    <tr class="cursor-pointer hover" onclick="window.location='{{ path('backoffice_session_detail', {id: session.id}) }}'">
-                        <td class="font-medium">{{ session.annotatorName }}</td>
+                    <tr class="hover transition-colors cursor-pointer" onclick="window.location='{{ path('backoffice_session_detail', {id: session.id}) }}'">
                         <td>
-                            {% if session.sessionType == 0 %}
-                                <span class="badge badge-ghost badge-sm">{{ 'session.type.incidental'|trans }}</span>
-                            {% elseif session.sessionType == 2 %}
-                                <span class="badge badge-info badge-sm">{{ 'session.type.station'|trans }}</span>
+                            {% set type = session.sessionType|session_type_config %}
+
+                            <span class="badge {{ type.color }} badge-sm font-medium flex items-center gap-1">
+                                {{ ux_icon(type.icon, {class: 'w-3 h-3'}) }}
+                                {{ ('session.type.' ~ type.key)|trans }}
+                            </span>
+                        </td>
+
+                        <td class="text-sm whitespace-nowrap font-mono">{{ session.startTime|format_datetime }}</td>
+                        <td>
+                            <span class="badge badge-outline badge-sm font-semibold flex items-center gap-1">
+                                {{ ux_icon('lucide:eye', {class: 'w-3 h-3'}) }}
+                                {{ session.observationCount }}
+                            </span>
+                        </td>
+                        <td class="text-sm">{{ session.listeningPoint|dash_if_empty }}</td>
+                        <td class="text-sm font-medium text-primary flex items-center gap-1">
+                            {% if session.censusTitle %}
+                                {{ ux_icon('lucide:clipboard-list', {class: 'w-4 h-4'}) }}
+                                {{ session.censusTitle }}
                             {% else %}
-                                <span class="badge badge-primary badge-sm">{{ 'session.type.census'|trans }}</span>
+                                {{ session.censusTitle|dash_if_empty }}
                             {% endif %}
                         </td>
-                        <td class="text-sm">{{ session.startTime ?? '—' }}</td>
-                        <td><span class="badge badge-outline badge-sm">{{ session.observationCount }}</span></td>
-                        <td>{{ session.listeningPoint ?? '—' }}</td>
-                        <td class="text-sm">{{ session.censusTitle ?? '—' }}</td>
                     </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    {% if totalPages > 1 %}
-        <div class="flex justify-center mt-6">
-            <div class="join">
-                {% if page > 1 %}
-                    <a href="{{ path('backoffice_session_list', filters|merge({page: page - 1})) }}" class="join-item btn btn-sm">«</a>
-                {% endif %}
-                {% for p in 1..totalPages %}
-                    <a href="{{ path('backoffice_session_list', filters|merge({page: p})) }}"
-                       class="join-item btn btn-sm {{ p == page ? 'btn-active' : '' }}">{{ p }}</a>
-                {% endfor %}
-                {% if page < totalPages %}
-                    <a href="{{ path('backoffice_session_list', filters|merge({page: page + 1})) }}" class="join-item btn btn-sm">»</a>
-                {% endif %}
-            </div>
+                </tbody>
+            </table>
         </div>
+
+        {% if totalPages > 1 %}
+            <div class="flex justify-center mt-8">
+                <div class="join shadow-sm border border-base-300">
+                    {% if page > 1 %}
+                        <a href="{{ path('backoffice_session_list', filters|merge({page: page - 1})) }}" class="join-item btn btn-sm bg-base-100 hover:bg-base-200">
+                            {{ ux_icon('lucide:chevron-left', {class: 'w-4 h-4'}) }}
+                        </a>
+                    {% endif %}
+
+                    {% for p in 1..totalPages %}
+                        <a href="{{ path('backoffice_session_list', filters|merge({page: p})) }}"
+                           class="join-item btn btn-sm {{ p == page ? 'btn-primary text-primary-content' : 'bg-base-100 hover:bg-base-200' }}">
+                            {{ p }}
+                        </a>
+                    {% endfor %}
+
+                    {% if page < totalPages %}
+                        <a href="{{ path('backoffice_session_list', filters|merge({page: page + 1})) }}" class="join-item btn btn-sm bg-base-100 hover:bg-base-200">
+                            {{ ux_icon('lucide:chevron-right', {class: 'w-4 h-4'}) }}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
-{% endif %}
 {% endblock %}

@@ -3,14 +3,15 @@
 {% block title %}{{ 'page_title.title'|trans }}{{ 'page_title.ref'|trans }}{% endblock %}
 
 {% block body %}
+    {% set current_route = app.request.attributes.get('_route') %}
     {% set menu_items = [
-        { label: 'session.nav', route: 'backoffice_session_list', icon: 'lucide:calendar', role: null },
-        { label: 'census.nav', route: 'backoffice_census_list', icon: 'lucide:clipboard-list', role: 'ROLE_ADMIN' },
-        { label: 'bird_catalog.nav', route: 'backoffice_bird_catalog_list', icon: 'lucide:bird', role: 'ROLE_ADMIN' },
-        { label: 'user_management.nav.app_users', route: 'backoffice_users_list', icon: 'lucide:users', role: 'ROLE_ADMIN' },
-        { label: 'user_management.nav.backoffice_users', route: 'backoffice_backoffice_users_list', icon: 'lucide:user-cog', role: 'ROLE_ADMIN' },
-        { label: 'analytics.nav', route: 'backoffice_analytics_dashboard', icon: 'lucide:bar-chart-2', role: 'ROLE_ADMIN' },
-        { label: 'notification.nav', route: 'backoffice_notifications', icon: 'lucide:bell', role: 'ROLE_ADMIN' }
+        { label: 'session.nav', route: 'backoffice_session_list', prefix: 'backoffice_session', icon: 'lucide:calendar', role: null },
+        { label: 'census.nav', route: 'backoffice_census_list', prefix: 'backoffice_census', icon: 'lucide:clipboard-list', role: 'ROLE_ADMIN' },
+        { label: 'bird_catalog.nav', route: 'backoffice_bird_catalog_list', prefix: 'backoffice_bird_catalog', icon: 'lucide:bird', role: 'ROLE_ADMIN' },
+        { label: 'user_management.nav.app_users', route: 'backoffice_users_list', prefix: 'backoffice_users', icon: 'lucide:users', role: 'ROLE_ADMIN' },
+        { label: 'user_management.nav.backoffice_users', route: 'backoffice_backoffice_users_list', prefix: 'backoffice_backoffice_users', icon: 'lucide:user-cog', role: 'ROLE_ADMIN' },
+        { label: 'analytics.nav', route: 'backoffice_analytics_dashboard', prefix: 'backoffice_analytics', icon: 'lucide:bar-chart-2', role: 'ROLE_ADMIN' },
+        { label: 'notification.nav', route: 'backoffice_notifications', prefix: 'backoffice_notifications', icon: 'lucide:bell', role: 'ROLE_ADMIN' }
     ] %}
 
     <body class="bg-base-200 flex h-screen overflow-hidden w-full" data-controller="sidebar">
@@ -24,13 +25,19 @@
             <button data-action="sidebar#toggle" class="btn btn-sm btn-ghost md:hidden">✕</button>
         </div>
 
-        <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
             {% for item in menu_items %}
                 {% if item.role is null or is_granted(item.role) %}
-                    <a href="{{ path(item.route) }}" class="btn btn-ghost justify-start w-full font-normal flex items-center gap-3">
-                        {{ ux_icon(item.icon, {class: 'w-5 h-5 text-gray-500'}) }}
+
+                    {% set is_active = current_route starts with item.prefix %}
+
+                    <a href="{{ path(item.route) }}"
+                       class="btn justify-start w-full font-normal flex items-center gap-3 {{ is_active ? 'btn-active text-primary' : 'btn-ghost text-base-content' }}">
+
+                        {{ ux_icon(item.icon, {class: 'w-5 h-5 ' ~ (is_active ? 'text-primary' : 'opacity-70')}) }}
                         <span>{{ item.label|trans }}</span>
                     </a>
+
                 {% endif %}
             {% endfor %}
         </nav>
@@ -51,8 +58,8 @@
                 {{ ux_icon('lucide:menu', {class: 'w-6 h-6'}) }}
             </button>
 
-            <div class="flex-1 font-semibold text-lg text-neutral">
-                Tauler de control
+            <div class="flex-1 font-semibold text-xl text-neutral">
+                {% block page_title %}Tauler de control{% endblock %}
             </div>
 
             <button data-controller="theme" data-action="click->theme#toggle" class="btn btn-ghost btn-circle" aria-label="Canviar tema">

@@ -1,206 +1,299 @@
 {% extends 'backoffice/layout.html.twig' %}
 
 {% block title %}{{ 'session.detail.title'|trans }} #{{ session.id|slice(0,8) }}{% endblock %}
+{% block page_title %}{{ 'session.detail.title'|trans }} #{{ session.id|slice(0,8) }}{% endblock %}
 
 {% block content %}
-<div class="flex items-center gap-3 mb-6">
-    <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm">←</a>
-    <h1 class="text-2xl font-bold">{{ 'session.detail.title'|trans }}</h1>
-    <span class="badge badge-outline font-mono text-xs">{{ session.id }}</span>
-    {% if session.isDeleted %}
-        <span class="badge badge-error">Eliminada</span>
-    {% endif %}
-</div>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+            <a href="{{ path('backoffice_session_list') }}" class="btn btn-ghost btn-sm btn-circle text-neutral">
+                {{ ux_icon('lucide:arrow-left', {class: 'w-5 h-5'}) }}
+            </a>
+            <h1 class="text-2xl md:text-3xl font-bold text-neutral">{{ 'session.detail.title'|trans }}</h1>
+            <span class="badge badge-outline font-mono text-xs opacity-70">#{{ session.id|slice(0,8) }}</span>
 
-<form method="post" id="edit-session-form" action="{{ path('backoffice_session_detail', {id: session.id}) }}">
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_edit') }}">
+            {% if session.isDeleted %}
+                <span class="badge badge-error badge-sm font-semibold">{{ 'session.status.deleted'|trans }}</span>
+            {% endif %}
+        </div>
 
-    <div class="card bg-base-100 shadow-sm mb-4">
-        <div class="card-body">
-            <h2 class="card-title text-base">{{ 'session.detail.section_info'|trans }}</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="form-control">
-                    <label class="label label-text text-sm">{{ 'session.list.col_user'|trans }}</label>
-                    <input type="text" value="{{ session.annotatorName }}" class="input input-bordered input-sm bg-base-200" readonly>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">{{ 'session.list.col_type'|trans }}</label>
-                    <input type="text" value="{{ session.sessionType == 0 ? 'session.type.incidental'|trans : (session.sessionType == 2 ? 'session.type.station'|trans : 'session.type.census'|trans) }}" class="input input-bordered input-sm bg-base-200" readonly>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Inici</label>
-                    <input type="text" value="{{ session.startTime ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Fi</label>
-                    <input type="text" value="{{ session.endTime ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
-                </div>
-                {% if session.censusTitle %}
-                    <div class="form-control col-span-2">
-                        <label class="label label-text text-sm">{{ 'session.list.col_census'|trans }}</label>
-                        <input type="text" value="{{ session.censusTitle }}" class="input input-bordered input-sm bg-base-200" readonly>
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+            {% if not session.isDeleted %}
+                <form method="post" action="{{ path('backoffice_session_delete', {id: session.id}) }}"
+                      data-controller="confirm-action"
+                      data-confirm-action-message-value="Estàs segur que vols enviar aquesta sessió a la paperera?"
+                      data-action="submit->confirm-action#confirm"
+                      class="w-full sm:w-auto">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_delete_' ~ session.id) }}">
+                    <button type="submit"
+                            class="btn btn-outline btn-error btn-sm w-full sm:w-auto flex items-center justify-center gap-1 text-base">
+                        {{ ux_icon('lucide:trash-2', {class: 'w-4 h-4'}) }}
+                        <span>{{ 'session.action.delete'|trans }}</span>
+                    </button>
+                </form>
+            {% endif %}
+            <button type="submit" form="edit-session-form"
+                    class="btn btn-primary btn-sm w-full sm:w-auto flex items-center justify-center gap-1 text-base md:text-lg px-4">
+                {{ ux_icon('lucide:save', {class: 'w-4 h-4'}) }}
+                {{ 'session.action.save'|trans }}
+            </button>
+        </div>
+    </div>
+
+    <form method="post" id="edit-session-form" action="{{ path('backoffice_session_detail', {id: session.id}) }}"
+          class="space-y-6">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_edit') }}">
+
+        <div class="card bg-base-200 border border-base-300 rounded-box shadow-sm">
+            <div class="card-body p-6">
+                <h2 class="card-title text-lg md:text-xl font-bold text-neutral mb-4 flex items-center gap-2">
+                    {{ ux_icon('lucide:info', {class: 'w-5 h-5 text-primary'}) }}
+                    {{ 'session.detail.section_info'|trans }}
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span
+                                class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.detail.fields.user'|trans }}</span>
+                        </label>
+                        <input type="text" value="{{ session.annotatorName }}" readonly
+                               class="input input-bordered input-md w-full bg-base-300 cursor-not-allowed text-neutral text-base"/>
                     </div>
-                {% endif %}
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span
+                                class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.list.columns.type'|trans }}</span>
+                        </label>
+                        {% set typeConfig = session.sessionType|session_type_config %}
+                        <div
+                            class="input input-bordered input-md w-full bg-base-300 flex items-center gap-2 cursor-not-allowed text-neutral text-base">
+                            {{ ux_icon(typeConfig.icon, {class: 'w-4 h-4 text-primary'}) }}
+                            <span class="font-medium">{{ ('session.type.' ~ typeConfig.key)|trans }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.list.columns.start_time'|trans }}</span>
+                        </label>
+                        <div class="input input-bordered input-md w-full bg-base-300 flex items-center justify-between cursor-not-allowed text-neutral text-base font-mono">
+                            <span>{{ session.startTime ? session.startTime|format_datetime }}</span>
+                            {{ ux_icon('lucide:calendar-clock', {class: 'w-4 h-4 opacity-60 text-primary'}) }}
+                        </div>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.detail.fields.end_time'|trans }}</span>
+                        </label>
+                        <div class="input input-bordered input-md w-full bg-base-300 flex items-center justify-between cursor-not-allowed text-neutral text-base font-mono">
+                            <span>{{ session.endTime ? session.endTime|format_datetime }}</span>
+                            {{ ux_icon('lucide:calendar-clock', {class: 'w-4 h-4 opacity-60 text-primary'}) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 border border-base-300 rounded-box shadow-sm">
+            <div class="card-body p-6">
+                <h2 class="card-title text-lg md:text-xl font-bold text-neutral mb-4 flex items-center gap-2">
+                    {{ ux_icon('lucide:cloud-sun', {class: 'w-5 h-5 text-primary'}) }}
+                    {{ 'session.detail.section_environmental'|trans }}
+                </h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {% set env_fields = [
+                        { name: 'temperature', icon: 'lucide:thermometer', val: session.temperature },
+                        { name: 'wind', icon: 'lucide:wind', val: session.wind },
+                        { name: 'sky', icon: 'lucide:cloud', val: session.sky },
+                        { name: 'rain', icon: 'lucide:cloud-rain', val: session.rain },
+                        { name: 'visibility', icon: 'lucide:eye', val: session.visibility },
+                        { name: 'moon', icon: 'lucide:moon', val: session.moon }
+                    ] %}
+
+                    {% for field in env_fields %}
+                        <div class="form-control w-full">
+                            <label class="label py-1 flex items-center gap-1.5">
+                                {{ ux_icon(field.icon, {class: 'w-3.5 h-3.5 text-neutral opacity-70'}) }}
+                                <span
+                                    class="label-text text-sm font-semibold text-neutral opacity-70">{{ ('session.detail.fields.' ~ field.name)|trans }}</span>
+                            </label>
+                            <select name="{{ field.name }}"
+                                    class="select select-bordered select-md w-full text-base bg-base-100 text-neutral font-medium">
+                                {% for val, label_key in env_options(field.name) %}
+                                    <option value="{{ val }}" {{ field.val is same as(val) ? 'selected' : '' }}>
+                                        {{ label_key|trans }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {% if(session.sessionType != 0) %}
+        <div class="card bg-base-200 border border-base-300 rounded-box shadow-sm">
+            <div class="card-body p-6">
+                <h2 class="card-title text-lg md:text-xl font-bold text-neutral mb-4 flex items-center gap-2">
+                    {{ ux_icon('lucide:map-pin', {class: 'w-5 h-5 text-primary'}) }}
+                    {{ 'session.detail.section_location'|trans }}
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span
+                                class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.detail.fields.latitude'|trans }}</span>
+                        </label>
+                        <input type="text" value="{{ session.latitude|dash_if_empty }}"
+                               class="input input-bordered input-md w-full bg-base-300 cursor-not-allowed text-neutral text-base font-mono"
+                               readonly>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span
+                                class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.detail.fields.longitude'|trans }}</span>
+                        </label>
+                        <input type="text" value="{{ session.longitude|dash_if_empty }}"
+                               class="input input-bordered input-md w-full bg-base-300 cursor-not-allowed text-neutral text-base font-mono"
+                               readonly>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span
+                                class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.detail.fields.locationSource'|trans }}</span>
+                        </label>
+                        <input type="text"
+                               value="{{ session.locationSource|location_source_config|trans }}"
+                               readonly
+                               class="input input-bordered input-md w-full bg-base-300 cursor-not-allowed text-neutral text-base"/>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1 flex justify-between">
+                            <span
+                                class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.detail.fields.accuracy'|trans }}</span>
+                        </label>
+                        <div class="relative">
+                            {% set rounded_accuracy = session.accuracy ? session.accuracy|round(2) : null %}
+                            <input type="text"
+                                   value="{{ rounded_accuracy !== null ? rounded_accuracy ~ ' m' : '—' }}"
+                                   class="input input-bordered input-md w-full cursor-not-allowed text-base font-mono {{ session.accuracy > 100 ? 'border-warning text-warning bg-warning/10' : 'bg-base-300 text-neutral' }}"
+                                   readonly>
+
+                            {% if session.accuracy > 100 %}
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    {{ ux_icon('lucide:triangle-alert', {class: 'w-5 h-5 text-warning'}) }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if session.accuracy > 100 %}
+                            <label class="label py-1 pb-0">
+                                <span
+                                    class="label-text-alt text-warning font-semibold">{{ 'session.detail.warnings.high_accuracy'|trans }}</span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span
+                                class="label-text text-sm font-semibold text-neutral opacity-70">{{ 'session.list.columns.listening_point'|trans }}</span>
+                        </label>
+                        <input type="number" name="listeningPoint" value="{{ session.listeningPoint }}" min="0"
+                               class="input input-bordered input-md w-full text-neutral bg-base-100 text-base"
+                               placeholder="—">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </form>
+
+
+    <div class="card bg-base-200 border border-base-300 rounded-box shadow-sm mt-6">
+        <div class="card-body p-6">
+            <h2 class="card-title text-lg md:text-xl font-bold text-neutral mb-2 flex items-center gap-2">
+                {{ ux_icon('lucide:map', {class: 'w-5 h-5 text-primary'}) }}
+                {{ 'session.detail.section_map'|trans }}
+            </h2>
+
+            <div id="session-map-container"
+                 class="w-full h-80 rounded-box border border-base-300 overflow-hidden shadow-inner bg-base-100 mt-2"
+                 data-controller="map-viewer"
+                 data-map-viewer-lat-value="{{ session.latitude }}"
+                 data-map-viewer-lng-value="{{ session.longitude }}"
+                 data-map-viewer-label-value="LP {{ session.listeningPoint }}"
+                 data-map-viewer-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}">
             </div>
         </div>
     </div>
 
-    <div class="card bg-base-100 shadow-sm mb-4">
-        <div class="card-body">
-            <h2 class="card-title text-base">{{ 'session.detail.section_environmental'|trans }}</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="form-control">
-                    <label class="label label-text text-sm">Temperatura</label>
-                    <select name="temperature" class="select select-bordered select-sm">
-                        <option value="0" {{ session.temperature == 0 ? 'selected' : '' }}>< 0°C</option>
-                        <option value="1" {{ session.temperature == 1 ? 'selected' : '' }}>0–10°C</option>
-                        <option value="2" {{ session.temperature == 2 ? 'selected' : '' }}>10–20°C</option>
-                        <option value="3" {{ session.temperature == 3 ? 'selected' : '' }}>20–30°C</option>
-                        <option value="4" {{ session.temperature == 4 ? 'selected' : '' }}>> 30°C</option>
-                    </select>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Vent</label>
-                    <select name="wind" class="select select-bordered select-sm">
-                        <option value="0" {{ session.wind == 0 ? 'selected' : '' }}>Calma</option>
-                        <option value="1" {{ session.wind == 1 ? 'selected' : '' }}>Brisa</option>
-                        <option value="2" {{ session.wind == 2 ? 'selected' : '' }}>Moderat</option>
-                    </select>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Cel</label>
-                    <select name="sky" class="select select-bordered select-sm">
-                        <option value="0" {{ session.sky == 0 ? 'selected' : '' }}>Clar</option>
-                        <option value="1" {{ session.sky == 1 ? 'selected' : '' }}>Parcialment ennuvolat</option>
-                        <option value="2" {{ session.sky == 2 ? 'selected' : '' }}>Cobert</option>
-                    </select>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Pluja</label>
-                    <select name="rain" class="select select-bordered select-sm">
-                        <option value="0" {{ session.rain == 0 ? 'selected' : '' }}>Cap</option>
-                        <option value="1" {{ session.rain == 1 ? 'selected' : '' }}>Plugim</option>
-                        <option value="2" {{ session.rain == 2 ? 'selected' : '' }}>Tempesta</option>
-                    </select>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Visibilitat</label>
-                    <select name="visibility" class="select select-bordered select-sm">
-                        <option value="0" {{ session.visibility == 0 ? 'selected' : '' }}>Dolenta</option>
-                        <option value="1" {{ session.visibility == 1 ? 'selected' : '' }}>Moderada</option>
-                        <option value="2" {{ session.visibility == 2 ? 'selected' : '' }}>Bona</option>
-                    </select>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Lluna</label>
-                    <select name="moon" class="select select-bordered select-sm">
-                        <option value="0" {{ session.moon == 0 ? 'selected' : '' }}>Absent</option>
-                        <option value="1" {{ session.moon == 1 ? 'selected' : '' }}>Present</option>
-                    </select>
-                </div>
+    <div class="card bg-base-100 border border-base-300 rounded-box shadow-sm mt-6">
+        <div class="card-body p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="card-title text-lg md:text-xl font-bold text-neutral flex items-center gap-2">
+                    {{ ux_icon('lucide:bird', {class: 'w-5 h-5 text-primary'}) }}
+                    {{ 'session.detail.section_observations'|trans }}
+                </h2>
+                <span
+                    class="badge badge-neutral shadow-sm font-semibold text-base px-3 py-2.5">{{ session.observations|length }}</span>
             </div>
-        </div>
-    </div>
 
-    <div class="card bg-base-100 shadow-sm mb-4">
-        <div class="card-body">
-            <h2 class="card-title text-base">{{ 'session.detail.section_location'|trans }}</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="form-control">
-                    <label class="label label-text text-sm">Latitud</label>
-                    <input type="text" value="{{ session.latitude ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
+            {% if session.observations is empty %}
+                <div class="text-center py-12 bg-base-200 rounded-box border border-dashed border-base-300">
+                    {{ ux_icon('lucide:search-code', {class: 'w-12 h-12 mx-auto text-base-content opacity-40 mb-3'}) }}
+                    <p class="text-base-content opacity-70 text-base">{{ 'session.detail.observations_empty'|trans }}</p>
                 </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Longitud</label>
-                    <input type="text" value="{{ session.longitude ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">Font ubicació</label>
-                    <input type="text" value="{{ session.locationSource ?? '—' }}" class="input input-bordered input-sm bg-base-200" readonly>
-                </div>
-                <div class="form-control">
-                    <label class="label label-text text-sm">{{ 'session.list.col_lp'|trans }}</label>
-                    <input type="number" name="listeningPoint" value="{{ session.listeningPoint }}" min="0" class="input input-bordered input-sm" placeholder="—">
-                </div>
-            </div>
-            {% if session.latitude and session.longitude %}
-                <div data-controller="map-viewer"
-                     data-map-viewer-lat-value="{{ session.latitude }}"
-                     data-map-viewer-lng-value="{{ session.longitude }}"
-                     data-map-viewer-label-value="LP {{ session.listeningPoint }}"
-                     data-map-viewer-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
-                     style="height: 300px;" class="rounded-lg border border-base-300 mt-4">
+            {% else %}
+                <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+                    <table class="table table-lg w-full">
+                        <thead class="bg-base-200 text-neutral">
+                        <tr>
+                            <th class="font-bold text-base md:text-lg">{{ 'session.detail.observation_columns.species'|trans }}</th>
+                            <th class="font-bold text-base md:text-lg">{{ 'session.detail.observation_columns.contact'|trans }}</th>
+                            <th class="font-bold text-base md:text-lg">{{ 'session.detail.observation_columns.quantity'|trans }}</th>
+                            <th class="font-bold text-base md:text-lg">{{ 'session.detail.observation_columns.start_time'|trans }}</th>
+                            <th class="font-bold text-base md:text-lg">{{ 'session.detail.observation_columns.end_time'|trans }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for obs in session.observations %}
+                            <tr class="hover transition-colors cursor-pointer {{ obs.isDeleted ? 'opacity-50 bg-base-200/50' : '' }}"
+                                onclick="window.location='{{ path('backoffice_observation_detail', {id: obs.id}) }}'">
+
+                                <td class="text-base md:text-lg font-mono font-medium text-primary">
+                                    {{ obs.speciesName|dash_if_empty }}
+                                    {% if obs.isDeleted %}
+                                        <span
+                                            class="badge badge-error badge-sm ml-2">{{ 'session.status.deleted'|trans }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-base md:text-lg">
+                                    {% set contact = obs.contactType|contact_type_config %}
+                                    <span class="flex items-center gap-1.5 text-neutral">
+                                        {{ ux_icon(contact.icon, {class: 'w-4 h-4 opacity-70'}) }}
+                                        {{ ('session.detail.contact.' ~ contact.key)|trans }}
+                                    </span>
+                                </td>
+
+                                <td class="text-base md:text-lg font-semibold text-neutral">{{ obs.quantity }}</td>
+                                <td class="text-base md:text-lg font-mono text-neutral">{{ obs.startTime|format_datetime }}</td>
+                                <td class="text-base md:text-lg font-mono text-neutral">{{ obs.endTime|format_datetime }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             {% endif %}
         </div>
     </div>
-</form>
-
-    <div class="flex gap-2 mb-6">
-        {# Aquest botó envia el formulari d'edició gràcies a l'atribut form="edit-session-form" #}
-        <button type="submit" form="edit-session-form" class="btn btn-primary btn-sm">{{ 'census.action.save'|trans }}</button>
-
-        {% if not session.isDeleted %}
-            {# Aquest és un formulari 100% independent per a l'acció d'esborrar #}
-            <form method="post" action="{{ path('backoffice_session_delete', {id: session.id}) }}"
-                  class="inline"
-                  data-controller="confirm-action"
-                  data-confirm-action-message-value="{{ 'session.confirm.delete'|trans }}"
-                  data-action="submit->confirm-action#confirm">
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('session_delete_' ~ session.id) }}">
-                <button type="submit" class="btn btn-error btn-sm">Eliminar sessió</button>
-            </form>
-        {% endif %}
-    </div>
-
-{% if session.participants is not empty %}
-    <div class="card bg-base-100 shadow-sm mb-4">
-        <div class="card-body">
-            <h2 class="card-title text-base">{{ 'session.detail.section_participants'|trans }}</h2>
-            <div class="flex flex-wrap gap-2">
-                {% for code in session.participants %}
-                    <span class="badge badge-outline font-mono">{{ code }}</span>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-{% endif %}
-
-{% if session.observations is not empty %}
-    <div class="card bg-base-100 shadow-sm mb-4">
-        <div class="card-body">
-            <h2 class="card-title text-base">{{ 'session.detail.section_observations'|trans }}</h2>
-            <div class="overflow-x-auto">
-                <table class="table table-zebra w-full">
-                    <thead>
-                        <tr>
-                            <th>Espècie</th>
-                            <th>Contacte</th>
-                            <th>Quantitat</th>
-                            <th>Hora inici</th>
-                            <th>Estat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for obs in session.observations %}
-                            <tr class="cursor-pointer hover" onclick="window.location='{{ path('backoffice_observation_detail', {id: obs.id}) }}'">
-                                <td class="text-sm font-mono">{{ obs.speciesName }}</td>
-                                <td>{{ obs.contactType == 0 ? 'Visual' : 'Auditiu' }}</td>
-                                <td>{{ obs.quantity }}</td>
-                                <td class="text-sm">{{ obs.startTime }}</td>
-                                <td>
-                                    {% if obs.isDeleted %}
-                                        <span class="badge badge-error badge-sm">Eliminada</span>
-                                    {% else %}
-                                        <span class="badge badge-success badge-sm">Activa</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-{% endif %}
 {% endblock %}

@@ -1,5 +1,10 @@
-/* DaisyUI v4 prebuilt — vendored from https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css
-   To regenerate: make assets-vendor */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        /* Mínim 14px (en mòbils), escala suaument, Màxim 18px (en pantalles grans) */
+        font-size: clamp(14px, 1.2vw + 10px, 18px);
+    }
+}
