@@ -234,6 +234,7 @@ session:
     action:
         save: "Desar canvis"
         delete: "Eliminar"
+        cancel: "Cancel·lar"
     detail:
         title: "Detall de la sessió"
         section_info: "Informació de la sessió"
