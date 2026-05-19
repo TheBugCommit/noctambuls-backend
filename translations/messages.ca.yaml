@@ -35,6 +35,7 @@ census:
         section_share: "Compartir Cens"
         deep_link: 'Enllaç directe'
         action_download: 'Descarregar QR'
+        share_hint: "https://...."
     list:
         title: "Llistat de Censos"
         description: "Gestiona els censos i els registres d'observació d'aquests."
@@ -455,6 +456,11 @@ analytics:
     error:
         invalid_csrf: "Token CSRF no vàlid."
         update_failed: "Error en actualitzant les estadístiques."
+modal:
+    confirm:
+        title: "Atenció: Confirmació requerida"
+        cancel: "Cancel·lar"
+        accept: "Sí, procedir"
 
 notification:
     nav: "Notificacions"
