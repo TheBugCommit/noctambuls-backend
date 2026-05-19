@@ -2,78 +2,131 @@
 
 <input type="hidden" name="_csrf_token" value="{{ csrf_token('census') }}">
 
-<div class="form-control mb-4">
-    <label class="label">
-        <span class="label-text">{{ 'census.field.title'|trans }} *</span>
-    </label>
-    <input type="text" name="title" required
-           class="input input-bordered w-full"
-           value="{{ isEdit ? census.title : (data.title ?? '') }}">
-</div>
+<div class="mb-8">
+    <h2 class="text-lg font-bold text-neutral mb-5 flex items-center gap-2 border-b border-base-200 pb-2">
+        {{ ux_icon('lucide:clipboard-list', {class: 'w-5 h-5 text-primary'}) }}
+        {{ 'census.section.general'|trans }}
+    </h2>
 
-<div class="grid grid-cols-2 gap-4 mb-4">
-    <div class="form-control">
-        <label class="label">
-            <span class="label-text">{{ 'census.field.date'|trans }} *</span>
+    <div class="form-control mb-4">
+        <label class="label py-1">
+            <span class="label-text font-semibold text-neutral/80">{{ 'census.field.title'|trans }} <span class="text-error">*</span></span>
         </label>
-        <input type="text" name="date" required
-               data-controller="datetime-picker"
-               data-datetime-picker-mode-value="date"
-               class="input input-bordered w-full"
-               value="{{ isEdit ? census.date : (data.date ?? '') }}"
-               placeholder="YYYY-MM-DD">
-    </div>
-
-    <div class="form-control">
-        <label class="label">
-            <span class="label-text">{{ 'census.field.time'|trans }} *</span>
-        </label>
-        <input type="text" name="time" required
-               data-controller="datetime-picker"
-               data-datetime-picker-mode-value="time"
-               class="input input-bordered w-full"
-               value="{{ isEdit ? census.time : (data.time ?? '') }}"
-               placeholder="HH:MM">
-    </div>
-</div>
-
-<div class="form-control mb-4">
-    <label class="label">
-        <span class="label-text">{{ 'census.field.location_name'|trans }} *</span>
-    </label>
-    <input type="text" name="locationName" required
-           class="input input-bordered w-full"
-           value="{{ isEdit ? census.locationName : (data.locationName ?? '') }}">
-</div>
-
-<div class="form-control mb-4" data-controller="census-map"
-     data-census-map-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
-     data-census-map-icon-retina-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}">
-    <label class="label">
-        <span class="label-text">{{ 'census.field.location_coordinates'|trans|default('Ubicació al mapa') }} *</span>
-    </label>
-
-    <div data-census-map-target="map" style="height: 300px; z-index: 1;"
-         class="rounded-lg border border-base-300 mb-2"></div>
-
-    <div class="grid grid-cols-2 gap-4">
-        <div class="form-control">
-            <input type="hidden" step="any" name="latitude" data-census-map-target="lat" required readonly
-                   class="input input-bordered w-full input-sm bg-base-200"
-                   value="{{ isEdit ? census.latitude : (data.latitude ?? '') }}">
+        <div class="relative">
+            <input type="text" name="title" required
+                   class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors pl-10 font-medium"
+                   value="{{ isEdit ? census.title : (data.title ?? '') }}"
+                   placeholder="{{ 'census.form.placeholder.title'|trans }}">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                {{ ux_icon('lucide:type', {class: 'w-4 h-4 text-base-content/40'}) }}
+            </div>
         </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div class="form-control">
-            <input type="hidden" step="any" name="longitude" data-census-map-target="lng" required readonly
-                   class="input input-bordered w-full input-sm bg-base-200"
-                   value="{{ isEdit ? census.longitude : (data.longitude ?? '') }}">
+            <label class="label py-1">
+                <span class="label-text font-semibold text-neutral/80">{{ 'census.field.date'|trans }} <span class="text-error">*</span></span>
+            </label>
+            <div class="relative">
+                <input type="text" name="date" required
+                       data-controller="datetime-picker"
+                       data-datetime-picker-mode-value="date"
+                       class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors pl-10"
+                       value="{{ isEdit ? census.date : (data.date ?? '') }}"
+                       placeholder="YYYY-MM-DD">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    {{ ux_icon('lucide:calendar', {class: 'w-4 h-4 text-base-content/40'}) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-control">
+            <label class="label py-1">
+                <span class="label-text font-semibold text-neutral/80">{{ 'census.field.time'|trans }} <span class="text-error">*</span></span>
+            </label>
+            <div class="relative">
+                <input type="text" name="time" required
+                       data-controller="datetime-picker"
+                       data-datetime-picker-mode-value="time"
+                       class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors pl-10"
+                       value="{{ isEdit ? census.time : (data.time ?? '') }}"
+                       placeholder="HH:MM">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    {{ ux_icon('lucide:clock', {class: 'w-4 h-4 text-base-content/40'}) }}
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="form-control mb-6">
-    <label class="label">
-        <span class="label-text">{{ 'census.field.description'|trans }}</span>
-    </label>
-    <textarea name="description" rows="4"
-              class="textarea textarea-bordered w-full">{{ isEdit ? (census.description ?? '') : (data.description ?? '') }}</textarea>
+<div class="mb-8">
+    <h2 class="text-lg font-bold text-neutral mb-5 flex items-center gap-2 border-b border-base-200 pb-2">
+        {{ ux_icon('lucide:map-pin', {class: 'w-5 h-5 text-primary'}) }}
+        {{ 'census.section.location'|trans }}
+    </h2>
+
+    <div class="form-control mb-5">
+        <label class="label py-1">
+            <span class="label-text font-semibold text-neutral/80">{{ 'census.field.location_name'|trans }} <span class="text-error">*</span></span>
+        </label>
+        <div class="relative">
+            <input type="text" name="locationName" required
+                   class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors pl-10"
+                   value="{{ isEdit ? census.locationName : (data.locationName ?? '') }}"
+                   placeholder="{{ 'census.form.placeholder.location'|trans }}">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                {{ ux_icon('lucide:map-pinned', {class: 'w-4 h-4 text-base-content/40'}) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="form-control mb-4" data-controller="census-map"
+         data-census-map-icon-url-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}"
+         data-census-map-icon-retina-value="{{ asset('vendor/leaflet/dist/images/marker-icon.png') }}">
+
+        <label class="label py-1 flex-col items-start gap-1">
+            <span class="label-text font-semibold text-neutral/80">{{ 'census.field.location_coordinates'|trans }} <span class="text-error">*</span></span>
+            <span class="text-xs text-base-content/60 flex items-center gap-1.5">
+                {{ ux_icon('lucide:info', {class: 'w-3.5 h-3.5'}) }}
+                {{ 'census.map_hint'|trans }}
+            </span>
+        </label>
+
+        <div data-census-map-target="map" style="height: 350px; z-index: 1;"
+             class="rounded-xl border border-base-300 mb-3 shadow-inner overflow-hidden cursor-crosshair"></div>
+
+        <div class="grid grid-cols-2 gap-4 bg-base-200/50 p-3 rounded-lg border border-base-200">
+            <div class="form-control">
+                <label class="label py-0 mb-1"><span class="label-text text-xs font-medium">{{ 'census.field.latitude'|trans }}</span></label>
+                <input type="text" step="any" name="latitude" data-census-map-target="lat" required readonly
+                       class="input input-bordered w-full input-sm bg-base-100 font-mono text-sm opacity-80 cursor-not-allowed focus:outline-none"
+                       value="{{ isEdit ? census.latitude : (data.latitude ?? '') }}"
+                       placeholder="40.7128">
+            </div>
+            <div class="form-control">
+                <label class="label py-0 mb-1"><span class="label-text text-xs font-medium">{{ 'census.field.longitude'|trans }}</span></label>
+                <input type="text" step="any" name="longitude" data-census-map-target="lng" required readonly
+                       class="input input-bordered w-full input-sm bg-base-100 font-mono text-sm opacity-80 cursor-not-allowed focus:outline-none"
+                       value="{{ isEdit ? census.longitude : (data.longitude ?? '') }}"
+                       placeholder="-74.0060">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-2">
+    <h2 class="text-lg font-bold text-neutral mb-5 flex items-center gap-2 border-b border-base-200 pb-2">
+        {{ ux_icon('lucide:align-left', {class: 'w-5 h-5 text-primary'}) }}
+        {{ 'census.section.details'|trans }}
+    </h2>
+
+    <div class="form-control mb-2">
+        <label class="label py-1">
+            <span class="label-text font-semibold text-neutral/80">{{ 'census.field.description'|trans }}</span>
+        </label>
+        <textarea name="description" rows="4"
+                  placeholder="{{ 'census.form.placeholder.description'|trans }}"
+                  class="textarea textarea-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors leading-relaxed">{{ isEdit ? (census.description ?? '') : (data.description ?? '') }}</textarea>
+    </div>
 </div>

@@ -1,81 +1,149 @@
 {% extends 'backoffice/layout.html.twig' %}
 
 {% block title %}{{ 'census.list.title'|trans }}{% endblock %}
+{% block page_title %}{{ 'census.nav'|trans }}{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">{{ 'census.list.title'|trans }}</h1>
-    <a href="{{ path('backoffice_census_create') }}" class="btn btn-primary btn-sm">
-        + {{ 'census.create.title'|trans }}
-    </a>
-</div>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-neutral flex items-center gap-3">
+                {{ ux_icon('lucide:clipboard-list', {class: 'w-7 h-7 text-primary'}) }}
+                {{ 'census.list.title'|trans }}
+                <span class="badge badge-primary badge-outline badge-lg text-sm font-bold ml-2 shadow-sm">{{ total }}</span>
+            </h1>
+            <p class="text-base-content opacity-70 mt-1 text-sm">
+                {{ 'census.list.description'|trans }}
+            </p>
+        </div>
 
-{% if censuses is empty %}
-    <div class="alert alert-info">
-        <span>{{ 'census.list.empty'|trans }}</span>
+        <a href="{{ path('backoffice_census_create') }}" class="btn btn-primary btn-sm flex items-center gap-2 shadow-sm">
+            {{ ux_icon('lucide:plus', {class: 'w-4 h-4'}) }}
+            {{ 'census.create.title'|trans }}
+        </a>
     </div>
-{% else %}
-    <div class="overflow-x-auto">
-        <table class="table table-zebra w-full bg-base-100 shadow-sm rounded-box">
-            <thead>
-                <tr>
-                    <th>{{ 'census.field.title'|trans }}</th>
-                    <th>{{ 'census.field.date'|trans }}</th>
-                    <th>{{ 'census.field.location_name'|trans }}</th>
-                    <th>{{ 'census.list.status'|trans }}</th>
-                    <th class="text-right">{{ 'census.list.actions'|trans }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for census in censuses %}
-                    <tr class="cursor-pointer hover" onclick="window.location='{{ path('backoffice_census_detail', {id: census.id}) }}'">
-                        <td class="font-medium">{{ census.title }}</td>
-                        <td>{{ census.date }} {{ census.time }}</td>
-                        <td>{{ census.locationName }}</td>
-                        <td>
-                            {% if census.isDeleted %}
-                                <span class="badge badge-error badge-sm">{{ 'census.status.deleted'|trans }}</span>
-                            {% elseif census.status == 'PUBLISHED' %}
-                                <span class="badge badge-success badge-sm">{{ 'census.status.published'|trans }}</span>
-                            {% else %}
-                                <span class="badge badge-ghost badge-sm">{{ 'census.status.draft'|trans }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-right" onclick="event.stopPropagation()">
-                            {% if census.status == 'DRAFT' %}
-                                <form method="post"
-                                      action="{{ path('backoffice_census_publish', {id: census.id}) }}"
-                                      class="inline">
-                                    <input type="hidden" name="_csrf_token"
-                                           value="{{ csrf_token('census_publish_' ~ census.id) }}">
-                                    <button type="submit" class="btn btn-success btn-xs">
-                                        {{ 'census.action.publish'|trans }}
-                                    </button>
-                                </form>
-                            {% endif %}
 
-                            {% if census.isEditable %}
-                                <a href="{{ path('backoffice_census_edit', {id: census.id}) }}"
-                                   class="btn btn-ghost btn-xs">
-                                    {{ 'census.action.edit'|trans }}
-                                </a>
-                                <form method="post"
-                                      action="{{ path('backoffice_census_delete', {id: census.id}) }}"
-                                      class="inline"
-                                      onsubmit="return confirm('{{ 'census.confirm.delete'|trans|e('js') }}')">
-                                    <input type="hidden" name="_csrf_token"
-                                           value="{{ csrf_token('census_delete_' ~ census.id) }}">
-                                    <button type="submit" class="btn btn-ghost btn-xs text-error">
-                                        {{ 'census.action.delete'|trans }}
-                                    </button>
-                                </form>
-                            {% endif %}
-                        </td>
+    {% if censuses is empty %}
+        <div class="card bg-base-100 shadow-sm border border-base-200 py-16 text-center">
+            <div class="flex flex-col items-center justify-center">
+                <div class="p-4 bg-base-200/50 rounded-full text-base-content/30 mb-4">
+                    {{ ux_icon('lucide:map-pin-off', {class: 'w-12 h-12'}) }}
+                </div>
+                <h3 class="text-lg font-bold text-neutral mb-2">{{ 'census.list.empty'|trans }}</h3>
+                <p class="text-base-content/60 max-w-sm text-sm mb-6">
+                    {{ 'census.list.empty_description'|trans }}
+                </p>
+                <a href="{{ path('backoffice_census_create') }}" class="btn btn-outline btn-primary btn-sm">
+                    {{ ux_icon('lucide:plus', {class: 'w-4 h-4'}) }}
+                    {{ 'census.create.title'|trans }}
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+
+                    <thead class="bg-base-200/50 text-neutral text-sm border-b border-base-200">
+                    <tr>
+                        <th>{{ 'census.field.title'|trans }}</th>
+                        <th>{{ 'census.field.date'|trans }}</th>
+                        <th>{{ 'census.field.location_name'|trans }}</th>
+                        <th>{{ 'census.list.status'|trans }}</th>
+                        <th class="text-right w-40">{{ 'census.list.actions'|trans }}</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <p class="text-sm text-base-content/60 mt-2">{{ total }} {{ 'census.list.total'|trans }}</p>
-{% endif %}
+                    </thead>
+
+                    <tbody>
+                    {% for census in censuses %}
+                        <tr class="hover cursor-pointer transition-colors border-b border-base-100 last:border-0"
+                            onclick="window.location='{{ path('backoffice_census_detail', {id: census.id}) }}'">
+
+                            <td class="font-bold text-neutral">{{ census.title }}</td>
+
+                            <td>
+                                <div class="flex items-center gap-2 text-sm text-base-content/80">
+                                    {{ ux_icon('lucide:calendar', {class: 'w-4 h-4 opacity-50'}) }}
+                                    <span>{{ census.date }} <span class="opacity-60 ml-1">{{ census.time }}</span></span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="flex items-center gap-2 text-sm text-base-content/80">
+                                    {{ ux_icon('lucide:map-pin', {class: 'w-4 h-4 text-primary/70'}) }}
+                                    <span>{{ census.locationName }}</span>
+                                </div>
+                            </td>
+
+                            <td>
+                                {% if census.isDeleted %}
+                                    <span class="badge badge-error badge-sm gap-1.5 font-medium">
+                                            {{ 'census.status.deleted'|trans }}
+                                        </span>
+                                {% elseif census.status == 'PUBLISHED' %}
+                                    <span class="badge badge-success badge-sm gap-1.5 font-medium">
+                                            {{ 'census.status.published'|trans }}
+                                        </span>
+                                {% else %}
+                                    <span class="badge badge-ghost badge-sm gap-1.5 font-medium">
+                                            {{ 'census.status.draft'|trans }}
+                                        </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-right" onclick="stopPropagation()">
+                                <div class="flex justify-end gap-2">
+
+                                    {% if census.status == 'DRAFT' %}
+                                        <form method="post"
+                                              action="{{ path('backoffice_census_publish', {id: census.id}) }}"
+                                              class="inline"
+                                              data-controller="confirm-action"
+                                              data-confirm-action-message-value="{{ 'census.confirm.publish'|trans|default('Vols publicar aquest cens?') }}">
+                                            <input type="hidden" name="_csrf_token"
+                                                   value="{{ csrf_token('census_publish_' ~ census.id) }}">
+                                            <div class="tooltip tooltip-left sm:tooltip-top" data-tip="{{ 'census.action.publish'|trans }}">
+                                                <button type="submit"
+                                                        class="btn btn-ghost btn-sm btn-square flex items-center justify-center text-success hover:bg-success/10"
+                                                        data-action="confirm-action#confirm">
+                                                    {{ ux_icon('lucide:send', {class: 'w-4.5 h-4.5'}) }}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    {% endif %}
+
+                                    {% if census.isEditable %}
+                                        <div class="tooltip tooltip-left sm:tooltip-top" data-tip="{{ 'census.action.edit'|trans }}">
+                                            <a href="{{ path('backoffice_census_edit', {id: census.id}) }}"
+                                               class="btn btn-ghost btn-sm btn-square flex items-center justify-center text-neutral hover:text-primary">
+                                                {{ ux_icon('lucide:pencil', {class: 'w-4.5 h-4.5'}) }}
+                                            </a>
+                                        </div>
+
+                                        <form method="post"
+                                              action="{{ path('backoffice_census_delete', {id: census.id}) }}"
+                                              class="inline"
+                                              data-controller="confirm-action"
+                                              data-confirm-action-message-value="{{ 'census.confirm.delete'|trans }}">
+                                            <input type="hidden" name="_csrf_token"
+                                                   value="{{ csrf_token('census_delete_' ~ census.id) }}">
+                                            <div class="tooltip tooltip-left sm:tooltip-top" data-tip="{{ 'census.action.delete'|trans }}">
+                                                <button type="submit"
+                                                        class="btn btn-ghost btn-sm btn-square flex items-center justify-center text-error hover:bg-error/10"
+                                                        data-action="confirm-action#confirm">
+                                                    {{ ux_icon('lucide:trash-2', {class: 'w-4.5 h-4.5'}) }}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    {% endif %}
+
+                                </div>
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -36,11 +36,17 @@ census:
         deep_link: 'Enllaç directe'
         action_download: 'Descarregar QR'
     list:
-        title: "Censos"
-        empty: "Encara no hi ha censos creats."
+        title: "Llistat de Censos"
+        description: "Gestiona els censos i els registres d'observació d'aquests."
+        empty: "Cap cens trobat"
+        empty_description: "Encara no has creat cap cens."
         status: "Estat"
         actions: "Accions"
-        total: "censos"
+    section:
+        general: "Informació General"
+        location: "Ubicació i Mapa"
+        details: "Detalls Addicionals"
+    map_hint: "Fes clic al mapa per marcar les coordenades exactes del cens."
     create:
         title: "Nou cens"
     edit:
@@ -49,9 +55,12 @@ census:
         title: "Títol"
         date: "Data"
         time: "Hora"
-        location_coordinates: "Ubicació"
-        location_name: "Nom de la ubicació"
-        description: "Descripció"
+        location_name: "Direcció"
+        location_coordinates: "Ubicació al mapa"
+        latitude: "Latitud"
+        longitude: "Longitud"
+        description: "Descripció o observacions"
+        published_at: "Data de Publicació"
     status:
         draft: "Esborrany"
         published: "Publicat"
@@ -66,9 +75,14 @@ census:
         copied: "Copiat!"
         download_qr: "Descarregar QR"
         copy: "Copiar"
-
+    form:
+        placeholder:
+            title: "Ex: Cens de Duc 2026"
+            location: "Ex: Delta de l'Ebre - Llacuna de la Tancada"
+            description: "Afegeix qualsevol observació rellevant."
     confirm:
         delete: "Estàs segur que vols eliminar aquest cens?"
+        publish: "Estàs segur que vols publicar aquest cens? Un cop publicat tens 10min fins que sigui visible pels usuaris."
     flash:
         created: "Cens creat correctament."
         updated: "Cens actualitzat correctament."
@@ -171,6 +185,12 @@ enum:
 
 session:
     nav: 'Sessions'
+    field:
+        annotator: "Usuari"
+        type: "Tipus"
+        date: "Data"
+        observations: "Observacions"
+        listening_point: "Punt d'Escolta"
     list:
         title: 'Llistat de sessions'
         empty: 'No hi ha sessions registrades.'
