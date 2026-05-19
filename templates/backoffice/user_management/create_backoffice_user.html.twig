@@ -1,11 +1,23 @@
 {% extends 'backoffice/layout.html.twig' %}
 
 {% block title %}{{ 'user_management.action.create_backoffice_user'|trans }}{% endblock %}
+{% block page_title %}{{ 'user_management.nav.backoffice_users'|trans }}{% endblock %}
 
 {% block content %}
-<div class="mb-6">
-    <h1 class="text-2xl font-bold">{{ 'user_management.action.create_backoffice_user'|trans }}</h1>
-</div>
+    <div class="mb-6 sm:mb-8">
+        <a href="{{ path('backoffice_backoffice_users_list') }}" class="btn btn-ghost btn-sm mb-2 text-base-content/70 hover:text-primary transition-colors flex items-center gap-1.5 w-fit">
+            {{ ux_icon('lucide:arrow-left', {class: 'w-4 h-4'}) }}
+            {{ 'user_management.action.back'|trans|default('Tornar') }}
+        </a>
+        <h1 class="text-2xl md:text-3xl font-bold text-neutral flex items-center gap-3">
+            {{ ux_icon('lucide:user-plus', {class: 'w-7 h-7 text-primary'}) }}
+            {{ 'user_management.action.create_backoffice_user'|trans }}
+        </h1>
+    </div>
 
-{{ include('backoffice/user_management/_backoffice_user_form.html.twig') }}
+    <div class="card bg-base-100 shadow-sm border border-base-200 max-w-2xl">
+        <div class="card-body p-6 sm:p-8">
+            {{ include('backoffice/user_management/_backoffice_user_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}

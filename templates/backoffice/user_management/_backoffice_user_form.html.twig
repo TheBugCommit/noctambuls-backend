@@ -1,57 +1,79 @@
 {% set isEdit = user is defined %}
 
-<div class="card bg-base-100 shadow-sm max-w-lg">
-    <div class="card-body">
-        <form method="post">
-            <input type="hidden" name="_csrf_token"
-                   value="{{ csrf_token(isEdit ? 'backoffice_user_edit_' ~ user.id : 'backoffice_user_create') }}">
+<form method="post">
+    <input type="hidden" name="_csrf_token"
+           value="{{ csrf_token(isEdit ? 'backoffice_user_edit_' ~ user.id : 'backoffice_user_create') }}">
 
-            <div class="form-control mb-4">
-                <label class="label">
-                    <span class="label-text">{{ 'user_management.field.email'|trans }}</span>
-                </label>
-                <input type="email" name="email" class="input input-bordered"
-                       value="{{ isEdit ? user.email : '' }}"
-                       placeholder="{{ isEdit ? ('user_management.form.email_placeholder_edit'|trans) : '' }}"
-                       {{ isEdit ? '' : 'required' }}>
-                {% if isEdit %}
-                    <label class="label">
-                        <span class="label-text-alt text-base-content/60">{{ 'user_management.form.leave_blank_to_keep'|trans }}</span>
-                    </label>
-                {% endif %}
+    <div class="form-control mb-5">
+        <label class="label py-1">
+            <span class="label-text font-semibold text-neutral/80">{{ 'user_management.field.email'|trans }} <span class="text-error">*</span></span>
+        </label>
+        <div class="relative">
+            <input type="email" name="email"
+                   class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors pl-10"
+                   value="{{ isEdit ? user.email : '' }}"
+                   placeholder="{{ isEdit ? ('user_management.form.email_placeholder_edit'|trans) : 'admin@exemple.cat' }}"
+                {{ isEdit ? '' : 'required' }}>
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                {{ ux_icon('lucide:mail', {class: 'w-4 h-4 text-base-content/40'}) }}
             </div>
+        </div>
 
-            <div class="form-control mb-4">
-                <label class="label">
-                    <span class="label-text">{{ 'user_management.field.password'|trans }}</span>
-                </label>
-                <input type="password" name="password" class="input input-bordered"
-                       placeholder="{{ isEdit ? ('user_management.form.leave_blank_to_keep'|trans) : '' }}"
-                       {{ isEdit ? '' : 'required' }} minlength="8">
-            </div>
-
-            <div class="form-control mb-6">
-                <label class="label">
-                    <span class="label-text">{{ 'user_management.field.role'|trans }}</span>
-                </label>
-                <select name="role" class="select select-bordered" required>
-                    <option value="ROLE_REVIEWER" {{ (isEdit and user.role == 'ROLE_REVIEWER') ? 'selected' : '' }}>
-                        {{ 'user_management.role.reviewer'|trans }}
-                    </option>
-                    <option value="ROLE_ADMIN" {{ (isEdit and user.role == 'ROLE_ADMIN') ? 'selected' : '' }}>
-                        {{ 'user_management.role.admin'|trans }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="flex gap-2">
-                <button type="submit" class="btn btn-primary">
-                    {{ isEdit ? ('user_management.action.save'|trans) : ('user_management.action.create'|trans) }}
-                </button>
-                <a href="{{ path('backoffice_backoffice_users_list') }}" class="btn btn-ghost">
-                    {{ 'user_management.action.cancel'|trans }}
-                </a>
-            </div>
-        </form>
+        {% if isEdit %}
+            <label class="label pb-0 pt-1.5">
+                <span class="label-text-alt text-base-content/50 flex items-center gap-1">
+                    {{ ux_icon('lucide:info', {class: 'w-3.5 h-3.5'}) }}
+                    {{ 'user_management.form.leave_blank_to_keep'|trans }}
+                </span>
+            </label>
+        {% endif %}
     </div>
-</div>
+
+    <div class="form-control mb-5">
+        <label class="label py-1">
+            <span class="label-text font-semibold text-neutral/80">
+                {{ 'user_management.field.password'|trans }}
+                {% if not isEdit %}<span class="text-error">*</span>{% endif %}
+            </span>
+        </label>
+        <div class="relative">
+            <input type="password" name="password"
+                   class="input input-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors pl-10"
+                   placeholder="{{ isEdit ? ('user_management.form.leave_blank_to_keep'|trans) : '••••••••' }}"
+                {{ isEdit ? '' : 'required' }} minlength="8">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                {{ ux_icon('lucide:lock', {class: 'w-4 h-4 text-base-content/40'}) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="form-control mb-8">
+        <label class="label py-1">
+            <span class="label-text font-semibold text-neutral/80">{{ 'user_management.field.role'|trans }} <span class="text-error">*</span></span>
+        </label>
+        <div class="relative">
+            <select name="role" class="select select-bordered w-full bg-base-200/30 focus:bg-base-100 transition-colors pl-10 font-medium text-neutral" required>
+                <option value="ROLE_REVIEWER" {{ (isEdit and user.role == 'ROLE_REVIEWER') ? 'selected' : '' }}>
+                    {{ 'user_management.role.reviewer'|trans }}
+                </option>
+                <option value="ROLE_ADMIN" {{ (isEdit and user.role == 'ROLE_ADMIN') ? 'selected' : '' }}>
+                    {{ 'user_management.role.admin'|trans }}
+                </option>
+            </select>
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                {{ ux_icon('lucide:shield-check', {class: 'w-4 h-4 text-base-content/40'}) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 pt-6 border-t border-base-200 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
+        <a href="{{ path('backoffice_backoffice_users_list') }}" class="btn btn-ghost w-full sm:w-auto flex items-center gap-2">
+            {{ ux_icon('lucide:x', {class: 'w-4 h-4'}) }}
+            {{ 'user_management.action.cancel'|trans }}
+        </a>
+        <button type="submit" class="btn btn-primary w-full sm:w-auto shadow-sm flex items-center gap-2">
+            {{ ux_icon('lucide:save', {class: 'w-4 h-4'}) }}
+            {{ isEdit ? ('user_management.action.save'|trans) : ('user_management.action.create'|trans) }}
+        </button>
+    </div>
+</form>

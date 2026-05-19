@@ -339,11 +339,16 @@ user_management:
     app_users:
         title: "Usuaris de l'app"
         empty: "Encara no hi ha usuaris registrats."
-        total: "usuaris"
+        description: "Llistat de tots els usuaris registrats mitjançant l'aplicació mòbil."
+        no_code: "Sense codi"
+        no_actions: "Sense accions"
+        empty_description: "Encara no s'ha registrat cap usuari a l'aplicació mòbil."
     backoffice_users:
-        title: "Equip (admins i revisors)"
-        empty: "Encara no hi ha usuaris del backoffice."
-        edit_title: "Editar usuari del backoffice"
+        title: "Usuaris del Backoffice"
+        edit_title: "Editar Usuari"
+        description: "Gestiona els administradors i revisors que tenen accés al tauler de control."
+        empty: "No hi ha cap usuari"
+        empty_description: "Actualment no hi ha cap usuari creat. Afegeix-ne un per donar-li accés al sistema."
     field:
         name: "Nom"
         email: "Correu electrònic"
@@ -353,11 +358,12 @@ user_management:
         actions: "Accions"
         role: "Rol"
         password: "Contrasenya"
+        registration_info: "Info de registre"
         phone: 'Telèfon'
     status:
         active: "Actiu"
         blocked: "Bloquejat"
-        anonymized: "Eliminat"
+        anonymized: "Anonimitzat"
     role:
         admin: "Administrador"
         reviewer: "Revisor"
@@ -366,12 +372,16 @@ user_management:
         unblock: "Desbloquejar"
         delete: "Eliminar"
         edit: "Editar"
+        anonymize: "Anonimitzar"
         create: "Crear"
         save: "Desar"
         cancel: "Cancel·lar"
         create_backoffice_user: "Nou usuari"
+        back: 'Tornar'
     confirm:
         anonymize: "Estàs segur? Les dades de l'usuari s'anonimitzaran de forma permanent."
+        unblock: "Vols desbloquejar aquest usuari perquè torni a tenir accés?"
+        block: "Estàs segur que vols bloquejar aquest usuari? No podrà iniciar sessió a l'app."
         delete_backoffice_user: "Estàs segur que vols eliminar aquest usuari del backoffice?"
     form:
         leave_blank_to_keep: "Deixa en blanc per mantenir el valor actual"

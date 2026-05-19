@@ -86,8 +86,8 @@ final class AuthResponseMapper
                 'name' => $profile?->name()->value(),
                 'phone' => $profile?->phone()->value(),
                 'ornithologistCode' => $profile?->ornithologistCode()->value(),
-                'createdAt' => $user->createdAt()->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('d/m/Y'),
-                'updatedAt' => $user->updatedAt()->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('d/m/Y H:i'),
+                'createdAt' => $user->createdAt()->format('c'),
+                'updatedAt' => $user->updatedAt()->format('c'),
                 'isBlocked' => $user->isBlocked(),
                 'isAnonymized' => $user->isAnonymized(),
             ];
@@ -102,8 +102,8 @@ final class AuthResponseMapper
             'id' => $u->id()->value(),
             'email' => $u->email()->value(),
             'role' => $u->role()->value,
-            'createdAt' => $u->createdAt()->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('d/m/Y'),
-            'updatedAt' => $u->updatedAt()->setTimezone(new \DateTimeZone('Europe/Madrid'))->format('d/m/Y H:i'),
+            'createdAt' => $u->createdAt()->format('c'),
+            'updatedAt' => $u->updatedAt()->format('c'),
         ], $authUsersEntities);
 
         return new ListBackofficeUsersResponse($data);
