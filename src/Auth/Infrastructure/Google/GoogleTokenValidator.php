@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Auth\Infrastructure\Google;
 
 use App\Auth\Domain\Exception\InvalidExternalTokenException;
-use App\Auth\Domain\Service\ExternalTokenValidatorInterface;
 use App\Auth\Domain\Service\ProviderTokenValidatorInterface;
 use App\Auth\Domain\ValueObject\Email;
 use App\Auth\Domain\ValueObject\Provider;
+use Firebase\JWT\JWT;
 use Google\Client as GoogleClient;
 
 final readonly class GoogleTokenValidator implements ProviderTokenValidatorInterface
@@ -25,6 +25,8 @@ final readonly class GoogleTokenValidator implements ProviderTokenValidatorInter
 
     public function validate(string $token): Email
     {
+        JWT::$leeway = 300;
+
         $payload = $this->googleClient->verifyIdToken($token);
 
         if (!$payload) {
