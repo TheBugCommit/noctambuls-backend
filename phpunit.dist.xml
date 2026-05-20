@@ -24,13 +24,70 @@
             <directory>src/Auth</directory>
             <directory>src/Census</directory>
             <directory>src/Observation</directory>
+            <directory>src/Analytics</directory>
+            <directory>src/BirdCatalog</directory>
+            <directory>src/Profile</directory>
             <directory>src/UI/Http</directory>
         </include>
 
         <exclude>
             <directory suffix="Exception.php">src</directory>
+            <directory suffix="Interface.php">src</directory>
+            <directory suffix="Repository.php">src</directory>
+            <directory suffix="Type.php">src</directory>
+            <directory suffix="ValueObject.php">src</directory>
+            <directory suffix="Event.php">src</directory>
+            <directory suffix="Request.php">src</directory>
+            <directory suffix="Response.php">src</directory>
+
             <directory>src/Auth/Application/Mapper</directory>
+            <directory>src/Auth/Infrastructure/Google</directory>
+            <directory>src/Auth/Infrastructure/Console</directory>
+
             <directory>src/Census/Application/Mapper</directory>
+            <file>src/Census/Domain/ValueObject/CensusDescription.php</file>
+            <file>src/Census/Domain/ValueObject/CensusId.php</file>
+            <file>src/Census/Domain/ValueObject/CensusLocationName.php</file>
+            <file>src/Census/Domain/ValueObject/CensusTitle.php</file>
+            <file>src/Census/Domain/ValueObject/CensusStatus.php</file>
+
+            <directory>src/BirdCatalog/Application/Mapper</directory>
+            <directory>src/BirdCatalog/Domain/ValueObject</directory>
+            <directory>src/BirdCatalog/Infrastructure/DataFixtures</directory>
+
+            <directory>src/Analytics/Application/Mapper</directory>
+            <directory>src/Analytics/Domain/Event</directory>
+            <directory>src/Analytics/Domain/ValueObject</directory>
+            <directory>src/Analytics/Infrastructure/Persistence</directory>
+            <directory>src/Analytics/Infrastructure/Event</directory>
+
+            <directory>src/Notification/Domain/ValueObject</directory>
+            <directory>src/Notification/Infrastructure/Firebase</directory>
+
+            <file>src/Observation/Domain/ValueObject/ContactType.php</file>
+            <file>src/Observation/Domain/ValueObject/LocationSource.php</file>
+            <file>src/Observation/Domain/ValueObject/MoonPresence.php</file>
+            <file>src/Observation/Domain/ValueObject/ObservationId.php</file>
+            <file>src/Observation/Domain/ValueObject/RainLevel.php</file>
+            <file>src/Observation/Domain/ValueObject/SessionType.php</file>
+            <file>src/Observation/Domain/ValueObject/SkyCondition.php</file>
+            <file>src/Observation/Domain/ValueObject/TemperatureRange.php</file>
+            <file>src/Observation/Domain/ValueObject/VisibilityLevel.php</file>
+            <file>src/Observation/Domain/ValueObject/WindLevel.php</file>
+            <directory>src/Observation/Domain/Filter</directory>
+            <directory>src/Observation/Infrastructure</directory>
+            <directory>src/Observation/Application/Mapper</directory>
+
+            <directory>src/Profile/Application/Mapper</directory>
+            <file>src/Profile/Domain/ValueObject/ProfileId.php</file>
+
+            <directory>src/Shared/Domain/Exception</directory>
+            <file>src/Shared/Domain/ValueObject/AudioPath.php</file>
+            <file>src/Shared/Domain/ValueObject/ImagePath.php</file>
+            <directory>src/Shared/Infrastructure/Persistence</directory>
+
+            <directory>src/UI/Http/Backoffice</directory>
+            <directory>src/UI/Http/Public</directory>
         </exclude>
 
         <deprecationTrigger>
