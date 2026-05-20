@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\UI\Http\Rest\Observation;
 
-use App\Auth\Domain\Entity\AuthUser;
-use App\Auth\Domain\ValueObject\AuthUserId;
-use App\Auth\Domain\ValueObject\Email;
-use App\Auth\Domain\ValueObject\Provider;
 use App\Auth\Infrastructure\Security\AuthUserSymfonyAdapter;
 use App\Observation\Application\GetParticipatedSessions\GetParticipatedSessionsHandler;
 use App\Observation\Application\GetParticipatedSessions\GetParticipatedSessionsRequest;
@@ -33,8 +29,11 @@ class ParticipatedSessionsControllerTest extends WebTestCase
 
     protected function setUp(): void
     {
-        $this->client = static::createClient();
-        $this->apiKey = (string) getenv('API_KEY');
+        static::ensureKernelShutdown();
+        $this->apiKey = (string) $_ENV['API_KEY'];
+        $this->client = static::createClient([], [
+            'HTTP_X-API-KEY' => $this->apiKey
+        ]);
 
         $this->sessionsHandlerMock = $this->createMock(GetParticipatedSessionsHandler::class);
         $this->profileHandlerMock = $this->createMock(GetProfileHandler::class);
@@ -72,7 +71,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
                 serverTime: '2026-01-01T00:00:00+00:00',
             ));
 
-        $this->client->request('GET', '/api/sessions/participated', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
+        $this->client->request('GET', '/api/sessions/participated', [], [], []);
 
         $response = $this->client->getResponse();
 
@@ -98,7 +97,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
             ))
             ->willReturn(new GetParticipatedSessionsResponse([], [], '2026-01-01T00:00:00+00:00'));
 
-        $this->client->request('GET', '/api/sessions/participated?offset=50&limit=500', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
+        $this->client->request('GET', '/api/sessions/participated?offset=50&limit=500', [], [], []);
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
     }
@@ -114,7 +113,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
 
         $this->sessionsHandlerMock->expects($this->never())->method('handle');
 
-        $this->client->request('GET', '/api/sessions/participated', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
+        $this->client->request('GET', '/api/sessions/participated', [], [], []);
 
         $response = $this->client->getResponse();
 
@@ -126,14 +125,11 @@ class ParticipatedSessionsControllerTest extends WebTestCase
 
     private function loginUser(string $userId): void
     {
-        $user = new AuthUserSymfonyAdapter(
-            AuthUser::create(
-                new AuthUserId($userId),
-                new Email('test@example.com'),
-                Provider::google(),
-            ),
-        );
+        $userMock = $this->createMock(AuthUserSymfonyAdapter::class);
+        $userMock->method('getAuthUserId')->willReturn($userId);
+        $userMock->method('getRoles')->willReturn(['ROLE_USER']);
+        $userMock->method('getUserIdentifier')->willReturn('test@example.com');
 
-        $this->client->loginUser($user, 'api');
+        $this->client->loginUser($userMock, 'api');
     }
 }

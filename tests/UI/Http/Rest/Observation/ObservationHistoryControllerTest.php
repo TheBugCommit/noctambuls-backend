@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\UI\Http\Rest\Observation;
 
-use App\Auth\Domain\Entity\AuthUser;
-use App\Auth\Domain\ValueObject\AuthUserId;
-use App\Auth\Domain\ValueObject\Email;
-use App\Auth\Domain\ValueObject\Provider; // Ajusta si Provider és un Enum en un altre namespace
 use App\Auth\Infrastructure\Security\AuthUserSymfonyAdapter;
 use App\Observation\Application\GetObservationHistory\GetObservationHistoryHandler;
 use App\Observation\Application\GetObservationHistory\GetObservationHistoryRequest;
@@ -23,8 +19,11 @@ class ObservationHistoryControllerTest extends WebTestCase
 
     protected function setUp(): void
     {
-        $this->client = static::createClient();
-        $this->apiKey = (string) getenv('API_KEY');
+        static::ensureKernelShutdown();
+        $this->apiKey = (string) $_ENV['API_KEY'];
+        $this->client = static::createClient([], [
+            'HTTP_X-API-KEY' => $this->apiKey
+        ]);
 
         $this->handlerMock = $this->createMock(GetObservationHistoryHandler::class);
 
@@ -49,7 +48,8 @@ class ObservationHistoryControllerTest extends WebTestCase
                 serverTime: '2026-01-01T00:00:00+00:00',
             ));
 
-        $this->client->request('GET', '/api/observations/history', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
+        var_dump($this->apiKey);
+        $this->client->request('GET', '/api/observations/history', [], [], []);
 
         $response = $this->client->getResponse();
 
@@ -74,21 +74,18 @@ class ObservationHistoryControllerTest extends WebTestCase
             ))
             ->willReturn(new GetObservationHistoryResponse([], [], '2026-01-01T00:00:00+00:00'));
 
-        $this->client->request('GET', '/api/observations/history?offset=-10&limit=500', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
+        $this->client->request('GET', '/api/observations/history?offset=-10&limit=500', [], [], []);
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
     }
 
     private function loginUser(string $userId): void
     {
-        $user = new AuthUserSymfonyAdapter(
-            AuthUser::create(
-                new AuthUserId($userId),
-                new Email('test@example.com'),
-                Provider::google(),
-            ),
-        );
+        $userMock = $this->createMock(AuthUserSymfonyAdapter::class);
+        $userMock->method('getAuthUserId')->willReturn($userId);
+        $userMock->method('getRoles')->willReturn(['ROLE_USER']);
+        $userMock->method('getUserIdentifier')->willReturn('test@example.com');
 
-        $this->client->loginUser($user, 'api');
+        $this->client->loginUser($userMock, 'api');
     }
 }

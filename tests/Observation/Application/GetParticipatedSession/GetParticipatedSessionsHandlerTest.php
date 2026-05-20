@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Observation\Application\GetParticipatedSessions;
+namespace App\Tests\Observation\Application\GetParticipatedSession;
 
 use App\Auth\Domain\ValueObject\AuthUserId;
 use App\Observation\Application\GetParticipatedSessions\GetParticipatedSessionsHandler;
@@ -92,7 +92,7 @@ class GetParticipatedSessionsHandlerTest extends TestCase
 
         $this->sessionRepository->expects($this->once())
             ->method('findByIdsWithRelations')
-            ->with([$uuid1, $uuid2])
+            ->with([['id' => $uuid1], ['id' => $uuid2]])
             ->willReturn([$session1, $session2]);
 
         $response = $this->handler->handle($request);
@@ -140,7 +140,7 @@ class GetParticipatedSessionsHandlerTest extends TestCase
 
         $this->sessionRepository->expects($this->once())
             ->method('findByIdsWithRelations')
-            ->with([$uuid])
+            ->with([['id' => $uuid]])
             ->willReturn([$this->createDummySession($uuid)]);
 
         $response = $this->handler->handle($request);
