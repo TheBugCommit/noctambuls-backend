@@ -11,7 +11,6 @@ use Firebase\JWT\JWT;
 final readonly class JwtCensusLinkGenerator implements CensusLinkGeneratorInterface
 {
     public function __construct(
-        private string $appDomain,
         private string $jwtPrivateKeyPath,
         private string $jwtPassphrase
     ) {
@@ -41,6 +40,12 @@ final readonly class JwtCensusLinkGenerator implements CensusLinkGeneratorInterf
 
         $jwt = JWT::encode($payload, $privateKey, 'RS256');
 
-        return sprintf('https://%s/census/join?token=%s', $this->appDomain, $jwt);
+        $baseUrl = (
+            (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                ? "https://"
+                : "http://"
+            ) . $_SERVER['HTTP_HOST'];
+
+        return sprintf('%s/census/join?token=%s', $baseUrl, $jwt);
     }
 }

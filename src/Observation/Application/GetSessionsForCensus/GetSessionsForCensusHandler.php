@@ -21,7 +21,7 @@ final readonly class GetSessionsForCensusHandler
     public function handle(GetSessionsForCensusRequest $request): GetSessionsForCensusResponse
     {
         $filter = new SessionFilter(
-            censusId: new CensusId($request->censusId),
+            censusId: $request->censusId,
             isDeleted: false,
         );
 

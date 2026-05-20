@@ -190,5 +190,4 @@ services:
     App\Census\Infrastructure\Service\JwtCensusLinkGenerator:
         arguments:
             $jwtPrivateKeyPath: '%env(resolve:JWT_SECRET_KEY)%'
-            $appDomain: '%env(DOMAIN)%'
             $jwtPassphrase: '%env(JWT_PASSPHRASE)%'
