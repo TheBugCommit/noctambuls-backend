@@ -12,7 +12,7 @@ ux_icons:
         width: '1em'
 
     # Throw an exception if an icon is not
-    ignore_not_found: false
+    ignore_not_found: true
 
 when@prod:
     ux_icons:
