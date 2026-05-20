@@ -203,16 +203,16 @@ class SessionTest extends TestCase
         $this->assertTrue($obs2->isDeleted(), 'L\'observació 2 ha d\'estar esborrada en cascada');
         $this->assertEquals($deletedAt, $obs2->updatedAt(), 'L\'updateAt de l\'obs 2 ha de coincidir amb l\'esborrat');
     }
-    public function test_it_throws_exception_if_incidental_observation_is_on_a_different_day(): void
+    public function test_it_throws_exception_if_incidental_observation_is_outside_48h_window(): void
     {
         $this->expectException(InvalidSessionStateException::class);
-        $this->expectExceptionMessage('Incidental observations must occur on the same day as the session');
+        $this->expectExceptionMessage('Incidental observations must occur within the logical day of the session (including next-day early hours).');
 
         $start = new \DateTimeImmutable('2023-10-25 08:00:00');
         $session = $this->createValidSession(SessionType::Incidental, null, null, null, null, null, $start, null);
 
-        // Observació l'endemà (Invàlid)
-        $obsStart = new \DateTimeImmutable('2023-10-26 08:00:00');
+        // Observació 3 dies més tard (fora de la finestra de 48h)
+        $obsStart = new \DateTimeImmutable('2023-10-28 08:00:00');
         $observation = $this->createDummyObservation($session, $obsStart, $obsStart);
 
         $session->putObservation($observation);
@@ -285,6 +285,7 @@ class SessionTest extends TestCase
         bool $isDeleted = false,
         string $id = '550e8400-e29b-41d4-a716-446655440005',
     ): Observation {
+        $resolvedUpdatedAt = $updatedAt ?? new \DateTimeImmutable();
         return Observation::create(
             new ObservationId($id),
             $session,
@@ -293,10 +294,10 @@ class SessionTest extends TestCase
             new Quantity(1),
             $start,
             $end,
-            null, null, null, null, null, null, null,
+            null, new Latitude(41.0), new Longitude(2.0), null, null, null, null,
             new Bearing(0),
-            new \DateTimeImmutable(),
-            $updatedAt ?? new \DateTimeImmutable(),
+            $resolvedUpdatedAt,
+            $resolvedUpdatedAt,
             $isDeleted,
         );
     }

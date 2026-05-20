@@ -19,11 +19,12 @@ class ObservationHistoryControllerTest extends WebTestCase
 {
     private $client;
     private $handlerMock;
-
+    private string $apiKey;
 
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->apiKey = (string) getenv('API_KEY');
 
         $this->handlerMock = $this->createMock(GetObservationHistoryHandler::class);
 
@@ -48,7 +49,7 @@ class ObservationHistoryControllerTest extends WebTestCase
                 serverTime: '2026-01-01T00:00:00+00:00',
             ));
 
-        $this->client->request('GET', '/api/observations/history');
+        $this->client->request('GET', '/api/observations/history', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
 
         $response = $this->client->getResponse();
 
@@ -73,7 +74,7 @@ class ObservationHistoryControllerTest extends WebTestCase
             ))
             ->willReturn(new GetObservationHistoryResponse([], [], '2026-01-01T00:00:00+00:00'));
 
-        $this->client->request('GET', '/api/observations/history?offset=-10&limit=500');
+        $this->client->request('GET', '/api/observations/history?offset=-10&limit=500', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
     }

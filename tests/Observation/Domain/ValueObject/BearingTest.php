@@ -38,9 +38,8 @@ class BearingTest extends TestCase
     public static function invalidValuesProvider(): array
     {
         return [
-            'negative bearing' => [-0.1],
-            'exactly 360 is invalid' => [360.0],
             'above 360' => [361.0],
+            'below -360' => [-361.0],
         ];
     }
 }

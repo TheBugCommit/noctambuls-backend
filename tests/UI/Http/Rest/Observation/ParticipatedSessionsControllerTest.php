@@ -7,9 +7,7 @@ namespace App\Tests\UI\Http\Rest\Observation;
 use App\Auth\Domain\Entity\AuthUser;
 use App\Auth\Domain\ValueObject\AuthUserId;
 use App\Auth\Domain\ValueObject\Email;
-use App\Auth\Domain\ValueObject\HashedPassword;
 use App\Auth\Domain\ValueObject\Provider;
-use App\Auth\Domain\ValueObject\Role;
 use App\Auth\Infrastructure\Security\AuthUserSymfonyAdapter;
 use App\Observation\Application\GetParticipatedSessions\GetParticipatedSessionsHandler;
 use App\Observation\Application\GetParticipatedSessions\GetParticipatedSessionsRequest;
@@ -26,6 +24,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
     private $client;
     private $sessionsHandlerMock;
     private $profileHandlerMock;
+    private string $apiKey;
 
     protected static function getKernelClass(): string
     {
@@ -35,8 +34,8 @@ class ParticipatedSessionsControllerTest extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->apiKey = (string) getenv('API_KEY');
 
-        // Fem Mocks dels dos Handlers (Recorda que dg/bypass-finals s'encarrega de permetre-ho)
         $this->sessionsHandlerMock = $this->createMock(GetParticipatedSessionsHandler::class);
         $this->profileHandlerMock = $this->createMock(GetProfileHandler::class);
 
@@ -57,7 +56,8 @@ class ParticipatedSessionsControllerTest extends WebTestCase
                 name: 'Test',
                 phone: '611451461',
                 ornithologistCode: '#OR-N-0001',
-                createdAt: new \DateTimeImmutable()
+                createdAt: new \DateTimeImmutable(),
+                updatedAt: new \DateTimeImmutable(),
             ));
 
         $this->sessionsHandlerMock->expects($this->once())
@@ -72,7 +72,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
                 serverTime: '2026-01-01T00:00:00+00:00',
             ));
 
-        $this->client->request('GET', '/api/sessions/participated');
+        $this->client->request('GET', '/api/sessions/participated', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
 
         $response = $this->client->getResponse();
 
@@ -89,7 +89,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
         $this->loginUser($userId);
 
         $this->profileHandlerMock->method('handle')
-            ->willReturn(new GetProfileResponse('id', 'authId', 'Name', 'Last', new \DateTimeImmutable()));
+            ->willReturn(new GetProfileResponse('id', 'Name', '611000000', '#OR-N-0001', new \DateTimeImmutable(), new \DateTimeImmutable()));
 
         $this->sessionsHandlerMock->expects($this->once())
             ->method('handle')
@@ -98,7 +98,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
             ))
             ->willReturn(new GetParticipatedSessionsResponse([], [], '2026-01-01T00:00:00+00:00'));
 
-        $this->client->request('GET', '/api/sessions/participated?offset=50&limit=500');
+        $this->client->request('GET', '/api/sessions/participated?offset=50&limit=500', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
 
         $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
     }
@@ -114,7 +114,7 @@ class ParticipatedSessionsControllerTest extends WebTestCase
 
         $this->sessionsHandlerMock->expects($this->never())->method('handle');
 
-        $this->client->request('GET', '/api/sessions/participated');
+        $this->client->request('GET', '/api/sessions/participated', [], [], ['HTTP_X-API-KEY' => $this->apiKey]);
 
         $response = $this->client->getResponse();
 

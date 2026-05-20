@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\UI\Http\Backoffice\Census;
 
 use App\Census\Application\CreateCensus\CreateCensusHandler;
-use App\Census\Domain\Exception\EmptyCoordinateException;
 use App\UI\Http\Backoffice\Census\CensusCreateController;
 use InvalidArgumentException;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -98,6 +97,11 @@ class CensusCreateControllerTest extends TestCase
         $request = $this->createRequest('POST');
         $request->request->set('_csrf_token', 'valid-token');
         $request->request->set('title', 'Títol Valid');
+        $request->request->set('date', '2026-05-12');
+        $request->request->set('time', '16:00');
+        $request->request->set('latitude', '42.0');
+        $request->request->set('longitude', '2.0');
+        $request->request->set('locationName', 'Test Location');
 
         $this->csrfTokenManager->method('isTokenValid')->willReturn(true);
 
@@ -122,6 +126,11 @@ class CensusCreateControllerTest extends TestCase
         $request = $this->createRequest('POST');
         $request->request->set('_csrf_token', 'valid-token');
         $request->request->set('title', '');
+        $request->request->set('date', '2026-05-12');
+        $request->request->set('time', '16:00');
+        $request->request->set('latitude', '42.0');
+        $request->request->set('longitude', '2.0');
+        $request->request->set('locationName', 'Test Location');
 
         $this->csrfTokenManager->method('isTokenValid')->willReturn(true);
 

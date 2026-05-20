@@ -9,6 +9,7 @@ use App\Auth\Application\SignIn\SignInHandler;
 use App\Auth\Application\SignIn\SignInRequest;
 use App\Auth\Domain\Entity\AuthUser;
 use App\Auth\Domain\Exception\InvalidExternalTokenException;
+use App\Auth\Domain\Exception\UserNotRegisteredException;
 use App\Auth\Domain\Repository\AuthUserRepositoryInterface;
 use App\Auth\Domain\Service\ExternalTokenValidatorInterface;
 use App\Auth\Domain\Service\JwtTokenGeneratorInterface;
@@ -16,7 +17,6 @@ use App\Auth\Domain\ValueObject\AuthUserId;
 use App\Auth\Domain\ValueObject\Email;
 use App\Auth\Domain\ValueObject\Provider;
 use App\Shared\Domain\Service\TransactionManagerInterface;
-use App\Shared\Domain\Service\UuidGeneratorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +28,6 @@ final class SignInHandlerTest extends TestCase
     private AuthUserRepositoryInterface&MockObject     $userRepository;
     private JwtTokenGeneratorInterface&MockObject      $jwtGenerator;
     private TransactionManagerInterface&MockObject     $transactionManager;
-    private UuidGeneratorInterface&MockObject          $uuidGenerator;
     private RefreshTokenIssuerInterface&MockObject     $refreshTokenIssuer;
     private SignInHandler                              $handler;
 
@@ -38,7 +37,6 @@ final class SignInHandlerTest extends TestCase
         $this->userRepository     = $this->createMock(AuthUserRepositoryInterface::class);
         $this->jwtGenerator       = $this->createMock(JwtTokenGeneratorInterface::class);
         $this->transactionManager = $this->createMock(TransactionManagerInterface::class);
-        $this->uuidGenerator      = $this->createMock(UuidGeneratorInterface::class);
         $this->refreshTokenIssuer = $this->createMock(RefreshTokenIssuerInterface::class);
 
         $this->handler = new SignInHandler(
@@ -46,30 +44,25 @@ final class SignInHandlerTest extends TestCase
             $this->userRepository,
             $this->jwtGenerator,
             $this->transactionManager,
-            $this->uuidGenerator,
             $this->refreshTokenIssuer,
         );
     }
 
-    public function test_handle_creates_new_user_when_not_found(): void
+    public function test_handle_throws_when_user_not_found(): void
     {
         $email = new Email('new@example.com');
 
         $this->tokenValidator->method('validate')->willReturn($email);
         $this->userRepository->method('findByEmailAndProvider')->willReturn(null);
-        $this->uuidGenerator->method('generate')->willReturn(self::UUID);
-        $this->jwtGenerator->method('generate')->willReturn('jwt.token.here');
-        $this->refreshTokenIssuer->method('issueTokenForUser')->willReturn('refresh-token-string');
 
-        $this->userRepository->expects(self::once())->method('save');
         $this->transactionManager->expects(self::once())->method('begin');
-        $this->transactionManager->expects(self::once())->method('commit');
-        $this->transactionManager->expects(self::never())->method('rollback');
+        $this->transactionManager->expects(self::once())->method('rollback');
+        $this->transactionManager->expects(self::never())->method('commit');
+        $this->userRepository->expects(self::never())->method('save');
 
-        $response = $this->handler->handle(new SignInRequest('google-id-token', Provider::google()->value()));
+        $this->expectException(UserNotRegisteredException::class);
 
-        self::assertSame('jwt.token.here', $response->accessToken);
-        self::assertSame('refresh-token-string', $response->refreshToken);
+        $this->handler->handle(new SignInRequest('google-id-token', Provider::google()->value()));
     }
 
     public function test_handle_reuses_existing_user(): void
@@ -96,10 +89,12 @@ final class SignInHandlerTest extends TestCase
 
     public function test_handle_rolls_back_when_exception_is_thrown(): void
     {
-        $this->tokenValidator->method('validate')->willReturn(new Email('user@example.com'));
-        $this->userRepository->method('findByEmailAndProvider')->willReturn(null);
-        $this->uuidGenerator->method('generate')->willReturn(self::UUID);
-        $this->userRepository->method('save')->willThrowException(new \RuntimeException('DB error'));
+        $email = new Email('user@example.com');
+        $user  = AuthUser::create(new AuthUserId(self::UUID), $email, Provider::google());
+
+        $this->tokenValidator->method('validate')->willReturn($email);
+        $this->userRepository->method('findByEmailAndProvider')->willReturn($user);
+        $this->jwtGenerator->method('generate')->willThrowException(new \RuntimeException('JWT error'));
 
         $this->transactionManager->expects(self::once())->method('rollback');
         $this->transactionManager->expects(self::never())->method('commit');
@@ -126,11 +121,11 @@ final class SignInHandlerTest extends TestCase
     public function test_handle_passes_correct_provider_to_repository(): void
     {
         $email = new Email('user@example.com');
+        $user  = AuthUser::create(new AuthUserId(self::UUID), $email, Provider::google());
 
         $this->tokenValidator->method('validate')->willReturn($email);
         $this->jwtGenerator->method('generate')->willReturn('token');
         $this->refreshTokenIssuer->method('issueTokenForUser')->willReturn('refresh');
-        $this->uuidGenerator->method('generate')->willReturn(self::UUID);
 
         $this->userRepository
             ->expects(self::once())
@@ -139,9 +134,7 @@ final class SignInHandlerTest extends TestCase
                 self::equalTo($email),
                 self::callback(fn(Provider $p) => $p->value() === 'google'),
             )
-            ->willReturn(null);
-
-        $this->userRepository->method('save');
+            ->willReturn($user);
 
         $this->handler->handle(new SignInRequest('token', 'google'));
     }

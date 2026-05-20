@@ -14,10 +14,12 @@ class SyncUpControllerTest extends WebTestCase
 {
     private $client;
     private $handlerMock;
+    private string $apiKey;
 
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->apiKey = (string) getenv('API_KEY');
 
         // Creem un Mock del Handler per controlar-ne la resposta
         $this->handlerMock = $this->createMock(SyncUpHandler::class);
@@ -31,7 +33,7 @@ class SyncUpControllerTest extends WebTestCase
         $this->loginUser();
 
         // Enviem un body invàlid (sense l'array de 'sessions')
-        $this->client->request('POST', '/api/sync/observations', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['wrong_key' => true]));
+        $this->client->request('POST', '/api/sync/observations', [], [], ['CONTENT_TYPE' => 'application/json', 'HTTP_X-API-KEY' => $this->apiKey], json_encode(['wrong_key' => true]));
 
         $response = $this->client->getResponse();
 
@@ -54,7 +56,7 @@ class SyncUpControllerTest extends WebTestCase
         // Creem 101 sessions falses
         $sessions = array_fill(0, 101, ['id' => 'dummy']);
 
-        $this->client->request('POST', '/api/sync/observations', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['sessions' => $sessions]));
+        $this->client->request('POST', '/api/sync/observations', [], [], ['CONTENT_TYPE' => 'application/json', 'HTTP_X-API-KEY' => $this->apiKey], json_encode(['sessions' => $sessions]));
 
         $response = $this->client->getResponse();
 
@@ -95,7 +97,7 @@ class SyncUpControllerTest extends WebTestCase
                 ]
             ));
 
-        $this->client->request('POST', '/api/sync/observations', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['sessions' => $sessionsPayload]));
+        $this->client->request('POST', '/api/sync/observations', [], [], ['CONTENT_TYPE' => 'application/json', 'HTTP_X-API-KEY' => $this->apiKey], json_encode(['sessions' => $sessionsPayload]));
 
         $response = $this->client->getResponse();
 

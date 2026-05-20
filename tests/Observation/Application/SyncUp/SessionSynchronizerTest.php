@@ -194,7 +194,7 @@ class SessionSynchronizerTest extends TestCase
             'listeningPoint' => 1, 'latitude' => 41.0, 'longitude' => 2.0,
             'accuracy' => 10.0, 'altitude' => 100.0, 'altitudeAccuracy' => null,
             'locationSource' => 0,
-            'createdAt' => '2023-10-25T10:00:00Z',
+            'createdAt' => '2023-01-01T00:00:00Z',
             'updatedAt' => $updatedAt,
             'observations' => [
                 [
@@ -202,14 +202,14 @@ class SessionSynchronizerTest extends TestCase
                     'startTime' => '2023-10-25T10:10:00Z', 'endTime' => '2023-10-25T10:15:00Z',
                     'notes' => null, 'latitude' => null, 'longitude' => null, 'accuracy' => null,
                     'altitude' => null, 'altitudeAccuracy' => null, 'locationSource' => null, 'bearing' => 0.0,
-                    'createdAt' => '2023-10-25T10:10:00Z', 'updatedAt' => $updatedAt, 'isDeleted' => false,
+                    'createdAt' => '2023-01-01T00:00:00Z', 'updatedAt' => $updatedAt, 'isDeleted' => false,
                 ],
                 [
                     'id' => '550e8400-e29b-41d4-a716-446655440030', 'speciesId' => '550e8400-e29b-41d4-a716-446655440006', 'contactType' => 1, 'quantity' => 1,
                     'startTime' => '2023-10-25T11:00:00Z', 'endTime' => '2023-10-25T11:05:00Z',
                     'notes' => 'cantant', 'latitude' => null, 'longitude' => null, 'accuracy' => null,
                     'altitude' => null, 'altitudeAccuracy' => null, 'locationSource' => null, 'bearing' => 90.0,
-                    'createdAt' => '2023-10-25T11:00:00Z', 'updatedAt' => $updatedAt, 'isDeleted' => false,
+                    'createdAt' => '2023-01-01T00:00:00Z', 'updatedAt' => $updatedAt, 'isDeleted' => false,
                 ]
             ],
             'participants' => [

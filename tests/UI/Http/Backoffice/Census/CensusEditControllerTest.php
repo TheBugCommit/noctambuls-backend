@@ -100,6 +100,11 @@ class CensusEditControllerTest extends TestCase
     {
         $request = $this->createRequest('POST');
         $request->request->set('_csrf_token', 'valid-token');
+        $request->request->set('date', '2026-05-12');
+        $request->request->set('time', '16:00');
+        $request->request->set('latitude', '42.0');
+        $request->request->set('longitude', '2.0');
+        $request->request->set('locationName', 'Test Location');
 
         $mockResponse = $this->createMock(GetCensusResponse::class);
         $this->getHandler->method('handle')->willReturn($mockResponse);
