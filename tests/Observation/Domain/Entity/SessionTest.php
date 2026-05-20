@@ -24,6 +24,8 @@ use App\Observation\Domain\ValueObject\SkyCondition;
 use App\Observation\Domain\ValueObject\TemperatureRange;
 use App\Observation\Domain\ValueObject\VisibilityLevel;
 use App\Observation\Domain\ValueObject\WindLevel;
+use App\Observation\Domain\Entity\SessionParticipant;
+use App\Profile\Domain\ValueObject\OrnithologistCode;
 use App\Shared\Domain\ValueObject\Latitude;
 use App\Shared\Domain\ValueObject\Longitude;
 use PHPUnit\Framework\TestCase;
@@ -203,6 +205,116 @@ class SessionTest extends TestCase
         $this->assertTrue($obs2->isDeleted(), 'L\'observació 2 ha d\'estar esborrada en cascada');
         $this->assertEquals($deletedAt, $obs2->updatedAt(), 'L\'updateAt de l\'obs 2 ha de coincidir amb l\'esborrat');
     }
+    public function test_restore_undeletes_session_and_updates_updatedAt(): void
+    {
+        $t1 = new \DateTimeImmutable('2024-01-01 10:00:00');
+        $t2 = new \DateTimeImmutable('2024-01-02 10:00:00');
+        $session = $this->createSessionWithUpdatedAt(SessionType::Incidental, new \DateTimeImmutable('2023-01-01 10:00:00'), null, $t1);
+
+        $session->markDeleted($t1);
+        $session->restore($t2);
+
+        $this->assertFalse($session->isDeleted());
+        $this->assertEquals($t2, $session->updatedAt());
+    }
+
+    public function test_restore_propagates_to_all_observations(): void
+    {
+        $start = new \DateTimeImmutable('2023-10-25 08:00:00');
+        $session = $this->createSessionWithUpdatedAt(SessionType::Incidental, $start, null, $start);
+
+        $obs1 = $this->createDummyObservation($session, $start, $start, null, false, '550e8400-e29b-41d4-a716-446655440010');
+        $obs2 = $this->createDummyObservation($session, $start, $start, null, false, '550e8400-e29b-41d4-a716-446655440011');
+        $session->putObservation($obs1);
+        $session->putObservation($obs2);
+
+        $session->markDeleted(new \DateTimeImmutable('2024-01-01 10:00:00'));
+        $session->restore(new \DateTimeImmutable('2024-01-02 10:00:00'));
+
+        $this->assertFalse($obs1->isDeleted());
+        $this->assertFalse($obs2->isDeleted());
+    }
+
+    public function test_removeParticipant_removes_element_from_collection(): void
+    {
+        $session = $this->createValidSession();
+        $now = new \DateTimeImmutable('2023-01-01 10:00:00');
+        $participant = SessionParticipant::create($session, new OrnithologistCode('#OR-N-0001'));
+
+        $session->addParticipant($participant, $now);
+        $session->removeParticipant($participant, $now);
+
+        $this->assertCount(0, $session->participants());
+    }
+
+    public function test_removeParticipant_updates_updatedAt_when_time_is_newer(): void
+    {
+        $old = new \DateTimeImmutable('2023-01-01 10:00:00');
+        $newer = new \DateTimeImmutable('2023-01-02 10:00:00');
+        $session = $this->createSessionWithUpdatedAt(SessionType::Incidental, new \DateTimeImmutable('2023-01-01 10:00:00'), null, $old);
+        $participant = SessionParticipant::create($session, new OrnithologistCode('#OR-N-0001'));
+
+        $session->addParticipant($participant, $old);
+        $session->removeParticipant($participant, $newer);
+
+        $this->assertEquals($newer, $session->updatedAt());
+    }
+
+    public function test_clearObservations_empties_collection(): void
+    {
+        $session = $this->createValidSession(SessionType::Incidental, null, null, null, null, null, new \DateTimeImmutable('2023-10-25 08:00:00'), null);
+        $t = new \DateTimeImmutable('2023-10-25 09:00:00');
+        $obs1 = $this->createDummyObservation($session, $t, $t, null, true, '550e8400-e29b-41d4-a716-446655440010');
+        $obs2 = $this->createDummyObservation($session, $t, $t, null, true, '550e8400-e29b-41d4-a716-446655440011');
+        $session->putObservation($obs1);
+        $session->putObservation($obs2);
+
+        $session->clearObservations();
+
+        $this->assertCount(0, $session->observations());
+    }
+
+    public function test_clearObservations_does_not_change_updatedAt(): void
+    {
+        $session = $this->createValidSession(SessionType::Incidental, null, null, null, null, null, new \DateTimeImmutable('2023-10-25 08:00:00'), null);
+        $t = new \DateTimeImmutable('2023-10-25 09:00:00');
+        $obs = $this->createDummyObservation($session, $t, $t, null, true, '550e8400-e29b-41d4-a716-446655440010');
+        $session->putObservation($obs);
+
+        $before = $session->updatedAt();
+        $session->clearObservations();
+
+        $this->assertEquals($before, $session->updatedAt());
+    }
+
+    public function test_removeObservation_removes_target_observation(): void
+    {
+        $session = $this->createValidSession(SessionType::Incidental, null, null, null, null, null, new \DateTimeImmutable('2023-10-25 08:00:00'), null);
+        $t = new \DateTimeImmutable('2023-10-25 09:00:00');
+        $obs1 = $this->createDummyObservation($session, $t, $t, null, true, '550e8400-e29b-41d4-a716-446655440010');
+        $obs2 = $this->createDummyObservation($session, $t, $t, null, true, '550e8400-e29b-41d4-a716-446655440011');
+        $session->putObservation($obs1);
+        $session->putObservation($obs2);
+
+        $session->removeObservation($obs1);
+
+        $this->assertCount(1, $session->observations());
+        $this->assertTrue($session->observations()->contains($obs2));
+    }
+
+    public function test_removeObservation_does_not_change_updatedAt(): void
+    {
+        $session = $this->createValidSession(SessionType::Incidental, null, null, null, null, null, new \DateTimeImmutable('2023-10-25 08:00:00'), null);
+        $t = new \DateTimeImmutable('2023-10-25 09:00:00');
+        $obs = $this->createDummyObservation($session, $t, $t, null, true, '550e8400-e29b-41d4-a716-446655440010');
+        $session->putObservation($obs);
+
+        $before = $session->updatedAt();
+        $session->removeObservation($obs);
+
+        $this->assertEquals($before, $session->updatedAt());
+    }
+
     public function test_it_throws_exception_if_incidental_observation_is_outside_48h_window(): void
     {
         $this->expectException(InvalidSessionStateException::class);

@@ -27,6 +27,7 @@
             <directory>src/Analytics</directory>
             <directory>src/BirdCatalog</directory>
             <directory>src/Profile</directory>
+            <directory>src/Shared</directory>
             <directory>src/UI/Http</directory>
         </include>
 
@@ -53,6 +54,7 @@
 
             <directory>src/BirdCatalog/Application/Mapper</directory>
             <directory>src/BirdCatalog/Domain/ValueObject</directory>
+            <directory>src/BirdCatalog/Domain/Exception</directory>
             <directory>src/BirdCatalog/Infrastructure/DataFixtures</directory>
 
             <directory>src/Analytics/Application/Mapper</directory>
