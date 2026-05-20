@@ -208,14 +208,11 @@
                                 <td class="pl-6 sm:pl-4 font-bold text-neutral">{{ session.annotatorName }}</td>
                                 <td>
                                     {% if session.sessionType == 0 %}
-                                        <span class="badge badge-ghost badge-sm font-medium gap-1"><span
-                                                class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>{{ 'session.type.incidental'|trans }}</span>
+                                        <span class="badge badge-ghost badge-sm font-medium gap-1">{{ 'session.type.incidental'|trans }}</span>
                                     {% elseif session.sessionType == 2 %}
-                                        <span class="badge badge-info badge-sm font-medium gap-1"><span
-                                                class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>{{ 'session.type.station'|trans }}</span>
+                                        <span class="badge badge-info badge-sm font-medium gap-1">{{ 'session.type.station'|trans }}</span>
                                     {% else %}
-                                        <span class="badge badge-primary badge-sm font-medium gap-1"><span
-                                                class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>{{ 'session.type.census'|trans }}</span>
+                                        <span class="badge badge-primary badge-sm font-medium gap-1">{{ 'session.type.census'|trans }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
