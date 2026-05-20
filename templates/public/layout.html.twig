@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block robots %}index, follow{% endblock %}
+
+{% block body %}
+    <body class="bg-base-100 min-h-screen flex flex-col font-sans text-base-content selection:bg-primary selection:text-primary-content">
+
+    <header class="navbar bg-base-100/80 backdrop-blur-md shadow-sm border-b border-base-200 px-4 md:px-8 sticky top-0 z-50 transition-colors duration-300">
+
+        <div class="flex-1">
+            <div class="flex items-center gap-2 text-xl font-bold text-primary">
+                <img src="{{ asset('icons/logo.svg') }}" alt="Logo App Noctàmbuls" class="w-8 h-8 drop-shadow-sm" />
+                App Noctàmbuls
+            </div>
+        </div>
+
+        <div class="flex-none flex items-center gap-1 sm:gap-2">
+
+            <a href="{{ path('public_help') }}" class="btn btn-ghost btn-sm hidden sm:inline-flex font-medium">Ajuda</a>
+
+            <button data-controller="theme" data-action="click->theme#toggle" class="btn btn-ghost btn-circle btn-sm flex items-center justify-center shrink-0" aria-label="Canviar tema">
+                <span data-theme-target="moon" class="hidden text-neutral flex items-center justify-center">
+                    {{ ux_icon('lucide:moon', {class: 'w-5 h-5'}) }}
+                </span>
+                <span data-theme-target="sun" class="hidden text-warning flex items-center justify-center">
+                    {{ ux_icon('lucide:sun', {class: 'w-5 h-5'}) }}
+                </span>
+            </button>
+
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto p-6 md:py-12">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer footer-center p-8 bg-base-200 text-base-content rounded border-t border-base-300 mt-auto">
+        <nav class="flex flex-wrap justify-center gap-6 mb-2">
+            <a href="{{ path('public_terms') }}" class="link link-hover font-medium">Termes i Condicions</a>
+            <a href="{{ path('public_privacy') }}" class="link link-hover font-medium">Política de Privacitat</a>
+            <a href="{{ path('public_help') }}" class="link link-hover font-medium sm:hidden">Ajuda</a>
+        </nav>
+        <aside>
+            <p class="opacity-70">Copyright © {{ 'now'|date('Y') }} - Associació Taxus</p>
+        </aside>
+    </footer>
+
+    </body>
+{% endblock %}

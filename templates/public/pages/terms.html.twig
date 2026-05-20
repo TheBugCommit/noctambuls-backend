@@ -1,0 +1,7 @@
+{% extends 'public/layout.html.twig' %}
+{% block title %}Termes i Condicions - App Noctàmbuls{% endblock %}
+{% block content %}
+    <div class="prose prose-primary lg:prose-lg max-w-none text-base-content/80">
+        {{ include('public/texts/terms.md')|markdown_to_html }}
+    </div>
+{% endblock %}

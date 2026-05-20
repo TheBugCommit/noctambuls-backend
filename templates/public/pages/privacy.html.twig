@@ -1,0 +1,8 @@
+{% extends 'public/layout.html.twig' %}
+{% block title %}Política de Privacitat - App Noctàmbuls{% endblock %}
+
+{% block content %}
+    <div class="prose prose-primary max-w-none">
+        {{ include('public/texts/privacy.md')|markdown_to_html }}
+    </div>
+{% endblock %}

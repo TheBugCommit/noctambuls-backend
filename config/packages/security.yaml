@@ -59,6 +59,9 @@ security:
         - { path: ^/backoffice/sessions, roles: ROLE_REVIEWER }
         - { path: ^/backoffice/observations, roles: ROLE_REVIEWER }
         - { path: ^/backoffice, roles: ROLE_ADMIN }
+        - { path: ^/privacity-policy, roles: PUBLIC_ACCESS }
+        - { path: ^/terms-and-conditions, roles: PUBLIC_ACCESS }
+        - { path: ^/help, roles: PUBLIC_ACCESS }
 
 when@test:
     security:

@@ -1,0 +1,8 @@
+{% extends 'public/layout.html.twig' %}
+{% block title %}Ajuda - App Noctàmbuls{% endblock %}
+
+{% block content %}
+    <div class="prose prose-primary max-w-none">
+        {{ include('public/texts/help.md')|markdown_to_html }}
+    </div>
+{% endblock %}

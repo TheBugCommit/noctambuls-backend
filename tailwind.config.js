@@ -3,11 +3,13 @@ module.exports = {
     content: [
         "./assets/**/*.js",
         "./templates/**/*.html.twig",
+        "./templates/**/*.md",
     ],
     theme: {
         extend: {},
     },
     plugins: [
+        require('@tailwindcss/typography'),
         require("daisyui")
     ],
     daisyui: {

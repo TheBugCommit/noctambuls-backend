@@ -251,3 +251,18 @@ backoffice_notifications_update:
     path: /backoffice/notifications/{event}
     controller: App\UI\Http\Backoffice\Notification\NotificationSettingsController
     methods: [POST]
+
+public_terms:
+    path: /terms-and-conditions
+    controller: App\UI\Http\Public\TermsController
+    methods: [GET]
+
+public_privacy:
+    path: /privacity-policy
+    controller: App\UI\Http\Public\PrivacyController
+    methods: [GET]
+
+public_help:
+    path: /help
+    controller: App\UI\Http\Public\HelpController
+    methods: [GET]
