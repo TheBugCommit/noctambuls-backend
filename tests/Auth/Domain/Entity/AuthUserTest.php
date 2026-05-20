@@ -134,4 +134,111 @@ final class AuthUserTest extends TestCase
         self::assertGreaterThanOrEqual($before, $user->createdAt());
         self::assertLessThanOrEqual($after, $user->createdAt());
     }
+
+    public function test_createBackofficeUser_sets_internal_provider_and_password(): void
+    {
+        $hash = password_hash('secret', PASSWORD_BCRYPT);
+        $user = AuthUser::createBackofficeUser(
+            new AuthUserId(self::UUID),
+            new Email('admin@example.com'),
+            Role::ADMIN,
+            new HashedPassword($hash),
+        );
+
+        self::assertSame('internal', $user->provider()->value());
+        self::assertSame(Role::ADMIN, $user->role());
+        self::assertSame($hash, $user->hashedPassword()?->value());
+        self::assertFalse($user->isBlocked());
+        self::assertFalse($user->isAnonymized());
+    }
+
+    public function test_createBackofficeUser_throws_on_user_role(): void
+    {
+        $hash = password_hash('secret', PASSWORD_BCRYPT);
+
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage("Backoffice can't have role USER.");
+
+        AuthUser::createBackofficeUser(
+            new AuthUserId(self::UUID),
+            new Email('user@example.com'),
+            Role::USER,
+            new HashedPassword($hash),
+        );
+    }
+
+    public function test_changeEmail_updates_email(): void
+    {
+        $user = AuthUser::create(
+            new AuthUserId(self::UUID),
+            new Email('original@example.com'),
+            Provider::internal(),
+        );
+
+        $user->changeEmail(new Email('new@example.com'));
+
+        self::assertSame('new@example.com', $user->email()->value());
+    }
+
+    public function test_changeEmail_updates_updatedAt(): void
+    {
+        $user   = AuthUser::create(new AuthUserId(self::UUID), new Email('a@example.com'), Provider::internal());
+        $before = new \DateTimeImmutable();
+
+        $user->changeEmail(new Email('b@example.com'));
+
+        self::assertGreaterThanOrEqual($before, $user->updatedAt());
+    }
+
+    public function test_block_sets_isBlocked_true(): void
+    {
+        $user = AuthUser::create(
+            new AuthUserId(self::UUID),
+            new Email('user@example.com'),
+            Provider::google(),
+        );
+
+        self::assertFalse($user->isBlocked());
+
+        $user->block();
+
+        self::assertTrue($user->isBlocked());
+    }
+
+    public function test_unblock_sets_isBlocked_false(): void
+    {
+        $user = AuthUser::create(
+            new AuthUserId(self::UUID),
+            new Email('user@example.com'),
+            Provider::google(),
+        );
+
+        $user->block();
+        self::assertTrue($user->isBlocked());
+
+        $user->unblock();
+
+        self::assertFalse($user->isBlocked());
+    }
+
+    public function test_anonymize_changes_email_and_blocks_and_clears_password(): void
+    {
+        $hash = password_hash('secret', PASSWORD_BCRYPT);
+        $user = AuthUser::create(
+            new AuthUserId(self::UUID),
+            new Email('user@example.com'),
+            Provider::google(),
+            Role::USER,
+            new HashedPassword($hash),
+        );
+
+        $anonymizedEmail = new Email(self::UUID . '@deleted.noctambuls.local');
+        $user->anonymize($anonymizedEmail);
+
+        self::assertSame(self::UUID . '@deleted.noctambuls.local', $user->email()->value());
+        self::assertNull($user->hashedPassword());
+        self::assertTrue($user->isBlocked());
+        self::assertTrue($user->isAnonymized());
+        self::assertInstanceOf(\DateTimeImmutable::class, $user->anonymizedAt());
+    }
 }
