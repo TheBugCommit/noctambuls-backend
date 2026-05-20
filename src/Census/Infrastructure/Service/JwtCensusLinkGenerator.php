@@ -18,7 +18,7 @@ final readonly class JwtCensusLinkGenerator implements CensusLinkGeneratorInterf
 
     public function generateFor(Census $census): string
     {
-        $privateKeyContent = file_get_contents($this->jwtPrivateKeyPath);
+        $privateKeyContent = @file_get_contents($this->jwtPrivateKeyPath);
         if (!$privateKeyContent) {
             throw new \RuntimeException('Cant read private KEY');
         }
