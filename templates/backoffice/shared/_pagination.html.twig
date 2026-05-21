@@ -1,0 +1,62 @@
+{#
+  Paginació de finestra lliscant.
+  Variables esperades:
+    page        (int)    — pàgina actual
+    totalPages  (int)    — total de pàgines
+    route       (string) — nom de la ruta Symfony
+    routeParams (object) — paràmetres addicionals de la ruta (filtres, etc.); per defecte {}
+#}
+{% set routeParams = routeParams ?? {} %}
+
+{% if totalPages > 1 %}
+    {% set ws = max(1, page - 2) %}
+    {% set we = min(totalPages, page + 2) %}
+
+    <div class="flex justify-center mt-8">
+        <div class="join shadow-sm border border-base-200">
+
+            {# Anterior #}
+            {% if page > 1 %}
+                <a href="{{ path(route, routeParams|merge({page: page - 1})) }}"
+                   class="join-item btn btn-sm bg-base-100 hover:bg-base-200">
+                    {{ ux_icon('lucide:chevron-left', {class: 'w-4 h-4'}) }}
+                </a>
+            {% endif %}
+
+            {# Primera pàgina (si queda fora de la finestra) #}
+            {% if ws > 1 %}
+                <a href="{{ path(route, routeParams|merge({page: 1})) }}"
+                   class="join-item btn btn-sm {{ 1 == page ? 'btn-primary text-primary-content' : 'bg-base-100 hover:bg-base-200' }}">1</a>
+                {% if ws > 2 %}
+                    <span class="join-item btn btn-sm btn-disabled bg-base-100 pointer-events-none select-none">…</span>
+                {% endif %}
+            {% endif %}
+
+            {# Finestra central #}
+            {% for p in ws..we %}
+                <a href="{{ path(route, routeParams|merge({page: p})) }}"
+                   class="join-item btn btn-sm {{ p == page ? 'btn-primary text-primary-content' : 'bg-base-100 hover:bg-base-200' }}">
+                    {{ p }}
+                </a>
+            {% endfor %}
+
+            {# Última pàgina (si queda fora de la finestra) #}
+            {% if we < totalPages %}
+                {% if we < totalPages - 1 %}
+                    <span class="join-item btn btn-sm btn-disabled bg-base-100 pointer-events-none select-none">…</span>
+                {% endif %}
+                <a href="{{ path(route, routeParams|merge({page: totalPages})) }}"
+                   class="join-item btn btn-sm {{ totalPages == page ? 'btn-primary text-primary-content' : 'bg-base-100 hover:bg-base-200' }}">{{ totalPages }}</a>
+            {% endif %}
+
+            {# Següent #}
+            {% if page < totalPages %}
+                <a href="{{ path(route, routeParams|merge({page: page + 1})) }}"
+                   class="join-item btn btn-sm bg-base-100 hover:bg-base-200">
+                    {{ ux_icon('lucide:chevron-right', {class: 'w-4 h-4'}) }}
+                </a>
+            {% endif %}
+
+        </div>
+    </div>
+{% endif %}

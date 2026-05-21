@@ -146,4 +146,6 @@
             </div>
         </div>
     {% endif %}
+
+    {% include 'backoffice/shared/_pagination.html.twig' with {page: page, totalPages: totalPages, route: 'backoffice_census_list', routeParams: {}} %}
 {% endblock %}

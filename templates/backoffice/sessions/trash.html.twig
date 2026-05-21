@@ -85,29 +85,7 @@
             </table>
         </div>
 
-        {% if totalPages > 1 %}
-            <div class="flex justify-center mt-8">
-                <div class="join shadow-sm border border-base-300">
-                    {% if page > 1 %}
-                        <a href="{{ path('backoffice_session_trash', {page: page - 1}) }}" class="join-item btn btn-sm bg-base-100 hover:bg-base-200">
-                            {{ ux_icon('lucide:chevron-left', {class: 'w-4 h-4'}) }}
-                        </a>
-                    {% endif %}
+        {% include 'backoffice/shared/_pagination.html.twig' with {page: page, totalPages: totalPages, route: 'backoffice_session_trash'} %}
 
-                    {% for p in 1..totalPages %}
-                        <a href="{{ path('backoffice_session_trash', {page: p}) }}"
-                           class="join-item btn btn-sm {{ p == page ? 'btn-primary text-primary-content' : 'bg-base-100 hover:bg-base-200' }}">
-                            {{ p }}
-                        </a>
-                    {% endfor %}
-
-                    {% if page < totalPages %}
-                        <a href="{{ path('backoffice_session_trash', {page: page + 1}) }}" class="join-item btn btn-sm bg-base-100 hover:bg-base-200">
-                            {{ ux_icon('lucide:chevron-right', {class: 'w-4 h-4'}) }}
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
     {% endif %}
 {% endblock %}

@@ -5,7 +5,6 @@ namespace App\Observation\Application\SyncUp;
 use App\Auth\Domain\ValueObject\AuthUserId;
 use App\BirdCatalog\Domain\ValueObject\BirdId;
 use App\Census\Domain\Exception\CensusNotFoundException;
-use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Census\Domain\ValueObject\CensusId;
 use App\Observation\Application\SyncUp\Dto\SessionSyncDto;
 use App\Observation\Domain\Entity\Observation;
@@ -50,6 +49,12 @@ readonly class SessionSynchronizer
     public function sync(SessionSyncDto $dto, string $annotatorId, ?Session $existingSession, array $validCodesSet, array $validBirdsSet, array $validCensusSet): Session
     {
         $incomingUpdatedAt = (new \DateTimeImmutable($dto->updatedAt))->setTimezone(new \DateTimeZone('UTC'));
+        $incomingCreatedAt = (new \DateTimeImmutable($dto->createdAt))->setTimezone(new \DateTimeZone('UTC'));
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+        if ($incomingCreatedAt > $now || $incomingUpdatedAt > $now) {
+            throw new SyncValidationException('future_timestamps');
+        }
 
         if ($existingSession !== null && $existingSession->updatedAt() >= $incomingUpdatedAt) {
             throw new SyncSkippedException();
@@ -63,7 +68,7 @@ readonly class SessionSynchronizer
             $this->updateSession($session, $dto);
         }
 
-        $this->syncObservations($session, $dto, $validBirdsSet);
+        $this->syncObservations($session, $dto, $validBirdsSet, $now);
         $this->syncParticipants($session, $dto, $validCodesSet);
 
         return $session;
@@ -134,11 +139,18 @@ readonly class SessionSynchronizer
         );
     }
 
-    private function syncObservations(Session $session, SessionSyncDto $dto, array $validBirdsSet): void
+    private function syncObservations(Session $session, SessionSyncDto $dto, array $validBirdsSet, \DateTimeImmutable $now): void
     {
         foreach ($dto->observations as $obsDto) {
             if (!isset($validBirdsSet[$obsDto->speciesId])) {
                 throw new SyncValidationException('invalid_species_id');
+            }
+
+            $obsCreatedAt = (new \DateTimeImmutable($obsDto->createdAt))->setTimezone(new \DateTimeZone('UTC'));
+            $obsUpdatedAt = (new \DateTimeImmutable($obsDto->updatedAt))->setTimezone(new \DateTimeZone('UTC'));
+
+            if ($obsCreatedAt > $now || $obsUpdatedAt > $now) {
+                throw new SyncValidationException('future_timestamps');
             }
 
             $observation = Observation::create(
@@ -157,8 +169,8 @@ readonly class SessionSynchronizer
                 altitudeAccuracy: $obsDto->altitudeAccuracy !== null ? new AltitudeAccuracy($obsDto->altitudeAccuracy) : null,
                 locationSource: $obsDto->locationSource !== null ? LocationSource::from($obsDto->locationSource) : null,
                 bearing: new Bearing($obsDto->bearing),
-                createdAt: (new \DateTimeImmutable($obsDto->createdAt))->setTimezone(new \DateTimeZone('UTC')),
-                updatedAt: (new \DateTimeImmutable($obsDto->updatedAt))->setTimezone(new \DateTimeZone('UTC')),
+                createdAt: $obsCreatedAt,
+                updatedAt: $obsUpdatedAt,
                 isDeleted: $obsDto->isDeleted,
             );
 

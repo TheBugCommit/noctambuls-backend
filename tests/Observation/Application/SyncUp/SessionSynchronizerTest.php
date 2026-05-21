@@ -8,7 +8,7 @@ use App\Census\Domain\Exception\CensusNotFoundException;
 use App\Observation\Application\SyncUp\Dto\SessionSyncDto;
 use App\Observation\Application\SyncUp\SessionSynchronizer;
 use App\Observation\Application\SyncUp\SyncSkippedException;
-use App\Observation\Domain\Entity\Session;
+use App\Observation\Application\SyncUp\SyncValidationException;
 use App\Observation\Domain\ValueObject\ContactType;
 use App\Observation\Domain\ValueObject\SessionType;
 use PHPUnit\Framework\TestCase;
@@ -178,6 +178,44 @@ class SessionSynchronizerTest extends TestCase
         $session = $this->synchronizer->sync($dto, '550e8400-e29b-41d4-a716-446655440045', null, [], $validBirdsSet, []);
 
         $this->assertEquals(new \DateTimeImmutable($obsTimestamp), $session->updatedAt());
+    }
+
+    public function test_it_rejects_session_with_future_created_at(): void
+    {
+        $payload = $this->getValidPayload();
+        $payload['createdAt'] = '2099-01-01T00:00:00Z';
+
+        $this->expectException(SyncValidationException::class);
+        $this->expectExceptionMessage('future_timestamps');
+
+        $this->synchronizer->sync(SessionSyncDto::fromArray($payload), '110e8400-e29b-41d4-a716-446655440002', null, [], [], []);
+    }
+
+    public function test_it_rejects_session_with_future_updated_at(): void
+    {
+        $payload = $this->getValidPayload('2099-01-01T00:00:00Z');
+
+        $this->expectException(SyncValidationException::class);
+        $this->expectExceptionMessage('future_timestamps');
+
+        $this->synchronizer->sync(SessionSyncDto::fromArray($payload), '110e8400-e29b-41d4-a716-446655440002', null, [], [], []);
+    }
+
+    public function test_it_rejects_observation_with_future_timestamps(): void
+    {
+        $payload = $this->getValidPayload();
+        $payload['observations'][0]['createdAt'] = '2099-01-01T00:00:00Z';
+        $payload['observations'][0]['updatedAt'] = '2099-01-01T00:00:00Z';
+
+        $validBirdsSet = [
+            '550e8400-e29b-41d4-a716-446655440002' => true,
+            '550e8400-e29b-41d4-a716-446655440006' => true,
+        ];
+
+        $this->expectException(SyncValidationException::class);
+        $this->expectExceptionMessage('future_timestamps');
+
+        $this->synchronizer->sync(SessionSyncDto::fromArray($payload), '110e8400-e29b-41d4-a716-446655440002', null, [], $validBirdsSet, []);
     }
 
     // --- HELPER ---
