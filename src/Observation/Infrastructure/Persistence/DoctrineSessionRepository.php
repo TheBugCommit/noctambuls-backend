@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Observation\Infrastructure\Persistence;
 
 use App\Auth\Domain\ValueObject\AuthUserId;
+use App\Census\Domain\Entity\Census;
 use App\Observation\Domain\Entity\Observation;
 use App\Observation\Domain\Entity\Session;
+use App\Profile\Domain\Entity\Profile;
 use App\Observation\Domain\Filter\SessionFilter;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
 use App\Observation\Domain\ValueObject\ObservationId;
@@ -279,6 +281,26 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
         }
         if ($filter->censusId !== null) {
             $qb->andWhere('s.censusId LIKE :censusId')->setParameter('censusId', '%' . $filter->censusId . '%');
+        }
+        if ($filter->ornithologistCode !== null) {
+            $subQb = $this->em->createQueryBuilder()
+                ->select('prof.id')
+                ->from(Profile::class, 'prof')
+                ->where('prof.ornithologistCode LIKE :ornithologistCode');
+            $qb->andWhere($qb->expr()->in('s.annotatorId', $subQb->getDQL()))
+               ->setParameter('ornithologistCode', '%' . $filter->ornithologistCode . '%');
+        }
+        if ($filter->listeningPoint !== null) {
+            $qb->andWhere('s.listeningPoint = :listeningPoint')
+               ->setParameter('listeningPoint', $filter->listeningPoint);
+        }
+        if ($filter->censusTitle !== null) {
+            $subQb = $this->em->createQueryBuilder()
+                ->select('c.id')
+                ->from(Census::class, 'c')
+                ->where('c.title LIKE :censusTitle');
+            $qb->andWhere($qb->expr()->in('s.censusId', $subQb->getDQL()))
+               ->setParameter('censusTitle', '%' . $filter->censusTitle . '%');
         }
 
         return $qb;

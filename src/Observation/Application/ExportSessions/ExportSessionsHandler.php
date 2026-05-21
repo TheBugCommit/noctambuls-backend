@@ -29,13 +29,16 @@ final readonly class ExportSessionsHandler
     public function handle(ExportSessionsRequest $request): ExportSessionsResponse
     {
         $filter = new SessionFilter(
-            sessionId:       $request->sessionId !== null ? new SessionId($request->sessionId) : null,
-            sessionType:     $request->sessionType !== null ? SessionType::from($request->sessionType) : null,
-            dateFrom:        $request->dateFrom,
-            dateTo:          $request->dateTo,
-            hasObservations: $request->hasObservations,
-            censusId:        $request->censusId !== null ? new CensusId($request->censusId) : null,
-            isDeleted:       false,
+            sessionId:         $request->sessionId !== null ? new SessionId($request->sessionId) : null,
+            sessionType:       $request->sessionType !== null ? SessionType::from($request->sessionType) : null,
+            dateFrom:          $request->dateFrom,
+            dateTo:            $request->dateTo,
+            hasObservations:   $request->hasObservations,
+            censusId:          $request->censusId !== null ? new CensusId($request->censusId) : null,
+            isDeleted:         false,
+            ornithologistCode: $request->ornithologistCode,
+            listeningPoint:    $request->listeningPoint,
+            censusTitle:       $request->censusTitle,
         );
 
         $allIds = $this->sessionRepository->findAllIdsForBackoffice($filter);

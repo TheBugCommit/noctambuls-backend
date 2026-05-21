@@ -16,6 +16,9 @@ final readonly class SessionFilter
         public ?bool $hasObservations = null,
         public ?string $censusId = null,
         public bool $isDeleted = false,
+        public ?string $ornithologistCode = null,
+        public ?int $listeningPoint = null,
+        public ?string $censusTitle = null,
     ) {}
 
     public function isEmpty(): bool
@@ -25,6 +28,9 @@ final readonly class SessionFilter
             && $this->dateFrom === null
             && $this->dateTo === null
             && $this->hasObservations === null
-            && $this->censusId === null;
+            && $this->censusId === null
+            && $this->ornithologistCode === null
+            && $this->listeningPoint === null
+            && $this->censusTitle === null;
     }
 }

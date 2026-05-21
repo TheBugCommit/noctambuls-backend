@@ -212,6 +212,9 @@ session:
             observations: "Observacions"
             has_observations: "Amb observacions"
             no_observations: "Sense observacions"
+            ornithologist_code: "Codi d'ornitòleg"
+            listening_point: "Punt d'escolta"
+            census_title: "Títol del cens"
             clear: "Netejar"
             submit: "Filtrar"
         columns:

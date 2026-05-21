@@ -33,6 +33,10 @@ final class SessionListController extends AbstractController
         $censusId = $request->query->get('censusId') ?: null;
         $hasObservationsRaw = $request->query->get('hasObservations');
         $hasObservations = $hasObservationsRaw !== null && $hasObservationsRaw !== '' ? (bool)(int)$hasObservationsRaw : null;
+        $ornithologistCode = $request->query->get('ornithologistCode') ?: null;
+        $listeningPointRaw = $request->query->get('listeningPoint');
+        $listeningPoint = ($listeningPointRaw !== null && $listeningPointRaw !== '') ? (int)$listeningPointRaw : null;
+        $censusTitle = $request->query->get('censusTitle') ?: null;
 
         [$dateFrom, $dateTo] = $this->parseDateRange($request);
 
@@ -46,6 +50,9 @@ final class SessionListController extends AbstractController
                 dateTo: $dateTo,
                 hasObservations: $hasObservations,
                 censusId: $censusId,
+                ornithologistCode: $ornithologistCode,
+                listeningPoint: $listeningPoint,
+                censusTitle: $censusTitle,
             ));
         } catch (\InvalidArgumentException $e) {
             $this->addFlash('error', $e->getMessage());
@@ -65,6 +72,9 @@ final class SessionListController extends AbstractController
                 'dateTo' => $request->query->get('dateTo') ?: '',
                 'hasObservations' => $hasObservationsRaw ?? '',
                 'censusId' => $censusId,
+                'ornithologistCode' => $ornithologistCode,
+                'listeningPoint' => $listeningPointRaw ?? '',
+                'censusTitle' => $censusTitle,
             ],
         ]);
     }

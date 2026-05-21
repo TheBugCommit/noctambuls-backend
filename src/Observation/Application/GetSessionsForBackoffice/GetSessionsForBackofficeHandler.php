@@ -27,7 +27,10 @@ final readonly class GetSessionsForBackofficeHandler
             dateTo: $request->dateTo,
             hasObservations: $request->hasObservations,
             censusId: $request->censusId,
-            isDeleted: false
+            isDeleted: false,
+            ornithologistCode: $request->ornithologistCode,
+            listeningPoint: $request->listeningPoint,
+            censusTitle: $request->censusTitle,
         );
 
         $total = $this->sessionRepository->countForBackoffice($filter);

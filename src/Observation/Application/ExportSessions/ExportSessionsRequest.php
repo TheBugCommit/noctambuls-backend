@@ -14,6 +14,9 @@ final readonly class ExportSessionsRequest
         public ?\DateTimeImmutable $dateTo = null,
         public ?bool $hasObservations = null,
         public ?string $censusId = null,
+        public ?string $ornithologistCode = null,
+        public ?int $listeningPoint = null,
+        public ?string $censusTitle = null,
     ) {
     }
 }

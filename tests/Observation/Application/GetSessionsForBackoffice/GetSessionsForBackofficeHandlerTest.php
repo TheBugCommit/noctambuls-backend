@@ -9,6 +9,7 @@ use App\Observation\Application\GetSessionsForBackoffice\GetSessionsForBackoffic
 use App\Observation\Application\GetSessionsForBackoffice\GetSessionsForBackofficeRequest;
 use App\Observation\Application\Service\SessionHydrator;
 use App\Observation\Domain\Entity\Session;
+use App\Observation\Domain\Filter\SessionFilter;
 use App\Observation\Domain\Repository\SessionRepositoryInterface;
 use App\Observation\Domain\ValueObject\MoonPresence;
 use App\Observation\Domain\ValueObject\RainLevel;
@@ -68,6 +69,51 @@ final class GetSessionsForBackofficeHandlerTest extends TestCase
 
         self::assertSame(2, $response->total);
         self::assertCount(2, $response->sessions);
+    }
+
+    public function test_handle_passes_ornithologist_code_filter_to_repository(): void
+    {
+        $this->sessionRepository
+            ->expects(self::once())
+            ->method('countForBackoffice')
+            ->with(self::callback(fn(SessionFilter $f) => $f->ornithologistCode === '#OR-JMCP-0001'))
+            ->willReturn(0);
+
+        $this->handler->handle(new GetSessionsForBackofficeRequest(
+            page: 1,
+            limit: 10,
+            ornithologistCode: '#OR-JMCP-0001',
+        ));
+    }
+
+    public function test_handle_passes_listening_point_filter_to_repository(): void
+    {
+        $this->sessionRepository
+            ->expects(self::once())
+            ->method('countForBackoffice')
+            ->with(self::callback(fn(SessionFilter $f) => $f->listeningPoint === 5))
+            ->willReturn(0);
+
+        $this->handler->handle(new GetSessionsForBackofficeRequest(
+            page: 1,
+            limit: 10,
+            listeningPoint: 5,
+        ));
+    }
+
+    public function test_handle_passes_census_title_filter_to_repository(): void
+    {
+        $this->sessionRepository
+            ->expects(self::once())
+            ->method('countForBackoffice')
+            ->with(self::callback(fn(SessionFilter $f) => $f->censusTitle === 'Tardor'))
+            ->willReturn(0);
+
+        $this->handler->handle(new GetSessionsForBackofficeRequest(
+            page: 1,
+            limit: 10,
+            censusTitle: 'Tardor',
+        ));
     }
 
     private function createDummySession(string $uuid): Session

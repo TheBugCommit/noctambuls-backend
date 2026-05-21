@@ -45,17 +45,25 @@ final class SessionExportController extends AbstractController
             ? (bool)(int)$hasObservationsRaw
             : null;
 
+        $ornithologistCode = $request->query->get('ornithologistCode') ?: null;
+        $listeningPointRaw = $request->query->get('listeningPoint');
+        $listeningPoint    = ($listeningPointRaw !== null && $listeningPointRaw !== '') ? (int)$listeningPointRaw : null;
+        $censusTitle       = $request->query->get('censusTitle') ?: null;
+
         [$dateFrom, $dateTo] = $this->parseDateRange($request);
 
         try {
             $exportResponse = $this->handler->handle(new ExportSessionsRequest(
-                format:          $format,
-                sessionId:       $sessionId,
-                sessionType:     $sessionType,
-                dateFrom:        $dateFrom,
-                dateTo:          $dateTo,
-                hasObservations: $hasObservations,
-                censusId:        $censusId,
+                format:            $format,
+                sessionId:         $sessionId,
+                sessionType:       $sessionType,
+                dateFrom:          $dateFrom,
+                dateTo:            $dateTo,
+                hasObservations:   $hasObservations,
+                censusId:          $censusId,
+                ornithologistCode: $ornithologistCode,
+                listeningPoint:    $listeningPoint,
+                censusTitle:       $censusTitle,
             ));
         } catch (\Throwable $e) {
             $this->addFlash('error', 'session.error.exporting');
