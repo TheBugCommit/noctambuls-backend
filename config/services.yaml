@@ -161,12 +161,6 @@ services:
     App\Observation\Domain\Service\SessionEventPublisherInterface:
         class: App\Observation\Infrastructure\Event\SymfonySessionEventPublisher
 
-    App\UI\Http\Rest\Analytics\UpdateAnalyticsController:
-        arguments:
-            $cronSecretToken: '%env(CRON_SECRET_TOKEN)%'
-        tags: ['controller.service_arguments']
-
-
     # Notification repositories
     App\Notification\Domain\Repository\NotificationTemplateRepositoryInterface:
         class: App\Notification\Infrastructure\Persistence\NotificationTemplateRepository

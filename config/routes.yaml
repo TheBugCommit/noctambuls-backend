@@ -222,11 +222,6 @@ backoffice_observation_restore:
     controller: App\UI\Http\Backoffice\Observation\ObservationRestoreController
     methods: [POST]
 
-api_internal_update_analytics:
-    path: /api/internal/update/analytics
-    controller: App\UI\Http\Rest\Analytics\UpdateAnalyticsController
-    methods: [POST]
-
 api_analytics_map_bubbles:
     path: /api/analytics/map-bubbles
     controller: App\UI\Http\Rest\Analytics\GetMapBubbleSummaryController
