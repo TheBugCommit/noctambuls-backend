@@ -1,0 +1,1222 @@
+openapi: 3.1.0
+
+info:
+  title: Noctambuls API
+  version: 1.0.0
+  description: |
+    REST API per a l'aplicació mòbil Noctambuls.
+
+    **Autenticació**:
+    Tots els endpoints (excepte els d'autenticació i refresc de token) requereixen:
+    - Header `X-API-KEY` amb la clau d'API configurada al servidor.
+    - Header `Authorization: Bearer <jwt>` amb un token JWT vàlid.
+
+servers:
+  - url: http://localhost:8000
+    description: Servidor de desenvolupament local
+
+security: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    # ── Auth ────────────────────────────────────────────────────────────────
+
+    TokenPair:
+      type: object
+      required: [accessToken, refreshToken]
+      properties:
+        accessToken:
+          type: string
+          description: JWT d'accés de curta durada.
+        refreshToken:
+          type: string
+          description: Token de refresc de llarga durada.
+
+    RefreshTokenRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+
+    RefreshTokenResponse:
+      type: object
+      required: [token, refresh_token]
+      properties:
+        token:
+          type: string
+          description: Nou JWT d'accés.
+        refresh_token:
+          type: string
+          description: Nou token de refresc.
+
+    InvalidateTokenRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+
+    # ── Profile ─────────────────────────────────────────────────────────────
+
+    Profile:
+      type: object
+      required: [id, name, phone, ornithologistCode, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Joan Puig
+        phone:
+          type: string
+          example: "+34612345678"
+        ornithologistCode:
+          type: string
+          example: JP001
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    EditProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nou nom. Si s'envia ha de ser no buit.
+        phone:
+          type: string
+          description: Nou telèfon. Format +?[0-9]{9,15}. Si s'envia ha de ser no buit.
+
+    # ── Bird Catalog ─────────────────────────────────────────────────────────
+
+    BirdTranslation:
+      type: object
+      required: [languageCode, commonName, description]
+      properties:
+        languageCode:
+          type: string
+          enum: [ca, es]
+        commonName:
+          type: string
+          example: Mussol comú
+        description:
+          type: string
+
+    BirdItem:
+      type: object
+      required: [id, scientificName, imagePath, audioPath, informationUrl, translations]
+      properties:
+        id:
+          type: string
+          format: uuid
+        scientificName:
+          type: string
+          example: Athene noctua
+        imagePath:
+          type: string
+        audioPath:
+          type: string
+        informationUrl:
+          type: string
+        translations:
+          type: array
+          items:
+            $ref: '#/components/schemas/BirdTranslation'
+
+    CatalogResponse:
+      type: object
+      required: [birds]
+      properties:
+        birds:
+          type: array
+          items:
+            $ref: '#/components/schemas/BirdItem'
+
+    CatalogVersionResponse:
+      type: object
+      required: [version, lastUpdatedAt]
+      properties:
+        version:
+          type: integer
+          example: 7
+        lastUpdatedAt:
+          type: string
+          format: date-time
+
+    # ── Census ───────────────────────────────────────────────────────────────
+
+    CensusItem:
+      type: object
+      required: [id, title, date, time, latitude, longitude, locationName, updatedAt, isDeleted]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: Cens nocturn delta de l'Ebre
+        date:
+          type: string
+          format: date
+          description: Data en zona horària Europe/Madrid.
+          example: "2025-06-15"
+        time:
+          type: string
+          pattern: '^\d{2}:\d{2}$'
+          description: Hora en zona horària Europe/Madrid.
+          example: "22:30"
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+        locationName:
+          type: string
+        description:
+          type: string
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+        isDeleted:
+          type: boolean
+
+    PublishedCensusesResponse:
+      type: object
+      required: [censuses, serverTime]
+      properties:
+        censuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/CensusItem'
+        serverTime:
+          type: string
+          format: date-time
+          description: Temps del servidor en UTC (ISO 8601).
+
+    # ── Observations / Sessions ──────────────────────────────────────────────
+
+    SessionType:
+      type: integer
+      enum: [0, 1, 2]
+      description: |
+        Tipus de sessió:
+        - `0` Incidental
+        - `1` Census
+        - `2` Station
+
+    ContactType:
+      type: integer
+      enum: [0, 1]
+      description: |
+        Tipus de contacte:
+        - `0` Visual
+        - `1` Auditiu
+
+    TemperatureRange:
+      type: integer
+      enum: [0, 1, 2, 3, 4]
+      description: |
+        Rang de temperatura:
+        - `0` < 0 °C
+        - `1` 0–10 °C
+        - `2` 10–20 °C
+        - `3` 20–30 °C
+        - `4` > 30 °C
+
+    WindLevel:
+      type: integer
+      enum: [0, 1, 2]
+      description: |
+        Nivell de vent:
+        - `0` Calm
+        - `1` Breeze
+        - `2` Moderate
+
+    SkyCondition:
+      type: integer
+      enum: [0, 1, 2]
+      description: |
+        Condició del cel:
+        - `0` Clear
+        - `1` Partial Cloudy
+        - `2` Overcast
+
+    RainLevel:
+      type: integer
+      enum: [0, 1, 2]
+      description: |
+        Nivell de pluja:
+        - `0` None
+        - `1` Drizzle
+        - `2` Storm
+
+    VisibilityLevel:
+      type: integer
+      enum: [0, 1, 2]
+      description: |
+        Nivell de visibilitat:
+        - `0` Poor
+        - `1` Moderate
+        - `2` Good
+
+    MoonPresence:
+      type: integer
+      enum: [0, 1]
+      description: |
+        Presència de lluna:
+        - `0` Absent
+        - `1` Present
+
+    LocationSource:
+      type: integer
+      enum: [0, 1]
+      description: |
+        Origen de la localització:
+        - `0` GPS
+        - `1` Manual
+
+    ParticipantSyncItem:
+      type: object
+      required: [ornithologistCode]
+      properties:
+        ornithologistCode:
+          type: string
+
+    ObservationSyncItem:
+      type: object
+      required: [id, speciesId, contactType, quantity, startTime, endTime, bearing, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        speciesId:
+          type: string
+          format: uuid
+        contactType:
+          $ref: '#/components/schemas/ContactType'
+        quantity:
+          type: integer
+          minimum: 1
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+        accuracy:
+          type: number
+          format: double
+          nullable: true
+        altitude:
+          type: number
+          format: double
+          nullable: true
+        altitudeAccuracy:
+          type: number
+          format: double
+          nullable: true
+        locationSource:
+          $ref: '#/components/schemas/LocationSource'
+          nullable: true
+        bearing:
+          type: number
+          format: double
+          description: Orientació en graus.
+          default: 0.0
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isDeleted:
+          type: boolean
+          default: false
+
+    SessionSyncItem:
+      type: object
+      required: [id, sessionType, temperature, wind, sky, rain, visibility, moon, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        censusId:
+          type: string
+          format: uuid
+          nullable: true
+        sessionType:
+          $ref: '#/components/schemas/SessionType'
+        startTime:
+          type: string
+          format: date-time
+          nullable: true
+        endTime:
+          type: string
+          format: date-time
+          nullable: true
+        temperature:
+          $ref: '#/components/schemas/TemperatureRange'
+        wind:
+          $ref: '#/components/schemas/WindLevel'
+        sky:
+          $ref: '#/components/schemas/SkyCondition'
+        rain:
+          $ref: '#/components/schemas/RainLevel'
+        visibility:
+          $ref: '#/components/schemas/VisibilityLevel'
+        moon:
+          $ref: '#/components/schemas/MoonPresence'
+        listeningPoint:
+          type: integer
+          minimum: 0
+          nullable: true
+          description: Identificador numèric del punt d'escolta.
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+        accuracy:
+          type: number
+          format: double
+          nullable: true
+        altitude:
+          type: number
+          format: double
+          nullable: true
+        altitudeAccuracy:
+          type: number
+          format: double
+          nullable: true
+        locationSource:
+          $ref: '#/components/schemas/LocationSource'
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        observations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObservationSyncItem'
+          default: []
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParticipantSyncItem'
+          default: []
+
+    SyncUpRequest:
+      type: object
+      required: [sessions]
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionSyncItem'
+          maxItems: 50
+
+    SyncUpResponse:
+      type: object
+      required: [synced, failed]
+      properties:
+        synced:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs de sessions sincronitzades correctament.
+        failed:
+          type: array
+          items:
+            type: object
+            required: [sessionId, reason]
+            properties:
+              sessionId:
+                type: string
+              reason:
+                type: string
+                description: |
+                  Motiu del fallada. Valors possibles:
+                  `invalid_data`, `duplicate_session_for_census`, `internal_error`,
+                  o un missatge d'excepció de domini.
+
+    ObservationItem:
+      type: object
+      required: [id, sessionId, sessionType, speciesId, contactType, quantity, startTime, endTime, bearing, createdAt, updatedAt, isDeleted]
+      properties:
+        id:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        sessionType:
+          $ref: '#/components/schemas/SessionType'
+        speciesId:
+          type: string
+          format: uuid
+        contactType:
+          $ref: '#/components/schemas/ContactType'
+        quantity:
+          type: integer
+          minimum: 1
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+        accuracy:
+          type: number
+          format: double
+          nullable: true
+        altitude:
+          type: number
+          format: double
+          nullable: true
+        altitudeAccuracy:
+          type: number
+          format: double
+          nullable: true
+        locationSource:
+          type: string
+          nullable: true
+          description: Valor de l'enum LocationSource com a string.
+        bearing:
+          type: number
+          format: double
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isDeleted:
+          type: boolean
+
+    SessionParticipantItem:
+      type: object
+      required: [sessionId, ornithologistCode]
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        ornithologistCode:
+          type: string
+
+    NestedSession:
+      type: object
+      required: [id, annotatorId, sessionType, temperature, wind, sky, rain, visibility, moon, createdAt, updatedAt, isDeleted, observations, participants]
+      properties:
+        id:
+          type: string
+          format: uuid
+        censusId:
+          type: string
+          format: uuid
+          nullable: true
+        annotatorId:
+          type: string
+          format: uuid
+        sessionType:
+          $ref: '#/components/schemas/SessionType'
+        startTime:
+          type: string
+          format: date-time
+          nullable: true
+        endTime:
+          type: string
+          format: date-time
+          nullable: true
+        temperature:
+          $ref: '#/components/schemas/TemperatureRange'
+        wind:
+          $ref: '#/components/schemas/WindLevel'
+        sky:
+          $ref: '#/components/schemas/SkyCondition'
+        rain:
+          $ref: '#/components/schemas/RainLevel'
+        visibility:
+          $ref: '#/components/schemas/VisibilityLevel'
+        moon:
+          $ref: '#/components/schemas/MoonPresence'
+        listeningPoint:
+          type: integer
+          nullable: true
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+        accuracy:
+          type: number
+          format: double
+          nullable: true
+        altitude:
+          type: number
+          format: double
+          nullable: true
+        altitudeAccuracy:
+          type: number
+          format: double
+          nullable: true
+        locationSource:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isDeleted:
+          type: boolean
+        observations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObservationItem'
+          description: Observacions actives (isDeleted=false) de la sessió.
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionParticipantItem'
+
+    PaginationMeta:
+      type: object
+      required: [currentPage, totalPages, totalItems, hasMore]
+      properties:
+        currentPage:
+          type: integer
+        totalPages:
+          type: integer
+        totalItems:
+          type: integer
+        hasMore:
+          type: boolean
+
+    SessionListResponse:
+      type: object
+      required: [sessions, meta, serverTime]
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/NestedSession'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+        serverTime:
+          type: string
+          format: date-time
+
+    # ── Analytics ─────────────────────────────────────────────────────────────
+
+    MapBubbleItem:
+      type: object
+      required: [species_id, lat, lon, year, count, updated_at]
+      properties:
+        species_id:
+          type: string
+          format: uuid
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        year:
+          type: integer
+        count:
+          type: integer
+        updated_at:
+          type: string
+          format: date-time
+
+    MapBubbleSummaryResponse:
+      type: object
+      required: [serverTime, items]
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapBubbleItem'
+
+    # ── Errors ───────────────────────────────────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      required: [message, code, details]
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+          enum:
+            - NOT_FOUND
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - CONFLICT
+            - INVALID_ARGUMENT
+            - INTERNAL_SERVER_ERROR
+        details:
+          type: array
+          items: {}
+
+  responses:
+    Unauthorized:
+      description: API key absent o invàlida, o JWT expirat/invàlid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: L'usuari no té permisos per accedir al recurs.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Recurs no trobat.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Dades d'entrada invàlides.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+# ── Paths ──────────────────────────────────────────────────────────────────────
+
+paths:
+
+  # ── Auth ────────────────────────────────────────────────────────────────────
+
+  /api/auth/{provider}/signin:
+    post:
+      summary: Inici de sessió social
+      description: Autentica un usuari existent mitjançant un proveïdor social (ex. Google).
+      operationId: socialSignIn
+      tags: [Auth]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google]
+          description: Proveïdor d'autenticació social.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_token]
+              properties:
+                id_token:
+                  type: string
+                  description: Token d'identitat obtingut del proveïdor social.
+      responses:
+        '200':
+          description: Autenticació correcta.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Token extern invàlid o usuari bloquejat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuari no registrat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/{provider}/signup:
+    post:
+      summary: Registre social
+      description: Registra un nou usuari mitjançant un proveïdor social.
+      operationId: socialSignUp
+      tags: [Auth]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_token, name, phone]
+              properties:
+                id_token:
+                  type: string
+                name:
+                  type: string
+                  example: Joan Puig
+                phone:
+                  type: string
+                  description: Format +?[0-9]{9,15}.
+                  example: "+34612345678"
+      responses:
+        '201':
+          description: Registre correcte.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Token extern invàlid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: L'usuari ja existeix.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/token/refresh:
+    post:
+      summary: Refresc del JWT
+      description: Obté un nou parell de tokens a partir d'un refresh token vàlid.
+      operationId: refreshToken
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Tokens renovats.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/token/invalidate:
+    post:
+      summary: Invalidació del refresh token
+      description: Invalida el refresh token indicat.
+      operationId: invalidateToken
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvalidateTokenRequest'
+      responses:
+        '200':
+          description: Token invalidat correctament.
+
+  # ── User account ─────────────────────────────────────────────────────────────
+
+  /api/user/account:
+    delete:
+      summary: Elimina el compte propi
+      description: Anonimitza i elimina les dades del compte de l'usuari autenticat.
+      operationId: selfDeleteAccount
+      tags: [User]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      responses:
+        '204':
+          description: Compte eliminat.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: El compte ja ha estat anonimitzat prèviament.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ── Profile ──────────────────────────────────────────────────────────────────
+
+  /api/profile/{id}:
+    get:
+      summary: Obté el perfil
+      description: Retorna les dades del perfil de l'usuari indicat. Requereix ser el propietari del recurs.
+      operationId: getProfile
+      tags: [Profile]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Perfil obtingut.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Edita el perfil
+      description: Actualitza el nom i/o telèfon del perfil. Requereix ser el propietari del recurs.
+      operationId: editProfile
+      tags: [Profile]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditProfileRequest'
+      responses:
+        '200':
+          description: Perfil actualitzat.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Bird Catalog ──────────────────────────────────────────────────────────────
+
+  /api/catalog/birds:
+    get:
+      summary: Catàleg d'ocells
+      description: Retorna el catàleg complet d'espècies amb les seves traduccions.
+      operationId: getCatalog
+      tags: [BirdCatalog]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      responses:
+        '200':
+          description: Catàleg obtingut.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/catalog/birds/version:
+    get:
+      summary: Versió del catàleg
+      description: Retorna el número de versió actual del catàleg i quan es va actualitzar per darrera vegada.
+      operationId: getCatalogVersion
+      tags: [BirdCatalog]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      responses:
+        '200':
+          description: Versió obtinguda.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogVersionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Census ────────────────────────────────────────────────────────────────────
+
+  /api/censuses:
+    get:
+      summary: Censos publicats
+      description: |
+        Retorna els censos en estat PUBLISHED que encara no han entrat en el període de gràcia.
+        Les dates i hores es retornen en zona horària Europe/Madrid.
+      operationId: getPublishedCensuses
+      tags: [Census]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      parameters:
+        - name: since
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Filtra censos actualitzats des d'aquesta data (ISO 8601 UTC).
+      responses:
+        '200':
+          description: Llista de censos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishedCensusesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Observations ──────────────────────────────────────────────────────────────
+
+  /api/sync/observations:
+    post:
+      summary: Sincronitza sessions i observacions
+      description: |
+        Puja un lot de sessions (màxim 50) cap al servidor.
+        Cada sessió es processa de forma independent dins una transacció pròpia.
+        Les sessions que fallen no afecten les que tenen èxit.
+      operationId: syncUpObservations
+      tags: [Observations]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncUpRequest'
+      responses:
+        '200':
+          description: Resultat de la sincronització.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncUpResponse'
+        '400':
+          description: Payload invàlid (cos JSON malformat o camp `sessions` absent).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          description: El lot conté més de 50 sessions.
+
+  /api/observations/history:
+    get:
+      summary: Historial d'observacions pròpies
+      description: Retorna les sessions paginades de l'usuari autenticat, amb les observacions actives i participants de cada sessió.
+      operationId: getObservationHistory
+      tags: [Observations]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: since
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Filtra sessions creades/actualitzades des d'aquesta data (ISO 8601 UTC).
+      responses:
+        '200':
+          description: Historial obtingut.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/sessions/participated:
+    get:
+      summary: Sessions en les quals ha participat
+      description: Retorna les sessions paginades en les quals l'usuari autenticat figura com a participant (via codi d'ornitòleg), amb les observacions i participants.
+      operationId: getParticipatedSessions
+      tags: [Observations]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: since
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Filtra sessions creades/actualitzades des d'aquesta data (ISO 8601 UTC).
+      responses:
+        '200':
+          description: Sessions obtingudes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Analytics ────────────────────────────────────────────────────────────────
+
+  /api/analytics/map-bubbles:
+    get:
+      summary: Resum de bombolles per mapa
+      description: |
+        Retorna els punts d'observació agregats per espècie, coordenada i any,
+        aptes per renderitzar un mapa de calor o bombolles.
+      operationId: getMapBubbleSummary
+      tags: [Analytics]
+      security:
+        - ApiKeyAuth: []
+          BearerAuth: []
+      parameters:
+        - name: since
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Filtra registres actualitzats des d'aquesta data (ISO 8601 UTC).
+      responses:
+        '200':
+          description: Resum obtingut.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MapBubbleSummaryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+tags:
+  - name: Auth
+    description: Autenticació i gestió de tokens.
+  - name: User
+    description: Gestió del compte d'usuari.
+  - name: Profile
+    description: Perfil de l'usuari (nom, telèfon, codi d'ornitòleg).
+  - name: BirdCatalog
+    description: Catàleg d'espècies d'ocells.
+  - name: Census
+    description: Censos ornitològics publicats.
+  - name: Observations
+    description: Sincronització i consulta de sessions i observacions.
+  - name: Analytics
+    description: Dades analítiques per a la visualització en mapa.
