@@ -44,6 +44,7 @@ class Observation
     }
 
     private ?\DateTimeImmutable $deletedAt = null;
+    private ?\DateTimeImmutable $restoredAt = null;
 
     public static function create(
         ObservationId      $id,
@@ -120,14 +121,20 @@ class Observation
 
     public function restore(\DateTimeImmutable $updatedAt): void
     {
-        $this->isDeleted = false;
-        $this->updatedAt = $updatedAt;
+        $this->isDeleted  = false;
+        $this->updatedAt  = $updatedAt;
+        $this->restoredAt = $updatedAt;
         // deletedAt intentionally kept — records when it was last soft-deleted
     }
 
     public function deletedAt(): ?\DateTimeImmutable
     {
         return $this->deletedAt;
+    }
+
+    public function restoredAt(): ?\DateTimeImmutable
+    {
+        return $this->restoredAt;
     }
 
     public function id(): ObservationId

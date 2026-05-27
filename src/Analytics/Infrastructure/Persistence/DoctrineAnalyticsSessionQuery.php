@@ -24,7 +24,7 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
                    COALESCE(o.longitude, s.longitude) AS lon,
                    YEAR(COALESCE(s.start_time, s.created_at))  AS obs_year,
                    MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month,
-                   1 AS delta
+                   o.quantity AS delta
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
             WHERE o.created_at >= :since
@@ -41,10 +41,11 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
                    COALESCE(o.longitude, s.longitude) AS lon,
                    YEAR(COALESCE(s.start_time, s.created_at))  AS obs_year,
                    MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month,
-                   -1 AS delta
+                   0 - o.quantity AS delta
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
             WHERE COALESCE(o.deleted_at, o.updated_at) >= :since
+              AND (o.restored_at IS NULL OR o.restored_at < :since)
               AND o.is_deleted  = 1
               AND o.created_at  < :since
               AND COALESCE(o.latitude,  s.latitude)  IS NOT NULL
@@ -58,7 +59,7 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
                    COALESCE(o.longitude, s.longitude) AS lon,
                    YEAR(COALESCE(s.start_time, s.created_at))  AS obs_year,
                    MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month,
-                   1 AS delta
+                   o.quantity AS delta
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
             WHERE o.updated_at  >= :since
@@ -92,11 +93,14 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
                    COALESCE(o.latitude,  s.latitude)  AS lat,
                    COALESCE(o.longitude, s.longitude) AS lon,
                    YEAR(COALESCE(s.start_time, s.created_at))  AS obs_year,
-                   MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month
+                   MONTH(COALESCE(s.start_time, s.created_at)) AS obs_month,
+                   o.quantity
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
             WHERE s.is_deleted = 1
-              AND o.created_at < :countedBefore
+              AND o.created_at  < :countedBefore
+              AND COALESCE(o.deleted_at, o.updated_at) > :countedBefore
+              AND (o.restored_at IS NULL OR o.restored_at < :countedBefore)
               AND COALESCE(o.latitude,  s.latitude)  IS NOT NULL
               AND COALESCE(o.longitude, s.longitude) IS NOT NULL
         SQL;
@@ -112,7 +116,7 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
                 lon:       (float) $row['lon'],
                 year:      (int)   $row['obs_year'],
                 month:     (int)   $row['obs_month'],
-                delta:     -1,
+                delta:     -(int)  $row['quantity'],
             ),
             $rows,
         );

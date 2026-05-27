@@ -29,6 +29,7 @@
         <field name="updatedAt" type="datetime_immutable" column="updated_at"/>
         <field name="isDeleted" type="boolean" column="is_deleted"/>
         <field name="deletedAt" type="datetime_immutable" column="deleted_at" nullable="true"/>
+        <field name="restoredAt" type="datetime_immutable" column="restored_at" nullable="true"/>
     </entity>
 
 </doctrine-mapping>

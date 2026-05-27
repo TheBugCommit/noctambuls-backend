@@ -330,7 +330,7 @@ $obsCols = implode(', ', [
     '`latitude`', '`longitude`', '`accuracy`', '`altitude`', '`altitude_accuracy`', '`location_source`',
     '`bearing`',
     '`created_at`', '`updated_at`',
-    '`is_deleted`', '`deleted_at`',
+    '`is_deleted`', '`deleted_at`', '`restored_at`',
 ]);
 
 $partCols = '`session_id`, `ornithologist_code`';
@@ -438,6 +438,7 @@ for ($i = 0; $i < NUM_SESSIONS; $i++) {
                 dt($obsDt), dt($obsDt),        // created_at, updated_at
                 (string) $isObsDel,
                 $obsDeletedAt,
+                'NULL',                         // restored_at
             ];
         }
     }

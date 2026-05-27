@@ -256,7 +256,9 @@ class Session
         $this->updatedAt = $at;
 
         foreach ($this->observations as $observation) {
-            $observation->markDeleted($at);
+            if (!$observation->isDeleted()) {
+                $observation->markDeleted($at);
+            }
         }
     }
 
