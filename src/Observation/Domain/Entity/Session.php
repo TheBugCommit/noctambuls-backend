@@ -29,6 +29,8 @@ use Doctrine\Common\Collections\Collection;
 
 class Session
 {
+    private ?\DateTimeImmutable $deletedAt = null;
+
     /** @var Collection<int, Observation> */
     private Collection $observations;
 
@@ -250,10 +252,16 @@ class Session
         return $this->isDeleted;
     }
 
+    public function deletedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+
     public function markDeleted(\DateTimeImmutable $at): void
     {
-        $this->isDeleted = true;
-        $this->updatedAt = $at;
+        $this->isDeleted  = true;
+        $this->deletedAt  = $at;
+        $this->updatedAt  = $at;
 
         foreach ($this->observations as $observation) {
             if (!$observation->isDeleted()) {

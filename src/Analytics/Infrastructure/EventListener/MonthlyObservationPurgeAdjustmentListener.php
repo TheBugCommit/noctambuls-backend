@@ -29,7 +29,7 @@ final readonly class MonthlyObservationPurgeAdjustmentListener
             return;
         }
 
-        $dataPoints = $this->sessionQuery->findDeletedDataPoints($cronState->lastProcessedAt());
+        $dataPoints = $this->sessionQuery->findDeletedDataPoints($cronState->lastProcessedAt(), $event->cutoff);
 
         $grouped = $this->groupDataPointsService->groupMonthlyDataPoints($dataPoints);
 

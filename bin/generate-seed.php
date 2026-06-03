@@ -319,7 +319,7 @@ $sessionCols = implode(', ', [
     '`temperature`', '`wind`', '`sky`', '`rain`', '`visibility`', '`moon`',
     '`listening_point`', '`latitude`', '`longitude`',
     '`accuracy`', '`altitude`', '`altitude_accuracy`', '`location_source`',
-    '`created_at`', '`updated_at`', '`is_deleted`',
+    '`created_at`', '`updated_at`', '`is_deleted`', '`deleted_at`',
 ]);
 
 $obsCols = implode(', ', [
@@ -396,6 +396,7 @@ for ($i = 0; $i < NUM_SESSIONS; $i++) {
         (string) random_int(0, 1),   // location_source (0=GPS, 1=Manual)
         dt($startDt), dt($startDt),  // created_at, updated_at
         (string) $isDeleted,
+        $isDeleted ? dt($startDt) : 'NULL',  // deleted_at
     ];
 
     // ---- Observacions (70 %) ----

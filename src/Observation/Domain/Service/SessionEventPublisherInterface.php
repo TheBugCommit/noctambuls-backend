@@ -6,5 +6,5 @@ namespace App\Observation\Domain\Service;
 
 interface SessionEventPublisherInterface
 {
-    public function publishBeforeSessionsPurged(): void;
+    public function publishBeforeSessionsPurged(?\DateTimeImmutable $cutoff = null): void;
 }

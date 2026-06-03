@@ -86,8 +86,14 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
         );
     }
 
-    public function findDeletedDataPoints(DateTimeImmutable $countedBefore): array
-    {
+    public function findDeletedDataPoints(
+        DateTimeImmutable $countedBefore,
+        ?DateTimeImmutable $sessionDeletedBefore = null,
+    ): array {
+        $sessionFilter = $sessionDeletedBefore !== null
+            ? 'AND s.deleted_at IS NOT NULL AND s.deleted_at <= :sessionDeletedBefore'
+            : '';
+
         $sql = <<<SQL
             SELECT o.species_id,
                    COALESCE(o.latitude,  s.latitude)  AS lat,
@@ -98,6 +104,7 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
             FROM sessions s
             JOIN observations o ON o.session_id = s.id
             WHERE s.is_deleted = 1
+              {$sessionFilter}
               AND o.created_at  < :countedBefore
               AND COALESCE(o.deleted_at, o.updated_at) > :countedBefore
               AND (o.restored_at IS NULL OR o.restored_at < :countedBefore)
@@ -105,9 +112,12 @@ final readonly class DoctrineAnalyticsSessionQuery implements AnalyticsSessionQu
               AND COALESCE(o.longitude, s.longitude) IS NOT NULL
         SQL;
 
-        $rows = $this->connection->fetchAllAssociative($sql, [
-            'countedBefore' => $countedBefore->format('Y-m-d H:i:s'),
-        ]);
+        $params = ['countedBefore' => $countedBefore->format('Y-m-d H:i:s')];
+        if ($sessionDeletedBefore !== null) {
+            $params['sessionDeletedBefore'] = $sessionDeletedBefore->format('Y-m-d H:i:s');
+        }
+
+        $rows = $this->connection->fetchAllAssociative($sql, $params);
 
         return array_map(
             static fn(array $row) => new ObservationDataPoint(

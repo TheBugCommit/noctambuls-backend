@@ -48,6 +48,8 @@ interface SessionRepositoryInterface
 
     public function purgeDeleted(): int;
 
+    public function purgeDeletedBefore(\DateTimeImmutable $cutoff): int;
+
     public function findByObservationId(ObservationId $id): ?Session;
 
     public function save(Session $session): void;

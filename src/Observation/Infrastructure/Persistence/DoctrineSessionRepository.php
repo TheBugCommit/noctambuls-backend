@@ -224,6 +224,13 @@ final readonly class DoctrineSessionRepository implements SessionRepositoryInter
         )->execute();
     }
 
+    public function purgeDeletedBefore(\DateTimeImmutable $cutoff): int
+    {
+        return (int) $this->em->createQuery(
+            'DELETE FROM ' . Session::class . ' s WHERE s.isDeleted = true AND s.deletedAt <= :cutoff'
+        )->setParameter('cutoff', $cutoff)->execute();
+    }
+
     public function findByObservationId(ObservationId $id): ?Session
     {
         return $this->em->createQueryBuilder()

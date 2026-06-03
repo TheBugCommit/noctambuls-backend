@@ -177,6 +177,7 @@
       <path value="$PROJECT_DIR$/vendor/dflydev/dot-access-data" />
       <path value="$PROJECT_DIR$/vendor/league/commonmark" />
       <path value="$PROJECT_DIR$/vendor/league/config" />
+      <path value="$PROJECT_DIR$/vendor/phpmetrics/phpmetrics" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

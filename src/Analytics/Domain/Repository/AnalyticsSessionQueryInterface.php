@@ -12,8 +12,9 @@ interface AnalyticsSessionQueryInterface
     /** @return list<ObservationDataPoint> */
     public function findDataPointsSince(DateTimeImmutable $since): array;
 
-    /**
-     * @return list<ObservationDataPoint>
-     */
-    public function findDeletedDataPoints(DateTimeImmutable $countedBefore): array;
+    /** @return list<ObservationDataPoint> */
+    public function findDeletedDataPoints(
+        DateTimeImmutable $countedBefore,
+        ?DateTimeImmutable $sessionDeletedBefore = null,
+    ): array;
 }

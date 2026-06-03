@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Census\Application;
 
 use App\Census\Domain\Exception\CensusNotFoundException;
+use App\Census\Domain\Exception\CensusNotEditableException;
 use App\Census\Domain\ValueObject\CensusStatus;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -13,23 +14,19 @@ use App\Census\Application\DeleteCensus\DeleteCensusRequest;
 use App\Census\Domain\Repository\CensusRepositoryInterface;
 use App\Shared\Domain\Service\TransactionManagerInterface;
 use App\Census\Domain\Entity\Census;
-use App\Census\Domain\ValueObject\CensusId;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class DeleteCensusHandlerTest extends TestCase
 {
     private CensusRepositoryInterface&MockObject $repository;
     private TransactionManagerInterface&MockObject $transactionManager;
-    private EventDispatcherInterface&MockObject $eventDispatcher;
     private DeleteCensusHandler $handler;
 
     protected function setUp(): void
     {
         $this->repository = $this->createMock(CensusRepositoryInterface::class);
         $this->transactionManager = $this->createMock(TransactionManagerInterface::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $this->handler = new DeleteCensusHandler($this->repository, $this->transactionManager, $this->eventDispatcher);
+        $this->handler = new DeleteCensusHandler($this->repository, $this->transactionManager);
     }
 
     public function testItHardDeletesDraftCensus(): void
@@ -65,7 +62,7 @@ final class DeleteCensusHandlerTest extends TestCase
         $this->handler->handle($request);
     }
 
-    public function testItSoftDeletesPublishedCensusOutsideGracePeriod(): void
+    public function testItThrowsWhenPublishedCensusOutsideGracePeriod(): void
     {
         $request = new DeleteCensusRequest('8be4df61-93ca-11d2-aa0d-00e098032b8c');
         $censusMock = $this->createMock(Census::class);
@@ -74,12 +71,11 @@ final class DeleteCensusHandlerTest extends TestCase
         $censusMock->method('status')->willReturn(CensusStatus::PUBLISHED);
         $censusMock->method('isWithinGracePeriod')->willReturn(false);
 
-        $censusMock->expects($this->once())->method('softDelete');
-
-        $this->transactionManager->expects($this->once())->method('begin');
-        $this->repository->expects($this->once())->method('save')->with($censusMock);
         $this->repository->expects($this->never())->method('delete');
-        $this->transactionManager->expects($this->once())->method('commit');
+        $this->repository->expects($this->never())->method('save');
+        $this->transactionManager->expects($this->never())->method('begin');
+
+        $this->expectException(CensusNotEditableException::class);
 
         $this->handler->handle($request);
     }

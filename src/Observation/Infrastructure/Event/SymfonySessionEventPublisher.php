@@ -12,8 +12,8 @@ final readonly class SymfonySessionEventPublisher implements SessionEventPublish
 {
     public function __construct(private EventDispatcherInterface $eventDispatcher) {}
 
-    public function publishBeforeSessionsPurged(): void
+    public function publishBeforeSessionsPurged(?\DateTimeImmutable $cutoff = null): void
     {
-        $this->eventDispatcher->dispatch(new BeforeSessionsPurgedEvent());
+        $this->eventDispatcher->dispatch(new BeforeSessionsPurgedEvent($cutoff));
     }
 }
