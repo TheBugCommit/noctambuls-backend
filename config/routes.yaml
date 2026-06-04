@@ -261,3 +261,9 @@ public_help:
     path: /help
     controller: App\UI\Http\Public\HelpController
     methods: [GET]
+
+robots_txt:
+    path: /robots.txt
+    controller: App\UI\Http\Public\RobotsController
+    defaults:
+        _format: txt
