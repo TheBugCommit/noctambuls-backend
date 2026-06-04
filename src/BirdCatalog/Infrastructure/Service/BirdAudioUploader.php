@@ -36,6 +36,10 @@ final readonly class BirdAudioUploader implements AudioUploaderInterface
 
         rename($file->tmpPath, $targetPath);
 
+        if (file_exists($targetPath)) {
+            chmod($targetPath, 0644);
+        }
+
         return new AudioPath($this->audiosDir . '/' . $fileName);
     }
 }

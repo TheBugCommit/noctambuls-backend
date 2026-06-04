@@ -62,6 +62,10 @@ final readonly class BirdImageUploader implements ImageUploaderInterface
                 rename($file->tmpPath, $targetPath);
             }
 
+            if (file_exists($targetPath)) {
+                chmod($targetPath, 0644);
+            }
+
             return new ImagePath($this->imagesDir . '/' . $fileName);
         } catch (\Throwable $e) {
             dd($e);
