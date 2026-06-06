@@ -6,7 +6,7 @@ declare(strict_types=1);
  * NOCTAMBULS – generador de dades de seed
  *
  * Genera db_seed.sql amb:
- *   - 10 auth_users + 10 profiles
+ *   - 11 auth_users + 11 profiles (10 internal + 1 Google)
  *   - 50 censuses (40 PUBLISHED, 10 DRAFT)
  *   - 10.000 sessions (400 Census, 3.600 Station, 6.000 Incidental)
  *   - ~18.000 observations (70 % de les sessions)
@@ -98,10 +98,10 @@ function writeInserts(string $table, string $cols, array $rows, int $batchSize =
 // CONSTANTS I TAULES DE REFERÈNCIA
 // ============================================================
 
-const NUM_SESSIONS = 10_000;
+const NUM_SESSIONS = 5_000;
 const NUM_CENSUS_SESSIONS  = 400;   // 10 usuaris × 40 censos publicats
-const NUM_STATION_SESSIONS = 3_600;
-// La resta fins a 10.000 seran Incidentals (6.000)
+const NUM_STATION_SESSIONS = 1_800;
+// La resta fins a 5.000 seran Incidentals (2.800)
 
 const DELETED_SESSION_PCT    = 10; // 10 % de sessions eliminades
 const OBS_SESSION_PCT        = 70; // 70 % de sessions amb observacions
@@ -157,7 +157,7 @@ $LOCS = [
 
 $NAMES = [
     'Andreu', 'Berta', 'Carles', 'Dolors', 'Eduard',
-    'Fina', 'Gerard', 'Helena', 'Ivan', 'Júlia',
+    'Fina', 'Gerard', 'Helena', 'Ivan', 'Julia',
 ];
 $SURNAMES = [
     'Mas', 'Font', 'Vila', 'Puig', 'Roca',
@@ -191,7 +191,7 @@ $CENSUS_LOCS = [
 w('-- ============================================================');
 w('-- NOCTAMBULS SEED DATA');
 w('-- Generat: ' . $now->format('Y-m-d H:i:s') . ' UTC');
-w('-- Sessions: ' . NUM_SESSIONS . ' | Usuaris: 10 | Censos: 50');
+w('-- Sessions: ' . NUM_SESSIONS . ' | Usuaris: 11 (10 internal + 1 Google) | Censos: 50 | Anys: 2023-2026');
 w('-- ============================================================');
 w('');
 w('SET foreign_key_checks = 0;');
@@ -204,7 +204,7 @@ w('');
 // AUTH_USERS + PROFILES
 // ============================================================
 
-echo "Generant 10 usuaris i perfils...\n";
+echo "Generant 11 usuaris i perfils...\n";
 
 $userIds     = [];
 $authRows    = [];
@@ -232,6 +232,24 @@ for ($i = 0; $i < 10; $i++) {
         $tsNow, $tsNow,
     ];
 }
+
+// ---- Usuari Google ----
+$googleUserId = uuid();
+$userIds[]    = $googleUserId;
+$googleCode   = '#OR-A-0011';
+
+$authRows[] = [
+    q($googleUserId), q('noctambuls.app@gmail.com'), q('google'),
+    $tsNow, q('ROLE_USER'), 'NULL',
+    '0', 'NULL', $tsNow,
+];
+$profileRows[] = [
+    q($googleUserId),
+    q('Noctambuls App'),
+    'NULL',
+    q($googleCode),
+    $tsNow, $tsNow,
+];
 
 w('-- =================== AUTH_USERS ===================');
 writeInserts(
@@ -303,13 +321,14 @@ echo "Generant " . NUM_SESSIONS . " sessions...\n";
 $sessionRows     = [];
 $obsRows         = [];
 $participantRows = [];
+$allSessionIds   = [];
 
-// Distribució d'anys: 20% 2022, 30% 2023, 30% 2024, 20% 2025
+// Distribució d'anys: 20% 2023, 30% 2024, 30% 2025, 20% 2026
 $yearPool = array_merge(
-    array_fill(0, 2_000, 2022),
-    array_fill(0, 3_000, 2023),
-    array_fill(0, 3_000, 2024),
-    array_fill(0, 2_000, 2025)
+    array_fill(0, 1_000, 2023),
+    array_fill(0, 1_500, 2024),
+    array_fill(0, 1_500, 2025),
+    array_fill(0, 1_000, 2026)
 );
 shuffle($yearPool);
 
@@ -337,6 +356,7 @@ $partCols = '`session_id`, `ornithologist_code`';
 
 for ($i = 0; $i < NUM_SESSIONS; $i++) {
     $sid  = uuid();
+    $allSessionIds[] = $sid;
     $year = $yearPool[$i];
 
     // ---- Tipus de sessió ----
@@ -375,6 +395,10 @@ for ($i = 0; $i < NUM_SESSIONS; $i++) {
     $lat = round($loc[0] + random_int(-300, 300) / 100_000, 6);
     $lon = round($loc[1] + random_int(-300, 300) / 100_000, 6);
 
+    $accuracy       = random_int(3, 50);
+    $altitude       = random_int(0, 2_500);
+    $locationSource = random_int(0, 1);
+
     $sessionRows[] = [
         q($sid),
         $censusId !== null ? q($censusId) : 'NULL',
@@ -390,10 +414,10 @@ for ($i = 0; $i < NUM_SESSIONS; $i++) {
         $lp !== null ? (string) $lp : 'NULL',
         (string) $lat,
         (string) $lon,
-        (string) random_int(3, 50),  // accuracy (metres)
-        (string) random_int(0, 2_500), // altitude (metres)
+        (string) $accuracy,
+        (string) $altitude,
         'NULL',                       // altitude_accuracy
-        (string) random_int(0, 1),   // location_source (0=GPS, 1=Manual)
+        (string) $locationSource,
         dt($startDt), dt($startDt),  // created_at, updated_at
         (string) $isDeleted,
         $isDeleted ? dt($startDt) : 'NULL',  // deleted_at
@@ -427,6 +451,21 @@ for ($i = 0; $i < NUM_SESSIONS; $i++) {
             $isObsDel    = random_int(1, 100) <= DELETED_OBS_PCT ? 1 : 0;
             $obsDeletedAt = $isObsDel ? dt($obsEndDt) : 'NULL';
 
+            if ($type === 0) {
+                $obsLoc    = $LOCS[random_int(0, count($LOCS) - 1)];
+                $obsLat    = round($obsLoc[0] + random_int(-300, 300) / 100_000, 6);
+                $obsLon    = round($obsLoc[1] + random_int(-300, 300) / 100_000, 6);
+                $obsAcc    = random_int(3, 50);
+                $obsAlt    = random_int(0, 2_500);
+                $obsLocSrc = random_int(0, 1);
+            } else {
+                $obsLat    = $lat;
+                $obsLon    = $lon;
+                $obsAcc    = $accuracy;
+                $obsAlt    = $altitude;
+                $obsLocSrc = $locationSource;
+            }
+
             $obsRows[] = [
                 q($oid), q($sid),
                 q($SPECIES[random_int(0, 7)]),
@@ -434,7 +473,10 @@ for ($i = 0; $i < NUM_SESSIONS; $i++) {
                 (string) random_int(1, 20),    // quantity
                 dt($obsDt), dt($obsEndDt),
                 'NULL',                         // notes
-                'NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', // location (nullable)
+                (string) $obsLat, (string) $obsLon,
+                (string) $obsAcc, (string) $obsAlt,
+                'NULL',                         // altitude_accuracy
+                (string) $obsLocSrc,
                 (string) round(random_int(0, 3_600) / 10, 1), // bearing 0.0–360.0
                 dt($obsDt), dt($obsDt),        // created_at, updated_at
                 (string) $isObsDel,
@@ -463,8 +505,146 @@ for ($i = 0; $i < NUM_SESSIONS; $i++) {
     }
 }
 
+// ============================================================
+// SESSIONS DE L'USUARI GOOGLE (200 creades + 100 participades)
+// ============================================================
+
+echo "Generant 200 sessions de l'usuari Google...\n";
+
+$googleYears = [2023, 2024, 2025, 2026];
+for ($i = 0; $i < 200; $i++) {
+    $sid  = uuid();
+    $year = $googleYears[array_rand($googleYears)];
+    $type = $i < 50 ? 2 : 0;   // 50 Station, 150 Incidental
+    $lp   = $type === 2 ? random_int(1, 30) : null;
+
+    $startDt  = randDt($year, $now);
+    $maxEndTs = min($startDt->getTimestamp() + 14_400, $now->getTimestamp() - 60);
+    $minEndTs = $startDt->getTimestamp() + 1_800;
+    if ($minEndTs > $maxEndTs) {
+        $minEndTs = $maxEndTs;
+    }
+    $endDt = (new DateTimeImmutable('@' . random_int($minEndTs, $maxEndTs)))
+        ->setTimezone(new DateTimeZone('UTC'));
+
+    $isDeleted = random_int(1, 100) <= DELETED_SESSION_PCT ? 1 : 0;
+
+    $loc            = $LOCS[random_int(0, count($LOCS) - 1)];
+    $lat            = round($loc[0] + random_int(-300, 300) / 100_000, 6);
+    $lon            = round($loc[1] + random_int(-300, 300) / 100_000, 6);
+    $accuracy       = random_int(3, 50);
+    $altitude       = random_int(0, 2_500);
+    $locationSource = random_int(0, 1);
+
+    $sessionRows[] = [
+        q($sid),
+        'NULL',
+        q($googleUserId),
+        (string) $type,
+        dt($startDt), dt($endDt),
+        (string) random_int(0, 4),
+        (string) random_int(0, 2),
+        (string) random_int(0, 2),
+        (string) random_int(0, 2),
+        (string) random_int(0, 2),
+        (string) random_int(0, 1),
+        $lp !== null ? (string) $lp : 'NULL',
+        (string) $lat,
+        (string) $lon,
+        (string) $accuracy,
+        (string) $altitude,
+        'NULL',
+        (string) $locationSource,
+        dt($startDt), dt($startDt),
+        (string) $isDeleted,
+        $isDeleted ? dt($startDt) : 'NULL',
+    ];
+
+    if (random_int(1, 100) <= OBS_SESSION_PCT) {
+        $numObs = random_int(1, 5);
+        $window = $endDt->getTimestamp() - $startDt->getTimestamp();
+        $step   = max(intdiv($window, $numObs), 300);
+
+        for ($j = 0; $j < $numObs; $j++) {
+            $oid = uuid();
+
+            $obsStartTs = $startDt->getTimestamp() + $j * $step
+                + random_int(0, max(1, $step - 300));
+            $obsStartTs = min($obsStartTs, $now->getTimestamp() - 660);
+
+            $obsEndTs = min(
+                $obsStartTs + random_int(300, 1_800),
+                $endDt->getTimestamp(),
+                $now->getTimestamp() - 60
+            );
+            if ($obsEndTs <= $obsStartTs) {
+                $obsEndTs = $obsStartTs + 300;
+            }
+
+            $obsDt    = (new DateTimeImmutable('@' . $obsStartTs))->setTimezone(new DateTimeZone('UTC'));
+            $obsEndDt = (new DateTimeImmutable('@' . $obsEndTs))->setTimezone(new DateTimeZone('UTC'));
+
+            $isObsDel     = random_int(1, 100) <= DELETED_OBS_PCT ? 1 : 0;
+            $obsDeletedAt = $isObsDel ? dt($obsEndDt) : 'NULL';
+
+            if ($type === 0) {
+                $obsLoc    = $LOCS[random_int(0, count($LOCS) - 1)];
+                $obsLat    = round($obsLoc[0] + random_int(-300, 300) / 100_000, 6);
+                $obsLon    = round($obsLoc[1] + random_int(-300, 300) / 100_000, 6);
+                $obsAcc    = random_int(3, 50);
+                $obsAlt    = random_int(0, 2_500);
+                $obsLocSrc = random_int(0, 1);
+            } else {
+                $obsLat    = $lat;
+                $obsLon    = $lon;
+                $obsAcc    = $accuracy;
+                $obsAlt    = $altitude;
+                $obsLocSrc = $locationSource;
+            }
+
+            $obsRows[] = [
+                q($oid), q($sid),
+                q($SPECIES[random_int(0, 7)]),
+                (string) random_int(0, 1),
+                (string) random_int(1, 20),
+                dt($obsDt), dt($obsEndDt),
+                'NULL',
+                (string) $obsLat, (string) $obsLon,
+                (string) $obsAcc, (string) $obsAlt,
+                'NULL',
+                (string) $obsLocSrc,
+                (string) round(random_int(0, 3_600) / 10, 1),
+                dt($obsDt), dt($obsDt),
+                (string) $isObsDel,
+                $obsDeletedAt,
+                'NULL',
+            ];
+        }
+    }
+
+    if (random_int(1, 100) <= PARTICIPANTS_PCT) {
+        $numParts  = random_int(1, 3);
+        $usedCodes = [];
+        for ($j = 0; $j < $numParts; $j++) {
+            $code = sprintf('#OR-A-%04d', random_int(1, 11));
+            if (in_array($code, $usedCodes, true)) {
+                continue;
+            }
+            $usedCodes[]       = $code;
+            $participantRows[] = [q($sid), q($code)];
+        }
+    }
+}
+
+// 100 participacions de l'usuari Google en sessions existents
+$shuffled = $allSessionIds;
+shuffle($shuffled);
+foreach (array_slice($shuffled, 0, 100) as $sessionId) {
+    $participantRows[] = [q($sessionId), q($googleCode)];
+}
+
 w('-- =================== SESSIONS ===================');
-w('-- 400 Census | 3.600 Station | 6.000 Incidental');
+w('-- 400 Census | 1.800 Station | 2.800 Incidental + 200 Google user');
 w('-- 10 % eliminades | 70 % amb observacions | 60 % amb participants');
 writeInserts('sessions', $sessionCols, $sessionRows);
 w('');
